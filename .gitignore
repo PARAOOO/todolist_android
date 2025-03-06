@@ -1,0 +1,57 @@
+#Android Studio 기본 설정
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+
+# ChatGpt 추천
+# 빌드 결과물
+/build/
+/app/build/
+/bin/
+/gen/
+/out/
+/generated/
+
+# Android Studio 관련 파일
+*.iml
+.idea/
+/.idea/caches/
+/.idea/libraries/
+/.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+
+# Gradle 관련 파일
+.gradle/
+local.properties
+
+# 로그 파일
+*.log
+
+# OS별 파일
+.DS_Store  # macOS
+Thumbs.db  # Windows
+
+# 컴파일된 클래스 파일
+*.class
+
+# ART/Dalvik VM 파일
+*.dex
+
+# APK 파일
+*.apk
+*.ap_
+
+# NDK 빌드 파일
+/obj/
+/.externalNativeBuild
