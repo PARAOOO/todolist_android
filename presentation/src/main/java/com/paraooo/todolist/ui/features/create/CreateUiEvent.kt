@@ -10,6 +10,7 @@ sealed class CreateUiEvent {
     data class onTimeInputChanged(val timeInputState: TimeInputState) : CreateUiEvent()
     data class onDateInputChanged(val date : LocalDate) : CreateUiEvent()
     data class onSelectedDateChanged(val date : LocalDate) : CreateUiEvent()
+    data class onPeriodInputChanged(val startDate : LocalDate, val endDate : LocalDate) : CreateUiEvent()
     data object onCreateClicked : CreateUiEvent()
 
 }

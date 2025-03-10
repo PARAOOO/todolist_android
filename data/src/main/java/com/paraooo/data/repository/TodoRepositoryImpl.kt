@@ -8,6 +8,8 @@ import com.paraooo.data.mapper.toModel
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.repository.TodoRepository
 import kotlinx.coroutines.delay
+import java.time.LocalDate
+import java.util.UUID
 
 class TodoRepositoryImpl(
     private val todoLocalDataSource: TodoLocalDataSource
@@ -35,5 +37,30 @@ class TodoRepositoryImpl(
 
     override suspend fun findTodoById(todoId: Int): TodoModel {
         return todoLocalDataSource.findTodoById(todoId).toModel()
+    }
+
+    override suspend fun postPeriodTodo(
+        todo : TodoModel,
+        startDate : LocalDate,
+        endDate : LocalDate
+    ) {
+
+        val groupId = UUID.randomUUID().toString()
+        val todos = mutableListOf<TodoModel>()
+
+        var currentDate = startDate
+        while (currentDate <= endDate) {
+            todos.add(
+                todo.copy(
+                    date = currentDate,
+                    groupId = groupId,
+                    startDate = startDate,
+                    endDate = endDate
+                )
+            )
+            currentDate = currentDate.plusDays(1)  // 하루씩 증가
+        }
+
+        todoLocalDataSource.insertTodos(todos.map { it.toDto() })
     }
 }

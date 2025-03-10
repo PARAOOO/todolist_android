@@ -113,7 +113,8 @@ fun EditScreen(
             onTodoNameChange = { viewModel.onEvent(EditUiEvent.onTodoNameInputChanged(it)) },
             onDescriptionChange = { viewModel.onEvent(EditUiEvent.onDescriptionInputChanged(it)) },
             onTimeInputClicked = { showTimePicker = true },
-            onDateInputClicked = { showDatePicker = true }
+            onDateInputClicked = { showDatePicker = true },
+            onPeriodInputClicked = {}
         )
 
         Spacer(modifier = Modifier.height(8.dp))

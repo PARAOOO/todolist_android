@@ -2,6 +2,7 @@ package com.paraooo.todolist.di
 
 import androidx.room.Room
 import com.paraooo.data.datasource.TodoLocalDataSource
+import com.paraooo.data.local.database.MIGRATION_1_2
 import com.paraooo.data.local.database.TodoDatabase
 import com.paraooo.data.repository.TodoRepositoryImpl
 import com.paraooo.domain.repository.TodoRepository
@@ -18,7 +19,9 @@ val databaseModule = module {
             get(),
             TodoDatabase::class.java,
             "todo-database"
-        ).fallbackToDestructiveMigration().build()
+        ).fallbackToDestructiveMigration()
+        .addMigrations(MIGRATION_1_2)
+        .build()
     }
 
     single { get<TodoDatabase>().todoDao() }

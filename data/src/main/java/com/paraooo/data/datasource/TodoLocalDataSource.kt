@@ -36,4 +36,9 @@ class TodoLocalDataSource(
         return todoDao.findTodoById(todoId).toDto()
     }
 
+    suspend fun insertTodos(todos : List<TodoDto>) {
+        todoDao.insertTodos(todos.map { it.toEntity() })
+    }
+
+
 }

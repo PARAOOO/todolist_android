@@ -9,7 +9,7 @@ import com.paraooo.domain.util.transferMillis2LocalDate
 
 fun TodoEntity.toDto() : TodoDto {
     return TodoDto(
-        id, title, description, date, hour, minute, progressAngle
+        id, title, description, date, hour, minute, progressAngle, groupId, startDate, endDate
     )
 }
 
@@ -21,7 +21,10 @@ fun TodoDto.toEntity() : TodoEntity {
         date = date,
         hour = hour,
         minute = minute,
-        progressAngle = progressAngle
+        progressAngle = progressAngle,
+        groupId = groupId,
+        startDate = startDate,
+        endDate = endDate
     )
 }
 
@@ -33,7 +36,10 @@ fun TodoModel.toDto() : TodoDto {
         date = transferLocalDateToMillis(date),
         progressAngle = progressAngle,
         hour = time?.hour,
-        minute = time?.minute
+        minute = time?.minute,
+        groupId = groupId,
+        startDate = startDate?.let { transferLocalDateToMillis(it) },
+        endDate = endDate?.let { transferLocalDateToMillis(it) }
     )
 }
 
@@ -47,6 +53,10 @@ fun TodoDto.toModel() : TodoModel {
         time = when(hour) {
             null -> null
             else -> Time(hour, minute!!)
-        }
+        },
+        groupId = groupId,
+        startDate = startDate?.let { transferMillis2LocalDate(it) },
+        endDate = endDate?.let { transferMillis2LocalDate(it) }
+
     )
 }

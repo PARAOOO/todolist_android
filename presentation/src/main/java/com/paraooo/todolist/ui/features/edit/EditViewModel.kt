@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.repository.TodoRepository
+import com.paraooo.todolist.ui.components.DateInputState
 import com.paraooo.todolist.ui.components.TimeInputState
 import com.paraooo.todolist.ui.features.create.TAG
 import kotlinx.coroutines.channels.Channel
@@ -38,9 +39,7 @@ class EditViewModel(
                 fetchTodo(event.todoId)
                 _uiState.value = _uiState.value.copy(
                     todoInputState = _uiState.value.todoInputState.copy(
-                        dateInputState = _uiState.value.todoInputState.dateInputState.copy(
-                            date = event.selectedDate
-                        )
+                        dateInputState = DateInputState.Date(event.selectedDate)
                     )
                 )
             }
@@ -62,9 +61,7 @@ class EditViewModel(
             is EditUiEvent.onDateInputChanged -> {
                 _uiState.value = _uiState.value.copy(
                     todoInputState = _uiState.value.todoInputState.copy(
-                        dateInputState = _uiState.value.todoInputState.dateInputState.copy(
-                            date = event.date
-                        )
+                        dateInputState = DateInputState.Date(event.date)
                     )
                 )
             }
@@ -103,9 +100,7 @@ class EditViewModel(
                         descriptionInputState = _uiState.value.todoInputState.descriptionInputState.copy(
                             content = todo.description ?: ""
                         ),
-                        dateInputState = _uiState.value.todoInputState.dateInputState.copy(
-                            date = todo.date
-                        ),
+                        dateInputState = DateInputState.Date(todo.date),
                         timeInputState = when (todo.time) {
                             null -> TimeInputState.NoTime
                             else -> TimeInputState.Time(todo.time!!.hour, todo.time!!.minute)
@@ -133,7 +128,10 @@ class EditViewModel(
                         id = todoId,
                         title = uiState.value.todoInputState.todoNameInputState.content,
                         description = uiState.value.todoInputState.descriptionInputState.content,
-                        date = uiState.value.todoInputState.dateInputState.date,
+                        date = when(uiState.value.todoInputState.dateInputState) {
+                            is DateInputState.Date -> (uiState.value.todoInputState.dateInputState as DateInputState.Date).date
+                            is DateInputState.Period -> (uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate
+                        },
                         time = when (_uiState.value.todoInputState.timeInputState) {
                             is TimeInputState.NoTime -> null
                             is TimeInputState.Time -> Time(
