@@ -8,5 +8,8 @@ data class TodoDto(
     val date: Long,
     val hour : Int? = null,
     val minute : Int? = null,
-    val progressAngle : Float = 0F
+    val progressAngle : Float = 0F,
+    val groupId : String? = null,
+    val startDate : Long? = null,
+    val endDate : Long? = null
 )

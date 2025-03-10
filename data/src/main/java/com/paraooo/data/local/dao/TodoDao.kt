@@ -3,6 +3,7 @@ package com.paraooo.data.local.dao
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.OnConflictStrategy.Companion.REPLACE
 import androidx.room.Query
 import androidx.room.Transaction
@@ -28,5 +29,8 @@ interface TodoDao {
 
     @Query("SELECT * FROM TodoEntity WHERE id = :todoId")
     suspend fun findTodoById(todoId : Int) : TodoEntity
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertTodos(todos: List<TodoEntity>)
 
 }

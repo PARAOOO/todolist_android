@@ -42,6 +42,7 @@ import com.paraooo.todolist.ui.components.DateSelectDialog
 import com.paraooo.todolist.ui.components.TodoInputForm
 import com.paraooo.todolist.ui.theme.PretendardFontFamily
 import com.paraooo.domain.util.transferMillis2LocalDate
+import com.paraooo.todolist.ui.components.PeriodSelectDialog
 import com.paraooo.todolist.ui.components.TLDialog
 import com.paraooo.todolist.ui.components.TLTopbar
 import com.paraooo.todolist.ui.components.TimeInputState
@@ -72,6 +73,7 @@ fun CreateScreen(
 
     var showTimePicker by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
+    var showPeriodPicker by remember { mutableStateOf(false) }
     var showBackDialog by remember { mutableStateOf(false) }
 
     var snackbarHostState = remember { SnackbarHostState() }
@@ -112,7 +114,8 @@ fun CreateScreen(
             onTodoNameChange = { viewModel.onEvent(CreateUiEvent.onTodoNameInputChanged(it)) },
             onDescriptionChange = { viewModel.onEvent(CreateUiEvent.onDescriptionInputChanged(it)) },
             onTimeInputClicked = { showTimePicker = true },
-            onDateInputClicked = { showDatePicker = true }
+            onDateInputClicked = { showDatePicker = true },
+            onPeriodInputClicked = {showPeriodPicker = true }
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -158,6 +161,18 @@ fun CreateScreen(
             onDateSelected = { date: Long? ->
                 showDatePicker = false
                 viewModel.onEvent(CreateUiEvent.onDateInputChanged(transferMillis2LocalDate(date)))
+            }
+        )
+        
+        PeriodSelectDialog(
+            showDialog = showPeriodPicker,
+            onDismiss = { showPeriodPicker = false },
+            onPeriodSelected = { startDate : Long?, endDate : Long? ->
+                showPeriodPicker = false
+                viewModel.onEvent(CreateUiEvent.onPeriodInputChanged(
+                    transferMillis2LocalDate(startDate),
+                    transferMillis2LocalDate(endDate)
+                ))
             }
         )
 

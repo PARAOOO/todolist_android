@@ -15,5 +15,8 @@ data class TodoModel(
     val description : String? = null,
     val progressAngle : Float = 0F,
     val isSwiped : Boolean = false,
-    val isToggleOpened : Boolean = false
+    val isToggleOpened : Boolean = false,
+    val groupId : String? = null,
+    val startDate : LocalDate? = null,
+    val endDate : LocalDate? = null
 )
