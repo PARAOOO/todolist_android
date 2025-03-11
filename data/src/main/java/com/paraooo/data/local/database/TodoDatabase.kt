@@ -16,7 +16,6 @@ abstract class TodoDatabase : RoomDatabase() {
 
 val MIGRATION_1_2 = object : Migration(1, 2) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        // 새로 추가된 컬럼을 포함한 ALTER TABLE 쿼리 작성
         db.execSQL("ALTER TABLE TodoEntity ADD COLUMN groupId TEXT DEFAULT NULL")
         db.execSQL("ALTER TABLE TodoEntity ADD COLUMN startDate INTEGER DEFAULT NULL")
         db.execSQL("ALTER TABLE TodoEntity ADD COLUMN endDate INTEGER DEFAULT NULL")
