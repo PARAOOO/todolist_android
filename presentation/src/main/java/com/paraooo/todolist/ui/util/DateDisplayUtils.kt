@@ -6,7 +6,7 @@ import java.time.format.FormatStyle
 import java.util.Locale
 
 fun getDateWithDot(date : LocalDate) : String {
-    val formatter = DateTimeFormatter.ofPattern("yyyy. M. d") // 원하는 포맷 설정
+    val formatter = DateTimeFormatter.ofPattern("yyyy. M. d.") // 원하는 포맷 설정
     val formattedDate = date.format(formatter)
 
     return formattedDate
