@@ -241,17 +241,19 @@ fun TodoInputForm(
                             text = "샘플 텍스트",
                             maxLines = 1
                         )
-                        val popupHeight = (popupTextHeight + dpToPx(20.dp) + dpToPx(2.dp)) * 3
 
                         val popupTextList = arrayListOf(
-                            "날짜 지정하기", "기간 지정하기", "요일 지정하기"
+                            "날짜 지정하기", "기간 지정하기",
+//                            "요일 지정하기"
                         )
 
                         val popupActionList = arrayListOf(
                             { type.onDateInputClicked() },
                             { type.onPeriodInputClicked() },
-                            {}
+//                            {}
                         )
+
+                        val popupHeight = (popupTextHeight + dpToPx(20.dp) + dpToPx(2.dp)) * popupTextList.size
 
 
                         Popup (
@@ -264,7 +266,7 @@ fun TodoInputForm(
                         ) {
 
                             LazyColumn {
-                                items(3) { item ->
+                                items(popupTextList.size) { item ->
                                     Spacer(modifier = Modifier.height(2.dp))
 
                                     Box(
