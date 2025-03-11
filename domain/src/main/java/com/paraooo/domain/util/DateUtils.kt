@@ -6,12 +6,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
-fun getDateWithDot(date : LocalDate) : String {
-    val formatter = DateTimeFormatter.ofPattern("yyyy. M. d") // 원하는 포맷 설정
-    val formattedDate = date.format(formatter)
-
-    return formattedDate
-}
 
 fun getDateOfWeekEEE(date : LocalDate) : String {
     val dayOfWeekFormatter = DateTimeFormatter.ofPattern("EEE")

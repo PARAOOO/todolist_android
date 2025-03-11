@@ -33,10 +33,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
-import com.paraooo.domain.util.getDateWithDot
 import com.paraooo.todolist.ui.theme.PretendardFontFamily
 import com.paraooo.todolist.ui.util.computeTextHeight
 import com.paraooo.todolist.ui.util.dpToPx
+import com.paraooo.todolist.ui.util.getDateWithDot
 import com.paraooo.todolist.ui.util.roundedClickable
 import java.time.LocalDate
 
