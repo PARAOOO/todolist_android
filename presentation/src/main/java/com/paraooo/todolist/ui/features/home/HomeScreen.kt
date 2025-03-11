@@ -46,12 +46,12 @@ import com.paraooo.todolist.ui.features.home.component.TodoVerticalList
 import com.paraooo.todolist.ui.navigation.Destinations
 import com.paraooo.todolist.ui.theme.PretendardFontFamily
 import com.paraooo.domain.util.getDateDiff
-import com.paraooo.domain.util.getDateWithDot
 import com.paraooo.domain.util.transferMillis2LocalDate
 import com.paraooo.todolist.ui.components.TLDialog
 import com.paraooo.todolist.ui.features.home.component.CreateFloatingButton
 import com.paraooo.todolist.ui.features.home.component.TodoVerticalListSkeleton
 import com.paraooo.todolist.ui.util.circleClickable
+import com.paraooo.todolist.ui.util.getDateWithDot
 import com.paraooo.todolist.ui.util.roundedClickable
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch

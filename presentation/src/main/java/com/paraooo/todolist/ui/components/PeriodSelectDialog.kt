@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.paraooo.domain.util.transferMillis2LocalDate
+import com.paraooo.todolist.ui.util.toYMD
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,10 +74,16 @@ fun PeriodSelectDialog(
                 title = {
                     Text(
                         text = "Select Period",
-                        modifier = Modifier.padding(start = 20.dp)
+                        modifier = Modifier.padding(start = 30.dp)
                     )
                 },
-                modifier = Modifier.padding(top = 20.dp)
+                modifier = Modifier.padding(top = 20.dp),
+                headline = {
+                    Text(
+                        modifier = Modifier.padding(start = 30.dp).padding(vertical = 20.dp),
+                        text = "${transferMillis2LocalDate(dateRangePickerState.selectedStartDateMillis).toYMD()} - ${transferMillis2LocalDate(dateRangePickerState.selectedEndDateMillis).toYMD()}"
+                    )
+                }
             )
         }
     }
