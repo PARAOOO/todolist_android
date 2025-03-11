@@ -42,10 +42,13 @@ import com.paraooo.todolist.ui.components.DateSelectDialog
 import com.paraooo.todolist.ui.components.TodoInputForm
 import com.paraooo.todolist.ui.theme.PretendardFontFamily
 import com.paraooo.domain.util.transferMillis2LocalDate
+import com.paraooo.todolist.ui.components.PeriodSelectDialog
 import com.paraooo.todolist.ui.components.TLDialog
 import com.paraooo.todolist.ui.components.TLTopbar
 import com.paraooo.todolist.ui.components.TimeInputState
 import com.paraooo.todolist.ui.components.TimePickerDialog
+import com.paraooo.todolist.ui.components.TodoInputFormType
+import com.paraooo.todolist.ui.features.create.CreateUiEvent
 import com.paraooo.todolist.ui.util.circleClickable
 import com.paraooo.todolist.ui.util.roundedClickable
 import kotlinx.coroutines.flow.collectLatest
@@ -60,11 +63,10 @@ fun EditScreen(
     navController: NavController,
     viewModel : EditViewModel = koinViewModel(),
     todoId : Int,
-    selectedDate : LocalDate
 ) {
 
     LaunchedEffect(todoId) {
-        viewModel.onEvent(EditUiEvent.onInit(todoId, selectedDate))
+        viewModel.onEvent(EditUiEvent.onInit(todoId))
     }
 
     val context = LocalContext.current
@@ -74,8 +76,10 @@ fun EditScreen(
     var showTimePicker by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
     var showBackDialog by remember { mutableStateOf(false) }
+    var showPeriodPicker by remember { mutableStateOf(false) }
 
-    var snackbarHostState = remember { SnackbarHostState() }
+
+    val selectedTodo by viewModel.selectedTodo
 
     LaunchedEffect(Unit) {
         viewModel.effectFlow.collectLatest { effect ->
@@ -108,14 +112,27 @@ fun EditScreen(
         
         Spacer(modifier = Modifier.height(28.dp))
 
-        TodoInputForm(
-            uiState = uiState.todoInputState,
-            onTodoNameChange = { viewModel.onEvent(EditUiEvent.onTodoNameInputChanged(it)) },
-            onDescriptionChange = { viewModel.onEvent(EditUiEvent.onDescriptionInputChanged(it)) },
-            onTimeInputClicked = { showTimePicker = true },
-            onDateInputClicked = { showDatePicker = true },
-            onPeriodInputClicked = {}
-        )
+        if(selectedTodo != null){
+            TodoInputForm(
+                uiState = uiState.todoInputState,
+                onTodoNameChange = { viewModel.onEvent(EditUiEvent.onTodoNameInputChanged(it)) },
+                onDescriptionChange = { viewModel.onEvent(EditUiEvent.onDescriptionInputChanged(it)) },
+                onTimeInputClicked = { showTimePicker = true },
+                type = when (selectedTodo!!.groupId) {
+                    null -> {
+                        TodoInputFormType.Edit(
+                            onDateInputClicked = { showDatePicker = true }
+                        )
+                    }
+
+                    else -> {
+                        TodoInputFormType.PeriodEdit(
+                            onPeriodInputClicked = { showPeriodPicker = true }
+                        )
+                    }
+                }
+            )
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -131,7 +148,7 @@ fun EditScreen(
                     }
                 )
                 .roundedClickable(12.dp) {
-                    if(uiState.editButtonState.isValid && uiState.editButtonState.isEnable){
+                    if (uiState.editButtonState.isValid && uiState.editButtonState.isEnable) {
                         viewModel.onEvent(EditUiEvent.onEditClicked(todoId))
                     }
                 },
@@ -145,7 +162,9 @@ fun EditScreen(
         }
 
         TimePickerDialog(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp),
             showDialog = showTimePicker,
             onDismiss = { showTimePicker = false },
             onConfirm = { result : TimeInputState ->
@@ -163,11 +182,26 @@ fun EditScreen(
             }
         )
 
+        PeriodSelectDialog(
+            showDialog = showPeriodPicker,
+            onDismiss = { showPeriodPicker = false },
+            onPeriodSelected = { startDate : Long?, endDate : Long? ->
+                showPeriodPicker = false
+                viewModel.onEvent(
+                    EditUiEvent.onPeriodInputChanged(
+                    transferMillis2LocalDate(startDate),
+                    transferMillis2LocalDate(endDate)
+                ))
+            }
+        )
+
         TLDialog(
             showDialog = showBackDialog,
             onDismiss = { showBackDialog = false },
             content = "확인을 누르면 이전 화면으로 돌아갑니다.\n작성 중인 Todo는 저장되지 않습니다.",
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -211,6 +245,5 @@ fun PreviewEditScreen() {
     EditScreen(
         navController = rememberNavController(),
         todoId = 1,
-        selectedDate = LocalDate.now()
     )
 }

@@ -30,7 +30,19 @@ interface TodoDao {
     @Query("SELECT * FROM TodoEntity WHERE id = :todoId")
     suspend fun findTodoById(todoId : Int) : TodoEntity
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = REPLACE)
     suspend fun insertTodos(todos: List<TodoEntity>)
+
+    @Query("SELECT * FROM TodoEntity WHERE groupId = :groupId")
+    suspend fun getTodosByGroupId(groupId: String): List<TodoEntity>
+
+    @Delete
+    suspend fun deleteTodos(todos: List<TodoEntity>)
+
+    @Query("DELETE FROM TodoEntity WHERE groupId = :groupId")
+    suspend fun deleteTodosByGroupId(groupId: String)
+
+    @Update
+    suspend fun updatedTodos(todos: List<TodoEntity>)
 
 }

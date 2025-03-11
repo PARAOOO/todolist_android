@@ -40,20 +40,19 @@ const val TAG = "PARAOOO"
 fun TodoVerticalList(
     todoList : List<TodoModel>,
     onIsSwipedChanged: (
-        todoId : Int, isSwiped : Boolean
+        todo : TodoModel, isSwiped : Boolean
     ) -> Unit,
     onProgressChanged : (
-        todoId : Int, angle : Float
+        todo : TodoModel, angle : Float
     ) -> Unit,
     onIsToggledOpenedChanged : (
-        todoId : Int, isToggledOpened : Boolean
+        todo : TodoModel, isToggledOpened : Boolean
     ) -> Unit,
     onDeleteClicked : (
-        todoId : Int,
-        todoTitle : String
+        todo : TodoModel
     ) -> Unit,
     onEditClicked : (
-        todoId : Int
+        todo : TodoModel
     ) -> Unit
 ) {
 
@@ -116,15 +115,15 @@ fun TodoVerticalList(
                                             modifier = Modifier
                                                 .fillMaxWidth(1f - 0.7f)
                                                 .fillMaxHeight(),
-                                            onDeleteClicked = { onDeleteClicked(todo.id, todo.title) },
-                                            onEditClicked = { onEditClicked(todo.id) }
+                                            onDeleteClicked = { onDeleteClicked(todo) },
+                                            onEditClicked = { onEditClicked(todo) }
                                         )
                                     }
 
                                 },
                                 scrollRatio = 0.7f,
                                 onIsSwipedChanged = { isSwiped: Boolean ->
-                                    onIsSwipedChanged(todo.id, isSwiped)
+                                    onIsSwipedChanged(todo, isSwiped)
                                     Log.d(
                                         TAG,
                                         "TodoVerticalList:onIsSwipedChanged : todoId : ${todo.id} "
@@ -133,10 +132,10 @@ fun TodoVerticalList(
                                 isSwiped = todo.isSwiped,
                                 todo = todo,
                                 onProgressChanged = { angle: Float ->
-                                    onProgressChanged(todo.id, angle)
+                                    onProgressChanged(todo, angle)
                                 },
                                 onIsToggledOpenedChanged = { isToggledOpened: Boolean ->
-                                    onIsToggledOpenedChanged(todo.id, isToggledOpened)
+                                    onIsToggledOpenedChanged(todo, isToggledOpened)
                                 }
                             )
                         }
