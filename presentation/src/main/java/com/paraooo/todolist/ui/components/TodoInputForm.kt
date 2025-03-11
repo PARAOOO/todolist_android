@@ -62,21 +62,38 @@ sealed class DateInputState {
 //    data class DayOfWeek(val dayOfWeek : Int) : DateInputState()
 }
 
-data class TodoUiState(
+data class TodoInputState(
     val todoNameInputState : TodoNameInputState = TodoNameInputState(),
     val descriptionInputState : DescriptionInputState = DescriptionInputState(),
     val timeInputState: TimeInputState = TimeInputState.NoTime,
     val dateInputState : DateInputState = DateInputState.Date(LocalDate.now()),
 )
 
+sealed class TodoInputFormType {
+    data class Add(
+        val onDateInputClicked: () -> Unit,
+        val onPeriodInputClicked: () -> Unit
+    ) : TodoInputFormType()
+
+    data class Edit(
+        val onDateInputClicked: () -> Unit,
+    ) : TodoInputFormType()
+
+    data class PeriodEdit(
+        val onPeriodInputClicked: () -> Unit
+    ) : TodoInputFormType()
+//    data class DayOfWeekEdit : TodoInputFormType()
+}
+
 @Composable
 fun TodoInputForm(
-    uiState: TodoUiState,
+    uiState: TodoInputState,
     onTodoNameChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
     onTimeInputClicked: () -> Unit,
-    onDateInputClicked: () -> Unit,
-    onPeriodInputClicked: () -> Unit
+//    onDateInputClicked: () -> Unit,
+//    onPeriodInputClicked: () -> Unit,
+    type : TodoInputFormType
 ) {
 
     var isPopupVisible by remember { mutableStateOf(false) }
@@ -153,7 +170,7 @@ fun TodoInputForm(
                         Text(
                             text = when (uiState.timeInputState) {
                                 is TimeInputState.NoTime -> "시간 설정하지 않음"
-                                is TimeInputState.Time -> "${(uiState.timeInputState as TimeInputState.Time).hour}시 ${(uiState.timeInputState as TimeInputState.Time).minute}분"
+                                is TimeInputState.Time -> "${uiState.timeInputState.hour}시 ${uiState.timeInputState.minute}분"
                             },
                             fontSize = 12.sp,
                             color = if (uiState.timeInputState is TimeInputState.Time) Color(
@@ -188,7 +205,17 @@ fun TodoInputForm(
                                 shape = RoundedCornerShape(12.dp)
                             )
                             .roundedClickable(12.dp) {
-                                isPopupVisible = !isPopupVisible
+                                when(type) {
+                                    is TodoInputFormType.Add -> {
+                                        isPopupVisible = !isPopupVisible
+                                    }
+                                    is TodoInputFormType.Edit -> {
+                                        type.onDateInputClicked()
+                                    }
+                                    is TodoInputFormType.PeriodEdit -> {
+                                        type.onPeriodInputClicked()
+                                    }
+                                }
                             }
                     ) {
                         Text(
@@ -201,7 +228,7 @@ fun TodoInputForm(
                         )
                     }
 
-                    if(isPopupVisible){
+                    if(isPopupVisible && type is TodoInputFormType.Add){
 
                         val popupWidth = ((screenWidthDp-24-36-8) / 2).dp
                         val popupTextHeight = computeTextHeight(
@@ -221,8 +248,8 @@ fun TodoInputForm(
                         )
 
                         val popupActionList = arrayListOf(
-                            { onDateInputClicked() },
-                            { onPeriodInputClicked() },
+                            { type.onDateInputClicked() },
+                            { type.onPeriodInputClicked() },
                             {}
                         )
 

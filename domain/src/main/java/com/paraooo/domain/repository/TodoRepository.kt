@@ -22,4 +22,8 @@ interface TodoRepository {
         startDate : LocalDate,
         endDate : LocalDate
     )
+
+    suspend fun updatePeriodTodo(todo: TodoModel)
+
+    suspend fun deletePeriodTodo(groupId : String)
 }

@@ -40,5 +40,20 @@ class TodoLocalDataSource(
         todoDao.insertTodos(todos.map { it.toEntity() })
     }
 
+    suspend fun getTodosByGroupId(groupId : String) : List<TodoDto> {
+        return todoDao.getTodosByGroupId(groupId).map { it.toDto() }
+    }
+
+    suspend fun deleteTodos(todos : List<TodoDto>) {
+        todoDao.deleteTodos(todos.map { it.toEntity() })
+    }
+
+    suspend fun updateTodos(todos : List<TodoDto>) {
+        todoDao.updatedTodos(todos.map { it.toEntity() })
+    }
+
+    suspend fun deleteTodosByGroupId(groupId : String) {
+        todoDao.deleteTodosByGroupId(groupId)
+    }
 
 }

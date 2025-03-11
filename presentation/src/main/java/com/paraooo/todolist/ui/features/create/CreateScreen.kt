@@ -47,6 +47,7 @@ import com.paraooo.todolist.ui.components.TLDialog
 import com.paraooo.todolist.ui.components.TLTopbar
 import com.paraooo.todolist.ui.components.TimeInputState
 import com.paraooo.todolist.ui.components.TimePickerDialog
+import com.paraooo.todolist.ui.components.TodoInputFormType
 import com.paraooo.todolist.ui.util.circleClickable
 import com.paraooo.todolist.ui.util.roundedClickable
 import kotlinx.coroutines.flow.collectLatest
@@ -114,8 +115,10 @@ fun CreateScreen(
             onTodoNameChange = { viewModel.onEvent(CreateUiEvent.onTodoNameInputChanged(it)) },
             onDescriptionChange = { viewModel.onEvent(CreateUiEvent.onDescriptionInputChanged(it)) },
             onTimeInputClicked = { showTimePicker = true },
-            onDateInputClicked = { showDatePicker = true },
-            onPeriodInputClicked = {showPeriodPicker = true }
+            type = TodoInputFormType.Add(
+                onDateInputClicked = { showDatePicker = true },
+                onPeriodInputClicked = { showPeriodPicker = true },
+            )
         )
 
         Spacer(modifier = Modifier.height(8.dp))

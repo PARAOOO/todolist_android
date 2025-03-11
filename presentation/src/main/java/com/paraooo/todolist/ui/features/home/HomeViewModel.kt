@@ -1,8 +1,10 @@
 package com.paraooo.todolist.ui.features.home
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.repository.TodoRepository
 import com.paraooo.domain.util.transferLocalDateToMillis
 import com.paraooo.todolist.ui.features.create.CreateUiEffect
@@ -25,8 +27,10 @@ class HomeViewModel(
     private val _effectChannel = Channel<HomeUiEffect>()
     val effectFlow = _effectChannel.receiveAsFlow()
 
-    var selectedTodoId : Int = 0
-    var selectedTodoTitle : String = ""
+//    var selectedTodoId : Int = 0
+//    var selectedTodoTitle : String = ""
+
+    var selectedTodo = mutableStateOf<TodoModel?>(null)
 
     private fun fetchTodoList(date: LocalDate) {
         viewModelScope.launch {
@@ -69,13 +73,13 @@ class HomeViewModel(
             }
             is HomeUiEvent.onIsSwipedChanged -> {
 
-                Log.d(TAG, "HomeUiEvent.onIsSwipedChanged : eventTodoId : ${event.todoId}")
+                Log.d(TAG, "HomeUiEvent.onIsSwipedChanged : eventTodoId : ${event.todo.id}")
                 Log.d(TAG, "HomeUiEvent.onIsSwipedChanged : todoList : ${_uiState.value.todoListState.todoList} ")
 
                 _uiState.value = _uiState.value.copy(
                     todoListState = _uiState.value.todoListState.copy(
                         todoList = _uiState.value.todoListState.todoList.map { todo ->
-                            if (todo.id == event.todoId) {
+                            if (todo.id == event.todo.id) {
                                 todo.copy(isSwiped = event.isSwiped) // isSwiped 값 변경
                             } else {
                                 todo
@@ -89,7 +93,7 @@ class HomeViewModel(
                     _uiState.value = _uiState.value.copy(
                         todoListState = _uiState.value.todoListState.copy(
                             todoList = _uiState.value.todoListState.todoList.map { todo ->
-                                if (todo.id == event.todoId) {
+                                if (todo.id == event.todo.id) {
                                     todo.copy(progressAngle = event.progress)
                                 } else {
                                     todo
@@ -97,20 +101,30 @@ class HomeViewModel(
                             }
                         )
                     )
-                    todoRepository.updateTodoProgress(event.todoId, event.progress)
+                    todoRepository.updateTodoProgress(event.todo.id, event.progress)
                 }
             }
             is HomeUiEvent.onTodoDeleteClicked -> {
                 viewModelScope.launch{
-                    todoRepository.deleteTodoById(event.todoId)
+
+                    when(event.todo.groupId) {
+                        null -> {
+
+                            todoRepository.deleteTodoById(event.todo.id)
+                        }
+                        else -> {
+                            todoRepository.deletePeriodTodo(event.todo.groupId!!)
+                        }
+                    }
 
                     _effectChannel.send(HomeUiEffect.onDeleteTodoSuccess)
 
                     fetchTodoList(_uiState.value.selectedDateState.date)
                 }
             }
-            is HomeUiEvent.onTodoEditClicked -> {
-            }
+
+//            is HomeUiEvent.onTodoEditClicked -> {
+//            }
 
             is HomeUiEvent.onIsToggleOpenedChanged -> {
                 Log.d(TAG, "onEvent: ${uiState.value.todoListState.todoList}")
@@ -118,7 +132,7 @@ class HomeViewModel(
                 _uiState.value = _uiState.value.copy(
                     todoListState = _uiState.value.todoListState.copy(
                         todoList = _uiState.value.todoListState.todoList.map { todo ->
-                            if (todo.id == event.todoId) {
+                            if (todo.id == event.todo.id) {
                                 todo.copy(isToggleOpened = event.isToggleOpened)
                             } else {
                                 todo
