@@ -9,13 +9,13 @@ interface TodoRepository {
 
     suspend fun postTodo(todo : TodoModel)
 
-    suspend fun updateTodoProgress(todoId : Int, progress : Float)
+    suspend fun updateTodoProgress(instanceId: Long, progress : Float)
 
-    suspend fun deleteTodoById(todoId : Int)
+    suspend fun deleteTodoById(instanceId: Long)
 
     suspend fun updateTodo(todo : TodoModel)
 
-    suspend fun findTodoById(todoId : Int) : TodoModel
+    suspend fun findTodoById(instanceId : Long) : TodoModel
 
     suspend fun postPeriodTodo(
         todo : TodoModel,
@@ -24,6 +24,6 @@ interface TodoRepository {
     )
 
     suspend fun updatePeriodTodo(todo: TodoModel)
-
-    suspend fun deletePeriodTodo(groupId : String)
+//
+//    suspend fun deletePeriodTodo(groupId : String)
 }

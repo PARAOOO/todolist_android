@@ -93,7 +93,7 @@ fun TodoVerticalList(
                     verticalArrangement = Arrangement.spacedBy(5.dp),
                 ) {
                     items(todoList) { todo: TodoModel ->
-                        key(todo.id) {
+                        key(todo.instanceId) {
                             SwipeableCard(
                                 backgroundContent = {
                                     Box(
@@ -126,7 +126,7 @@ fun TodoVerticalList(
                                     onIsSwipedChanged(todo, isSwiped)
                                     Log.d(
                                         TAG,
-                                        "TodoVerticalList:onIsSwipedChanged : todoId : ${todo.id} "
+                                        "TodoVerticalList:onIsSwipedChanged : todoId : ${todo.instanceId} "
                                     )
                                 },
                                 isSwiped = todo.isSwiped,

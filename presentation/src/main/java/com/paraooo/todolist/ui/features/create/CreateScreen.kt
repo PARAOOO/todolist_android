@@ -42,6 +42,7 @@ import com.paraooo.todolist.ui.components.DateSelectDialog
 import com.paraooo.todolist.ui.components.TodoInputForm
 import com.paraooo.todolist.ui.theme.PretendardFontFamily
 import com.paraooo.domain.util.transferMillis2LocalDate
+import com.paraooo.todolist.ui.components.DayOfWeekSelectDialog
 import com.paraooo.todolist.ui.components.PeriodSelectDialog
 import com.paraooo.todolist.ui.components.TLDialog
 import com.paraooo.todolist.ui.components.TLTopbar
@@ -52,6 +53,7 @@ import com.paraooo.todolist.ui.util.circleClickable
 import com.paraooo.todolist.ui.util.roundedClickable
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
+import java.time.DayOfWeek
 import java.time.LocalDate
 
 
@@ -75,6 +77,7 @@ fun CreateScreen(
     var showTimePicker by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
     var showPeriodPicker by remember { mutableStateOf(false) }
+    var showDayOfWeekPicker by remember { mutableStateOf(false) }
     var showBackDialog by remember { mutableStateOf(false) }
 
     var snackbarHostState = remember { SnackbarHostState() }
@@ -118,6 +121,7 @@ fun CreateScreen(
             type = TodoInputFormType.Add(
                 onDateInputClicked = { showDatePicker = true },
                 onPeriodInputClicked = { showPeriodPicker = true },
+                onDayOfWeekInputClicked = { showDayOfWeekPicker = true }
             )
         )
 
@@ -176,6 +180,15 @@ fun CreateScreen(
                     transferMillis2LocalDate(startDate),
                     transferMillis2LocalDate(endDate)
                 ))
+            }
+        )
+
+        DayOfWeekSelectDialog(
+            showDialog = showDayOfWeekPicker,
+            onDismiss = { showDayOfWeekPicker = false },
+            onDaysOfWeekSelected = { daysOfWeek : List<DayOfWeek> ->
+                showDayOfWeekPicker = false
+                viewModel.onEvent(CreateUiEvent.onDayOfWeekInputChanged(daysOfWeek))
             }
         )
 

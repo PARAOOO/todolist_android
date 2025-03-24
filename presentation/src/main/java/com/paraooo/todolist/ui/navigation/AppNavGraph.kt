@@ -61,16 +61,16 @@ fun AppNavGraph(navController: NavHostController) {
         }
 
         composable(
-            route = "${Destinations.Edit.route}/{todoId}",
+            route = "${Destinations.Edit.route}/{instanceId}",
             arguments = listOf(
-                navArgument("todoId") { type = NavType.IntType },
+                navArgument("instanceId") { type = NavType.LongType },
             )
         ) { backStackEntry ->
-            val todoId = backStackEntry.arguments?.getInt("todoId") ?: 0
+            val instanceId = backStackEntry.arguments?.getLong("instanceId") ?: 0
 
             EditScreen(
                 navController = navController,
-                todoId = todoId,
+                instanceId = instanceId,
             )
         }
 

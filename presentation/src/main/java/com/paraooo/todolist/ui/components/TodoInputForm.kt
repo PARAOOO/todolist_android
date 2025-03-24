@@ -72,7 +72,8 @@ data class TodoInputState(
 sealed class TodoInputFormType {
     data class Add(
         val onDateInputClicked: () -> Unit,
-        val onPeriodInputClicked: () -> Unit
+        val onPeriodInputClicked: () -> Unit,
+        val onDayOfWeekInputClicked: () -> Unit
     ) : TodoInputFormType()
 
     data class Edit(
@@ -243,14 +244,13 @@ fun TodoInputForm(
                         )
 
                         val popupTextList = arrayListOf(
-                            "날짜 지정하기", "기간 지정하기",
-//                            "요일 지정하기"
+                            "날짜 지정하기", "기간 지정하기", "요일 지정하기"
                         )
 
                         val popupActionList = arrayListOf(
                             { type.onDateInputClicked() },
                             { type.onPeriodInputClicked() },
-//                            {}
+                            { type.onDayOfWeekInputClicked() }
                         )
 
                         val popupHeight = (popupTextHeight + dpToPx(20.dp) + dpToPx(2.dp)) * popupTextList.size

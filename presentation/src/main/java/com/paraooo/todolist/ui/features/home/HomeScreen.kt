@@ -218,7 +218,7 @@ fun HomeScreen(
                         },
                         onEditClicked = { todo : TodoModel ->
                             viewModel.selectedTodo.value = todo
-                            navController.navigate("${Destinations.Edit.route}/${todo.id}")
+                            navController.navigate("${Destinations.Edit.route}/${todo.instanceId}")
                         },
                         onIsToggledOpenedChanged = { todo : TodoModel, isToggledOpened: Boolean ->
                             viewModel.onEvent(

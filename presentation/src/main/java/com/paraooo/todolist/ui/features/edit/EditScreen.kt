@@ -62,11 +62,11 @@ import java.time.LocalDate
 fun EditScreen(
     navController: NavController,
     viewModel : EditViewModel = koinViewModel(),
-    todoId : Int,
+    instanceId : Long,
 ) {
 
-    LaunchedEffect(todoId) {
-        viewModel.onEvent(EditUiEvent.onInit(todoId))
+    LaunchedEffect(instanceId) {
+        viewModel.onEvent(EditUiEvent.onInit(instanceId))
     }
 
     val context = LocalContext.current
@@ -118,19 +118,22 @@ fun EditScreen(
                 onTodoNameChange = { viewModel.onEvent(EditUiEvent.onTodoNameInputChanged(it)) },
                 onDescriptionChange = { viewModel.onEvent(EditUiEvent.onDescriptionInputChanged(it)) },
                 onTimeInputClicked = { showTimePicker = true },
-                type = when (selectedTodo!!.groupId) {
-                    null -> {
-                        TodoInputFormType.Edit(
-                            onDateInputClicked = { showDatePicker = true }
-                        )
-                    }
-
-                    else -> {
-                        TodoInputFormType.PeriodEdit(
-                            onPeriodInputClicked = { showPeriodPicker = true }
-                        )
-                    }
-                }
+//                type = when (selectedTodo!!.groupId) {
+//                    null -> {
+//                        TodoInputFormType.Edit(
+//                            onDateInputClicked = { showDatePicker = true }
+//                        )
+//                    }
+//
+//                    else -> {
+//                        TodoInputFormType.PeriodEdit(
+//                            onPeriodInputClicked = { showPeriodPicker = true }
+//                        )
+//                    }
+//                }
+                type = TodoInputFormType.Edit(
+                    onDateInputClicked = { showDatePicker = true }
+                )
             )
         }
 
@@ -149,7 +152,7 @@ fun EditScreen(
                 )
                 .roundedClickable(12.dp) {
                     if (uiState.editButtonState.isValid && uiState.editButtonState.isEnable) {
-                        viewModel.onEvent(EditUiEvent.onEditClicked(todoId))
+                        viewModel.onEvent(EditUiEvent.onEditClicked(instanceId))
                     }
                 },
             contentAlignment = Alignment.Center
@@ -244,6 +247,6 @@ fun EditScreen(
 fun PreviewEditScreen() {
     EditScreen(
         navController = rememberNavController(),
-        todoId = 1,
+        instanceId = 1,
     )
 }
