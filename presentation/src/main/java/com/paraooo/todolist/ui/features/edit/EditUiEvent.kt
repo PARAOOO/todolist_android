@@ -11,7 +11,7 @@ sealed class EditUiEvent {
     data class onTimeInputChanged(val timeInputState: TimeInputState) : EditUiEvent()
     data class onDateInputChanged(val date : LocalDate) : EditUiEvent()
     data class onPeriodInputChanged(val startDate : LocalDate, val endDate : LocalDate) : EditUiEvent()
-    data class onInit(val todoId : Int) : EditUiEvent()
-    data class onEditClicked(val todoId : Int) : EditUiEvent()
+    data class onInit(val instanceId : Long) : EditUiEvent()
+    data class onEditClicked(val instanceId: Long) : EditUiEvent()
 
 }

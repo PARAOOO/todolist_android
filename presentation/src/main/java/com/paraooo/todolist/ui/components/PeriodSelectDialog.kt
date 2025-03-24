@@ -1,6 +1,7 @@
 package com.paraooo.todolist.ui.components
 
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ButtonDefaults
@@ -18,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import com.paraooo.domain.util.transferMillis2LocalDate
 import com.paraooo.todolist.ui.util.toYMD
 
@@ -54,6 +56,7 @@ fun PeriodSelectDialog(
             colors = DatePickerDefaults.colors(
                 containerColor = Color.White
             ),
+            modifier = Modifier,
 
         ) {
 
@@ -83,7 +86,7 @@ fun PeriodSelectDialog(
                         modifier = Modifier.padding(start = 30.dp).padding(vertical = 20.dp),
                         text = "${transferMillis2LocalDate(dateRangePickerState.selectedStartDateMillis).toYMD()} - ${transferMillis2LocalDate(dateRangePickerState.selectedEndDateMillis).toYMD()}"
                     )
-                }
+                },
             )
         }
     }

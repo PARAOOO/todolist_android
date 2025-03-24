@@ -7,9 +7,14 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.paraooo.data.local.dao.TodoDao
-import com.paraooo.data.local.entity.TodoEntity
+import com.paraooo.data.local.entity.TodoInstance
+import com.paraooo.data.local.entity.TodoPeriod
+import com.paraooo.data.local.entity.TodoTemplate
 
-@Database(entities = [TodoEntity::class], version = 2)
+//import com.paraooo.data.local.entity.TodoEntity
+
+//@Database(entities = [TodoEntity::class], version = 3)
+@Database(entities = [TodoInstance::class, TodoTemplate::class, TodoPeriod::class], version = 4, exportSchema = false)
 abstract class TodoDatabase : RoomDatabase() {
     abstract fun todoDao(): TodoDao
 }

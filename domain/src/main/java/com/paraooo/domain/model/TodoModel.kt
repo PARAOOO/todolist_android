@@ -8,7 +8,7 @@ data class Time(
 )
 
 data class TodoModel(
-    val id : Int,
+    val instanceId : Long,
     val title : String,
     val time : Time? = null,
     val date: LocalDate,
@@ -16,7 +16,8 @@ data class TodoModel(
     val progressAngle : Float = 0F,
     val isSwiped : Boolean = false,
     val isToggleOpened : Boolean = false,
-    val groupId : String? = null,
+//    val groupId : String? = null,
     val startDate : LocalDate? = null,
-    val endDate : LocalDate? = null
+    val endDate : LocalDate? = null,
+    val dayOfWeeks : List<Int>? = null
 )

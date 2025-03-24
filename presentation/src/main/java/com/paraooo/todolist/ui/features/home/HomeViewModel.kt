@@ -73,13 +73,13 @@ class HomeViewModel(
             }
             is HomeUiEvent.onIsSwipedChanged -> {
 
-                Log.d(TAG, "HomeUiEvent.onIsSwipedChanged : eventTodoId : ${event.todo.id}")
+                Log.d(TAG, "HomeUiEvent.onIsSwipedChanged : eventTodoId : ${event.todo.instanceId}")
                 Log.d(TAG, "HomeUiEvent.onIsSwipedChanged : todoList : ${_uiState.value.todoListState.todoList} ")
 
                 _uiState.value = _uiState.value.copy(
                     todoListState = _uiState.value.todoListState.copy(
                         todoList = _uiState.value.todoListState.todoList.map { todo ->
-                            if (todo.id == event.todo.id) {
+                            if (todo.instanceId == event.todo.instanceId) {
                                 todo.copy(isSwiped = event.isSwiped) // isSwiped 값 변경
                             } else {
                                 todo
@@ -93,7 +93,7 @@ class HomeViewModel(
                     _uiState.value = _uiState.value.copy(
                         todoListState = _uiState.value.todoListState.copy(
                             todoList = _uiState.value.todoListState.todoList.map { todo ->
-                                if (todo.id == event.todo.id) {
+                                if (todo.instanceId == event.todo.instanceId) {
                                     todo.copy(progressAngle = event.progress)
                                 } else {
                                     todo
@@ -101,21 +101,23 @@ class HomeViewModel(
                             }
                         )
                     )
-                    todoRepository.updateTodoProgress(event.todo.id, event.progress)
+                    todoRepository.updateTodoProgress(event.todo.instanceId, event.progress)
                 }
             }
             is HomeUiEvent.onTodoDeleteClicked -> {
                 viewModelScope.launch{
 
-                    when(event.todo.groupId) {
-                        null -> {
+//                    when(event.todo.groupId) {
+//                        null -> {
+//
+//                            todoRepository.deleteTodoById(event.todo.id)
+//                        }
+//                        else -> {
+////                            todoRepository.deletePeriodTodo(event.todo.groupId!!)
+//                        }
+//                    }
 
-                            todoRepository.deleteTodoById(event.todo.id)
-                        }
-                        else -> {
-                            todoRepository.deletePeriodTodo(event.todo.groupId!!)
-                        }
-                    }
+                    todoRepository.deleteTodoById(event.todo.instanceId)
 
                     _effectChannel.send(HomeUiEffect.onDeleteTodoSuccess)
 
@@ -132,7 +134,7 @@ class HomeViewModel(
                 _uiState.value = _uiState.value.copy(
                     todoListState = _uiState.value.todoListState.copy(
                         todoList = _uiState.value.todoListState.todoList.map { todo ->
-                            if (todo.id == event.todo.id) {
+                            if (todo.instanceId == event.todo.instanceId) {
                                 todo.copy(isToggleOpened = event.isToggleOpened)
                             } else {
                                 todo

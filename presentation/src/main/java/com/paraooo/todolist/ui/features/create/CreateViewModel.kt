@@ -39,7 +39,7 @@ class CreateViewModel(
                         is DateInputState.Date -> {
                             todoRepository.postTodo(
                                 TodoModel(
-                                    id = 0,
+                                    instanceId = 0,
                                     title = _uiState.value.todoInputState.todoNameInputState.content,
                                     description = _uiState.value.todoInputState.descriptionInputState.content,
                                     date = (_uiState.value.todoInputState.dateInputState as DateInputState.Date).date,
@@ -54,23 +54,23 @@ class CreateViewModel(
                             )
                         }
                         is DateInputState.Period -> {
-                            todoRepository.postPeriodTodo(
-                                todo = TodoModel(
-                                    id = 0,
-                                    title = _uiState.value.todoInputState.todoNameInputState.content,
-                                    description = _uiState.value.todoInputState.descriptionInputState.content,
-                                    date = LocalDate.now(),
-                                    time = when (_uiState.value.todoInputState.timeInputState) {
-                                        is TimeInputState.NoTime -> null
-                                        is TimeInputState.Time -> Time(
-                                            (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).hour,
-                                            (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
-                                        )
-                                    }
-                                ),
-                                startDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate,
-                                endDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).endDate
-                            )
+//                            todoRepository.postPeriodTodo(
+//                                todo = TodoModel(
+//                                    id = 0,
+//                                    title = _uiState.value.todoInputState.todoNameInputState.content,
+//                                    description = _uiState.value.todoInputState.descriptionInputState.content,
+//                                    date = LocalDate.now(),
+//                                    time = when (_uiState.value.todoInputState.timeInputState) {
+//                                        is TimeInputState.NoTime -> null
+//                                        is TimeInputState.Time -> Time(
+//                                            (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).hour,
+//                                            (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
+//                                        )
+//                                    }
+//                                ),
+//                                startDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate,
+//                                endDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).endDate
+//                            )
                         }
                     }
 
@@ -135,6 +135,10 @@ class CreateViewModel(
                         dateInputState = DateInputState.Period(event.startDate, event.endDate)
                     )
                 )
+            }
+
+            is CreateUiEvent.onDayOfWeekInputChanged -> {
+
             }
         }
     }
