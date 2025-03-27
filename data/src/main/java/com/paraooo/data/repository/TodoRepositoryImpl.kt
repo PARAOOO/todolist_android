@@ -17,7 +17,11 @@ import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.repository.TodoRepository
 import com.paraooo.domain.util.transferLocalDateToMillis
 import com.paraooo.domain.util.transferMillis2LocalDate
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.util.UUID
 
@@ -136,11 +140,13 @@ class TodoRepositoryImpl(
     override suspend fun getTodoByDate(date: Long): List<TodoModel> {
 
         val instances = todoDao.getTodosByDate(date)
-        val periodTodos = todoDao.getPeriodTodosByDate(date)
+//        val periodTodos = todoDao.getPeriodTodosByDate(date)
+//
+//        val sortedList = (instances + periodTodos).sortedWith(compareBy({ it.hour }, { it.minute }))
+//
+//        return sortedList.map { it.toModel() }
 
-        val sortedList = (instances + periodTodos).sortedWith(compareBy({ it.hour }, { it.minute }))
-
-        return sortedList.map { it.toModel() }
+        return instances.map { it.toModel() }
     }
 
     override suspend fun postTodo(todo: TodoModel) {
@@ -203,6 +209,8 @@ class TodoRepositoryImpl(
         val instance = todoDao.getTodoInstanceById(instanceId)
         val template = todoDao.getTodoTemplateById(instance!!.templateId)
 
+        val period = todoDao.getTodoPeriodByTemplateId(instance.templateId)
+
         return TodoModel(
             instanceId = instance.id,
             title = template!!.title,
@@ -213,42 +221,49 @@ class TodoRepositoryImpl(
             } else {
                 null
             },
-            progressAngle = instance.progressAngle
+            progressAngle = instance.progressAngle,
+            startDate = period?.startDate?.let { transferMillis2LocalDate(it) },
+            endDate = period?.endDate?.let { transferMillis2LocalDate(it) }
         )
     }
 
     override suspend fun postPeriodTodo(todo: TodoModel, startDate: LocalDate, endDate: LocalDate) {
-        val todoTemplate = TodoTemplate(
-            title = todo.title,
-            description = todo.description ?: "",
-            hour = todo.time?.hour,
-            minute = todo.time?.minute,
-            type = TodoType.PERIOD
-        )
 
-        val templateId = todoDao.insertTodoTemplate(todoTemplate)
-        val todos = mutableListOf<TodoInstance>()
+        withContext(Dispatchers.IO){
+            Log.d(TAG, "postPeriodTodo: ${todo}")
 
-        var currentDate = startDate
-        while (currentDate <= endDate) {
-            todos.add(
-                TodoInstance(
+            val todoTemplate = TodoTemplate(
+                title = todo.title,
+                description = todo.description ?: "",
+                hour = todo.time?.hour,
+                minute = todo.time?.minute,
+                type = TodoType.PERIOD
+            )
+
+            val templateId = todoDao.insertTodoTemplate(todoTemplate)
+            val todos = mutableListOf<TodoInstance>()
+
+            var currentDate = startDate
+            while (currentDate <= endDate) {
+                todos.add(
+                    TodoInstance(
+                        templateId = templateId,
+                        date = transferLocalDateToMillis(currentDate)
+                    )
+                )
+                currentDate = currentDate.plusDays(1)
+            }
+
+            todoDao.insertTodoInstances(todos)
+
+            todoDao.insertTodoPeriod(
+                TodoPeriod(
                     templateId = templateId,
-                    date = transferLocalDateToMillis(currentDate)
+                    startDate = transferLocalDateToMillis(startDate),
+                    endDate = transferLocalDateToMillis(endDate)
                 )
             )
-            currentDate = currentDate.plusDays(1)  // 하루씩 증가
         }
-
-        todoDao.insertTodoInstances(todos)
-
-        todoDao.insertTodoPeriod(
-            TodoPeriod(
-                templateId = templateId,
-                startDate = transferLocalDateToMillis(startDate),
-                endDate = transferLocalDateToMillis(endDate)
-            )
-        )
     }
 
 //    override suspend fun postPeriodTodo(todo: TodoModel, startDate: LocalDate, endDate: LocalDate) {
@@ -258,9 +273,6 @@ class TodoRepositoryImpl(
     override suspend fun updatePeriodTodo(todo: TodoModel) {
 
         val instanceTodo = todoDao.getTodoInstanceById(todo.instanceId)
-
-        val startDate = transferLocalDateToMillis(todo.startDate)
-        val endDate = transferLocalDateToMillis(todo.endDate)
 
         todoDao.updateTodoTemplate(
             TodoTemplate(
@@ -275,22 +287,32 @@ class TodoRepositoryImpl(
 
         val existingInstances = todoDao.getInstancesByTemplateId(instanceTodo.templateId)
 
-        // 기존 TodoInstance를 날짜 기준으로 저장 (progressAngle 유지)
         val existingDateMap = existingInstances.associate { it.date to it.progressAngle }
 
-        val newDates = (startDate..endDate).toSet()
+        todoDao.updateTodoPeriod(
+            TodoPeriod(
+                templateId = instanceTodo.templateId,
+                startDate = transferLocalDateToMillis(todo.startDate),
+                endDate = transferLocalDateToMillis(todo.endDate)
+            )
+        )
+
+        val newDates = generateSequence(todo.startDate) { it.plusDays(1) }
+            .takeWhile { !it.isAfter(todo.endDate) }
+            .map { transferLocalDateToMillis(it) }
+            .toSet()
+
         val oldDates = existingDateMap.keys
 
         val datesToDelete = oldDates - newDates // 기존에 있었지만, 새 범위에 포함되지 않는 날짜
         val datesToAdd = newDates - oldDates // 새 범위에 포함되지만, 기존에 없던 날짜
 
-        // 삭제
         todoDao.deleteInstancesByDates(instanceTodo.templateId, datesToDelete)
 
-        // 추가
         val newInstances = datesToAdd.map { date ->
             TodoInstance(templateId = instanceTodo.templateId, date = date, progressAngle = 0F)
         }
+
         todoDao.insertInstances(newInstances)
 
     }
