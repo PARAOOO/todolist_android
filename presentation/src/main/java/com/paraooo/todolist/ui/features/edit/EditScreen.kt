@@ -118,22 +118,22 @@ fun EditScreen(
                 onTodoNameChange = { viewModel.onEvent(EditUiEvent.onTodoNameInputChanged(it)) },
                 onDescriptionChange = { viewModel.onEvent(EditUiEvent.onDescriptionInputChanged(it)) },
                 onTimeInputClicked = { showTimePicker = true },
-//                type = when (selectedTodo!!.groupId) {
-//                    null -> {
-//                        TodoInputFormType.Edit(
-//                            onDateInputClicked = { showDatePicker = true }
-//                        )
-//                    }
-//
-//                    else -> {
-//                        TodoInputFormType.PeriodEdit(
-//                            onPeriodInputClicked = { showPeriodPicker = true }
-//                        )
-//                    }
-//                }
-                type = TodoInputFormType.Edit(
-                    onDateInputClicked = { showDatePicker = true }
-                )
+                type = when (selectedTodo!!.startDate) {
+                    null -> {
+                        TodoInputFormType.Edit(
+                            onDateInputClicked = { showDatePicker = true }
+                        )
+                    }
+
+                    else -> {
+                        TodoInputFormType.PeriodEdit(
+                            onPeriodInputClicked = { showPeriodPicker = true }
+                        )
+                    }
+                }
+//                type = TodoInputFormType.Edit(
+//                    onDateInputClicked = { showDatePicker = true }
+//                )
             )
         }
 

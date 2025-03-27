@@ -13,6 +13,7 @@ import com.paraooo.domain.repository.TodoRepository
 import com.paraooo.todolist.ui.components.DateInputState
 import com.paraooo.todolist.ui.components.TimeInputState
 import com.paraooo.todolist.ui.features.create.TAG
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -102,11 +103,11 @@ class EditViewModel(
                         descriptionInputState = _uiState.value.todoInputState.descriptionInputState.copy(
                             content = todo.description ?: ""
                         ),
-//                        dateInputState = when(todo.groupId) {
-//                            null -> DateInputState.Date(todo.date)
-//                            else -> DateInputState.Period(todo.startDate!!, todo.endDate!!)
-//                        },
-                        dateInputState = DateInputState.Date(todo.date),
+                        dateInputState = when(todo.startDate) {
+                            null -> DateInputState.Date(todo.date)
+                            else -> DateInputState.Period(todo.startDate!!, todo.endDate!!)
+                        },
+//                        dateInputState = DateInputState.Date(todo.date),
                         timeInputState = when (todo.time) {
                             null -> TimeInputState.NoTime
                             else -> TimeInputState.Time(todo.time!!.hour, todo.time!!.minute)
@@ -122,12 +123,13 @@ class EditViewModel(
     }
 
     fun updateTodo(instanceId : Long) {
-        _uiState.value = _uiState.value.copy(
-            editButtonState = _uiState.value.editButtonState.copy(
-                isEnable = false
+
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.value = _uiState.value.copy(
+                editButtonState = _uiState.value.editButtonState.copy(
+                    isEnable = false
+                )
             )
-        )
-        viewModelScope.launch {
 //            when(selectedTodo.value!!.groupId) {
 //                null -> {
 //                    todoRepository.updateTodo(
@@ -174,28 +176,60 @@ class EditViewModel(
 ////                    )
 //                }
 //            }
-            todoRepository.updateTodo(
-                TodoModel(
-                    instanceId = instanceId,
-                    title = uiState.value.todoInputState.todoNameInputState.content,
-                    description = uiState.value.todoInputState.descriptionInputState.content,
-                    date = when (uiState.value.todoInputState.dateInputState) {
-                        is DateInputState.Date -> (uiState.value.todoInputState.dateInputState as DateInputState.Date).date
-                        is DateInputState.Period -> (uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate
-                    },
-                    time = when (_uiState.value.todoInputState.timeInputState) {
-                        is TimeInputState.NoTime -> null
-                        is TimeInputState.Time -> Time(
-                            (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).hour,
-                            (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
+
+            when {
+                selectedTodo.value!!.startDate != null -> {
+                    todoRepository.updatePeriodTodo(
+                        TodoModel(
+                            instanceId = instanceId,
+                            title = uiState.value.todoInputState.todoNameInputState.content,
+                            description = uiState.value.todoInputState.descriptionInputState.content,
+                            date = when (uiState.value.todoInputState.dateInputState) {
+                                is DateInputState.Date -> (uiState.value.todoInputState.dateInputState as DateInputState.Date).date
+                                is DateInputState.Period -> (uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate
+                            },
+                            time = when (_uiState.value.todoInputState.timeInputState) {
+                                is TimeInputState.NoTime -> null
+                                is TimeInputState.Time -> Time(
+                                    (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).hour,
+                                    (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
+                                )
+                            },
+                            progressAngle = when (selectedTodo.value) {
+                                null -> 0f
+                                else -> selectedTodo.value!!.progressAngle
+                            },
+                            startDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate,
+                            endDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).endDate
                         )
-                    },
-                    progressAngle = when (selectedTodo.value) {
-                        null -> 0f
-                        else -> selectedTodo.value!!.progressAngle
-                    }
-                )
-            )
+                    )
+                }
+                else -> {
+                    todoRepository.updateTodo(
+                        TodoModel(
+                            instanceId = instanceId,
+                            title = uiState.value.todoInputState.todoNameInputState.content,
+                            description = uiState.value.todoInputState.descriptionInputState.content,
+                            date = when (uiState.value.todoInputState.dateInputState) {
+                                is DateInputState.Date -> (uiState.value.todoInputState.dateInputState as DateInputState.Date).date
+                                is DateInputState.Period -> (uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate
+                            },
+                            time = when (_uiState.value.todoInputState.timeInputState) {
+                                is TimeInputState.NoTime -> null
+                                is TimeInputState.Time -> Time(
+                                    (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).hour,
+                                    (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
+                                )
+                            },
+                            progressAngle = when (selectedTodo.value) {
+                                null -> 0f
+                                else -> selectedTodo.value!!.progressAngle
+                            }
+                        )
+                    )
+                }
+            }
+
             _effectChannel.send(EditUiEffect.onUpdateTodoSuccess(todoTitle = _uiState.value.todoInputState.todoNameInputState.content))
             _uiState.value = _uiState.value.copy(
                 editButtonState = _uiState.value.editButtonState.copy(

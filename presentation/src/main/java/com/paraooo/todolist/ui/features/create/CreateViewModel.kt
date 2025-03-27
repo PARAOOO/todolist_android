@@ -7,6 +7,7 @@ import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.repository.TodoRepository
 import com.paraooo.todolist.ui.components.DateInputState
 import com.paraooo.todolist.ui.components.TimeInputState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,7 +34,7 @@ class CreateViewModel(
                         isEnable = false
                     )
                 )
-                viewModelScope.launch {
+                viewModelScope.launch(Dispatchers.IO) {
 
                     when(_uiState.value.todoInputState.dateInputState) {
                         is DateInputState.Date -> {
@@ -71,6 +72,25 @@ class CreateViewModel(
 //                                startDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate,
 //                                endDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).endDate
 //                            )
+                            todoRepository.postPeriodTodo(
+                                TodoModel(
+                                    instanceId = 0,
+                                    title = _uiState.value.todoInputState.todoNameInputState.content,
+                                    description = _uiState.value.todoInputState.descriptionInputState.content,
+                                    date = LocalDate.now(),
+                                    time = when (_uiState.value.todoInputState.timeInputState) {
+                                        is TimeInputState.NoTime -> null
+                                        is TimeInputState.Time -> Time(
+                                            (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).hour,
+                                            (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
+                                        )
+                                    },
+                                    startDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate,
+                                    endDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).endDate
+                                ),
+                                startDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate,
+                                endDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).endDate
+                            )
                         }
                     }
 
