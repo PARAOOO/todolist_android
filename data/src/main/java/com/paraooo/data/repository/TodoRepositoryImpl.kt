@@ -5,6 +5,7 @@ import androidx.room.Transaction
 import com.paraooo.data.datasource.TodoLocalDataSource
 import com.paraooo.data.dto.TodoDto
 import com.paraooo.data.local.dao.TodoDao
+import com.paraooo.data.local.entity.TodoDayOfWeek
 import com.paraooo.data.local.entity.TodoInstance
 import com.paraooo.data.local.entity.TodoPeriod
 import com.paraooo.data.local.entity.TodoTemplate
@@ -32,121 +33,28 @@ class TodoRepositoryImpl(
     private val todoDao : TodoDao
 ) : TodoRepository {
 
-    //    override suspend fun getTodoByDate(date: Long): List<TodoModel> {
-//        return todoLocalDataSource.getTodoByDate(date).map { it.toModel() }
-//    }
-//
-//    override suspend fun postTodo(todo: TodoModel) {
-//        todoLocalDataSource.insertTodo(todo = todo.toDto())
-//    }
-//
-//    override suspend fun updateTodoProgress(todoId: Int, progress: Float) {
-//        todoLocalDataSource.updateTodoProgress(todoId = todoId, progress = progress)
-//    }
-//
-//    override suspend fun deleteTodoById(todoId: Int) {
-//        todoLocalDataSource.deleteTodoById(todoId = todoId)
-//    }
-//
-//    override suspend fun updateTodo(todo: TodoModel) {
-//        todoLocalDataSource.updateTodo(todo = todo.toDto())
-//    }
-//
-//    override suspend fun findTodoById(todoId: Int): TodoModel {
-//        return todoLocalDataSource.findTodoById(todoId).toModel()
-//    }
-//
-//    override suspend fun postPeriodTodo(
-//        todo : TodoModel,
-//        startDate : LocalDate,
-//        endDate : LocalDate
-//    ) {
-//
-//        val groupId = UUID.randomUUID().toString()
-//        val todos = mutableListOf<TodoModel>()
-//
-//        var currentDate = startDate
-//        while (currentDate <= endDate) {
-//            todos.add(
-//                todo.copy(
-//                    date = currentDate,
-//                    groupId = groupId,
-//                    startDate = startDate,
-//                    endDate = endDate
-//                )
-//            )
-//            currentDate = currentDate.plusDays(1)  // 하루씩 증가
-//        }
-//
-//        todoLocalDataSource.insertTodos(todos.map { it.toDto() })
-//    }
-//
-//    @Transaction
-//    override suspend fun updatePeriodTodo(todo: TodoModel) {
-//
-//        Log.d(TAG, "updatePeriodTodo: ${todo}")
-//
-//        val groupId = todo.groupId ?: return
-//        val selectedTodo = todo.toDto()
-//
-//        Log.d(TAG, "updatePeriodTodo: ${selectedTodo}")
-//
-//        if (selectedTodo.startDate!! > selectedTodo.endDate!!) return
-//
-//        val existingTodos = todoLocalDataSource.getTodosByGroupId(groupId)
-//
-//        val todosToDelete = existingTodos.filter { it.date !in selectedTodo.startDate..selectedTodo.endDate }
-//        if (todosToDelete.isNotEmpty()) {
-//            todoLocalDataSource.deleteTodos(todosToDelete)
-//        }
-//
-//        val todosToUpdate = mutableListOf<TodoDto>()
-//        val todosToInsert = mutableListOf<TodoDto>()
-//
-//        for (date in selectedTodo.startDate..selectedTodo.endDate step 24 * 60 * 60 * 1000) {
-//            val existingTodo = existingTodos.find { it.date == date }
-//
-//            if (existingTodo != null) {
-//                todosToUpdate.add(
-//                    selectedTodo.copy(
-//                        id = existingTodo.id,
-//                        progressAngle = existingTodo.progressAngle,
-//                        date = date
-//                    )
-//                )
-//            } else {
-//                todosToInsert.add(
-//                    selectedTodo.copy(
-//                        id = 0,
-//                        date = date
-//                    )
-//                )
-//            }
-//        }
-//
-//        if (todosToUpdate.isNotEmpty()) {
-//            todoLocalDataSource.updateTodos(todosToUpdate)
-//        }
-//        if (todosToInsert.isNotEmpty()) {
-//            todoLocalDataSource.insertTodos(todosToInsert)
-//        }
-//    }
-//
-//    override suspend fun deletePeriodTodo(groupId : String) {
-//        todoLocalDataSource.deleteTodosByGroupId(groupId)
-//    }
-
-
     override suspend fun getTodoByDate(date: Long): List<TodoModel> {
 
         val instances = todoDao.getTodosByDate(date)
-//        val periodTodos = todoDao.getPeriodTodosByDate(date)
-//
-//        val sortedList = (instances + periodTodos).sortedWith(compareBy({ it.hour }, { it.minute }))
-//
-//        return sortedList.map { it.toModel() }
+        val dayOfWeekTemplates = todoDao.getDayOfWeekTodoTemplatesByDate(date)
 
-        return instances.map { it.toModel() }
+        val instanceTemplateIds = instances.map { it.templateId }.toSet()
+        val filteredDayOfWeekTemplates = dayOfWeekTemplates.filterNot { instanceTemplateIds.contains(it.id) }
+
+        for (template in filteredDayOfWeekTemplates) {
+            todoDao.insertTodoInstance(
+                TodoInstance(
+                    templateId = template.id,
+                    date = date
+                )
+            )
+        }
+
+        val newInstances = todoDao.getTodosByDate(date)
+
+        return newInstances
+            .sortedWith(compareBy({ it.hour ?: Int.MAX_VALUE }, { it.minute ?: Int.MAX_VALUE }))
+            .map { it.toModel() }
     }
 
     override suspend fun postTodo(todo: TodoModel) {
@@ -210,6 +118,7 @@ class TodoRepositoryImpl(
         val template = todoDao.getTodoTemplateById(instance!!.templateId)
 
         val period = todoDao.getTodoPeriodByTemplateId(instance.templateId)
+        val dayOfWeek = todoDao.getDayOfWeekByTemplateId(instance.templateId)
 
         return TodoModel(
             instanceId = instance.id,
@@ -223,7 +132,8 @@ class TodoRepositoryImpl(
             },
             progressAngle = instance.progressAngle,
             startDate = period?.startDate?.let { transferMillis2LocalDate(it) },
-            endDate = period?.endDate?.let { transferMillis2LocalDate(it) }
+            endDate = period?.endDate?.let { transferMillis2LocalDate(it) },
+            dayOfWeeks = dayOfWeek?.map { it.dayOfWeek }
         )
     }
 
@@ -266,10 +176,6 @@ class TodoRepositoryImpl(
         }
     }
 
-//    override suspend fun postPeriodTodo(todo: TodoModel, startDate: LocalDate, endDate: LocalDate) {
-//        TODO("Not yet implemented")
-//    }
-//
     override suspend fun updatePeriodTodo(todo: TodoModel) {
 
         val instanceTodo = todoDao.getTodoInstanceById(todo.instanceId)
@@ -316,8 +222,68 @@ class TodoRepositoryImpl(
         todoDao.insertInstances(newInstances)
 
     }
-//
-//    override suspend fun deletePeriodTodo(groupId: String) {
-//        TODO("Not yet implemented")
-//    }
+
+    override suspend fun postDayOfWeekTodo(todo: TodoModel, dayOfWeek: List<Int>) {
+
+        val todoTemplate = TodoTemplate(
+            title = todo.title,
+            description = todo.description ?: "",
+            hour = todo.time?.hour,
+            minute = todo.time?.minute,
+            type = TodoType.PERIOD
+        )
+
+        val templateId = todoDao.insertTodoTemplate(todoTemplate)
+
+        for (week in dayOfWeek) {
+            todoDao.insertTodoDayOfWeek(
+                TodoDayOfWeek(
+                    templateId = templateId,
+                    dayOfWeeks = dayOfWeek,
+                    dayOfWeek = week
+                )
+            )
+        }
+    }
+
+    override suspend fun updateDayOfWeekTodo(todo: TodoModel) {
+        val instanceTodo = todoDao.getTodoInstanceById(todo.instanceId) ?: return
+        val templateId = instanceTodo.templateId
+
+        // 1. 템플릿 업데이트
+        todoDao.updateTodoTemplate(
+            TodoTemplate(
+                id = templateId,
+                title = todo.title,
+                description = todo.description ?: "",
+                hour = todo.time?.hour,
+                minute = todo.time?.minute,
+                type = TodoType.DAY_OF_WEEK
+            )
+        )
+
+        // 2. 기존 요일 조회
+        val existingDayOfWeeks = todoDao.getDayOfWeekByTemplateId(templateId)
+        val existingDaysSet = existingDayOfWeeks!!.map { it.dayOfWeek }.toSet()
+        val newDaysSet = todo.dayOfWeeks!!.toSet()
+
+        // 3. 삭제할 요일
+        val daysToDelete = existingDaysSet - newDaysSet
+        if (daysToDelete.isNotEmpty()) {
+            todoDao.deleteSpecificDayOfWeeks(templateId, daysToDelete.toList())
+            todoDao.deleteInstancesByTemplateIdAndDaysOfWeek(templateId, daysToDelete.toList())
+
+        }
+
+        // 4. 추가할 요일
+        val daysToAdd = newDaysSet - existingDaysSet
+        val newDayOfWeekEntities = daysToAdd.map { dayOfWeek ->
+            TodoDayOfWeek(
+                templateId = templateId,
+                dayOfWeeks = todo.dayOfWeeks!!,
+                dayOfWeek = dayOfWeek
+            )
+        }
+        todoDao.insertDayOfWeekTodos(newDayOfWeekEntities)
+    }
 }

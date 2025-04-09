@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
 import java.time.LocalDate
 
 class CreateViewModel(
@@ -55,23 +56,6 @@ class CreateViewModel(
                             )
                         }
                         is DateInputState.Period -> {
-//                            todoRepository.postPeriodTodo(
-//                                todo = TodoModel(
-//                                    id = 0,
-//                                    title = _uiState.value.todoInputState.todoNameInputState.content,
-//                                    description = _uiState.value.todoInputState.descriptionInputState.content,
-//                                    date = LocalDate.now(),
-//                                    time = when (_uiState.value.todoInputState.timeInputState) {
-//                                        is TimeInputState.NoTime -> null
-//                                        is TimeInputState.Time -> Time(
-//                                            (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).hour,
-//                                            (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
-//                                        )
-//                                    }
-//                                ),
-//                                startDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate,
-//                                endDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).endDate
-//                            )
                             todoRepository.postPeriodTodo(
                                 TodoModel(
                                     instanceId = 0,
@@ -90,6 +74,25 @@ class CreateViewModel(
                                 ),
                                 startDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate,
                                 endDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).endDate
+                            )
+                        }
+
+                        is DateInputState.DayOfWeek -> {
+                            todoRepository.postDayOfWeekTodo(
+                                TodoModel(
+                                    instanceId = 0,
+                                    title = _uiState.value.todoInputState.todoNameInputState.content,
+                                    description = _uiState.value.todoInputState.descriptionInputState.content,
+                                    date = LocalDate.now(),
+                                    time = when (_uiState.value.todoInputState.timeInputState) {
+                                        is TimeInputState.NoTime -> null
+                                        is TimeInputState.Time -> Time(
+                                            (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).hour,
+                                            (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
+                                        )
+                                    }
+                                ),
+                                dayOfWeek = (_uiState.value.todoInputState.dateInputState as DateInputState.DayOfWeek).dayOfWeek
                             )
                         }
                     }
@@ -158,7 +161,11 @@ class CreateViewModel(
             }
 
             is CreateUiEvent.onDayOfWeekInputChanged -> {
-
+                _uiState.value = _uiState.value.copy(
+                    todoInputState = _uiState.value.todoInputState.copy(
+                        dateInputState = DateInputState.DayOfWeek(event.daysOfWeek.map { it.value })
+                    )
+                )
             }
         }
     }

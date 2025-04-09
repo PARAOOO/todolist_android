@@ -24,6 +24,12 @@ interface TodoRepository {
     )
 
     suspend fun updatePeriodTodo(todo: TodoModel)
-//
-//    suspend fun deletePeriodTodo(groupId : String)
+
+    suspend fun postDayOfWeekTodo(
+        todo: TodoModel,
+        dayOfWeek : List<Int>
+    )
+
+    suspend fun updateDayOfWeekTodo(todo: TodoModel)
+
 }
