@@ -39,6 +39,7 @@ class EditViewModel(
             is EditUiEvent.onInit -> {
                 fetchTodo(event.instanceId)
             }
+
             is EditUiEvent.onTodoNameInputChanged -> {
                 _uiState.value = _uiState.value.copy(
                     editButtonState = _uiState.value.editButtonState.copy(
@@ -54,6 +55,7 @@ class EditViewModel(
                     )
                 )
             }
+
             is EditUiEvent.onDateInputChanged -> {
                 _uiState.value = _uiState.value.copy(
                     todoInputState = _uiState.value.todoInputState.copy(
@@ -61,6 +63,7 @@ class EditViewModel(
                     )
                 )
             }
+
             is EditUiEvent.onDescriptionInputChanged -> {
                 _uiState.value = _uiState.value.copy(
                     todoInputState = _uiState.value.todoInputState.copy(
@@ -70,9 +73,11 @@ class EditViewModel(
                     )
                 )
             }
+
             is EditUiEvent.onEditClicked -> {
                 updateTodo(event.instanceId)
             }
+
             is EditUiEvent.onTimeInputChanged -> {
                 _uiState.value = _uiState.value.copy(
                     todoInputState = _uiState.value.todoInputState.copy(
@@ -85,6 +90,14 @@ class EditViewModel(
                 _uiState.value = _uiState.value.copy(
                     todoInputState = _uiState.value.todoInputState.copy(
                         dateInputState = DateInputState.Period(event.startDate, event.endDate)
+                    )
+                )
+            }
+
+            is EditUiEvent.onDayOfWeekInputChanged -> {
+                _uiState.value = _uiState.value.copy(
+                    todoInputState = _uiState.value.todoInputState.copy(
+                        dateInputState = DateInputState.DayOfWeek(event.daysOfWeek.map { it.value })
                     )
                 )
             }
@@ -103,15 +116,15 @@ class EditViewModel(
                         descriptionInputState = _uiState.value.todoInputState.descriptionInputState.copy(
                             content = todo.description ?: ""
                         ),
-                        dateInputState = when(todo.startDate) {
-                            null -> DateInputState.Date(todo.date)
-                            else -> DateInputState.Period(todo.startDate!!, todo.endDate!!)
+                        dateInputState = when {
+                            todo.startDate != null -> DateInputState.Period(todo.startDate!!, todo.endDate!!)
+                            todo.dayOfWeeks != null -> DateInputState.DayOfWeek(todo.dayOfWeeks!!)
+                            else -> DateInputState.Date(todo.date)
                         },
-//                        dateInputState = DateInputState.Date(todo.date),
                         timeInputState = when (todo.time) {
                             null -> TimeInputState.NoTime
                             else -> TimeInputState.Time(todo.time!!.hour, todo.time!!.minute)
-                        }
+                        },
                     )
                 )
                 selectedTodo.value = todo
@@ -130,52 +143,6 @@ class EditViewModel(
                     isEnable = false
                 )
             )
-//            when(selectedTodo.value!!.groupId) {
-//                null -> {
-//                    todoRepository.updateTodo(
-//                        TodoModel(
-//                            id = todoId,
-//                            title = uiState.value.todoInputState.todoNameInputState.content,
-//                            description = uiState.value.todoInputState.descriptionInputState.content,
-//                            date = when (uiState.value.todoInputState.dateInputState) {
-//                                is DateInputState.Date -> (uiState.value.todoInputState.dateInputState as DateInputState.Date).date
-//                                is DateInputState.Period -> (uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate
-//                            },
-//                            time = when (_uiState.value.todoInputState.timeInputState) {
-//                                is TimeInputState.NoTime -> null
-//                                is TimeInputState.Time -> Time(
-//                                    (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).hour,
-//                                    (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
-//                                )
-//                            },
-//                            progressAngle = when (selectedTodo.value) {
-//                                null -> 0f
-//                                else -> selectedTodo.value!!.progressAngle
-//                            }
-//                        )
-//                    )
-//                }
-//                else -> {
-////                    todoRepository.updatePeriodTodo(
-////                        TodoModel(
-////                            id = todoId,
-////                            title = uiState.value.todoInputState.todoNameInputState.content,
-////                            description = uiState.value.todoInputState.descriptionInputState.content,
-////                            date = LocalDate.now(),
-////                            time = when (_uiState.value.todoInputState.timeInputState) {
-////                                is TimeInputState.NoTime -> null
-////                                is TimeInputState.Time -> Time(
-////                                    (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).hour,
-////                                    (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
-////                                )
-////                            },
-////                            groupId = selectedTodo.value!!.groupId,
-////                            startDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate,
-////                            endDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).endDate
-////                        )
-////                    )
-//                }
-//            }
 
             when {
                 selectedTodo.value!!.startDate != null -> {
@@ -186,7 +153,8 @@ class EditViewModel(
                             description = uiState.value.todoInputState.descriptionInputState.content,
                             date = when (uiState.value.todoInputState.dateInputState) {
                                 is DateInputState.Date -> (uiState.value.todoInputState.dateInputState as DateInputState.Date).date
-                                is DateInputState.Period -> (uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate
+                                is DateInputState.Period -> LocalDate.now()
+                                is DateInputState.DayOfWeek -> LocalDate.now()
                             },
                             time = when (_uiState.value.todoInputState.timeInputState) {
                                 is TimeInputState.NoTime -> null
@@ -204,6 +172,32 @@ class EditViewModel(
                         )
                     )
                 }
+                selectedTodo.value!!.dayOfWeeks != null -> {
+                   todoRepository.updateDayOfWeekTodo(
+                       TodoModel(
+                           instanceId = instanceId,
+                           title = uiState.value.todoInputState.todoNameInputState.content,
+                           description = uiState.value.todoInputState.descriptionInputState.content,
+                           date = when (uiState.value.todoInputState.dateInputState) {
+                               is DateInputState.Date -> (uiState.value.todoInputState.dateInputState as DateInputState.Date).date
+                               is DateInputState.Period -> LocalDate.now()
+                               is DateInputState.DayOfWeek -> LocalDate.now()
+                           },
+                           time = when (_uiState.value.todoInputState.timeInputState) {
+                               is TimeInputState.NoTime -> null
+                               is TimeInputState.Time -> Time(
+                                   (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).hour,
+                                   (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
+                               )
+                           },
+                           progressAngle = when (selectedTodo.value) {
+                               null -> 0f
+                               else -> selectedTodo.value!!.progressAngle
+                           },
+                           dayOfWeeks = (_uiState.value.todoInputState.dateInputState as DateInputState.DayOfWeek).dayOfWeek
+                       )
+                   )
+                }
                 else -> {
                     todoRepository.updateTodo(
                         TodoModel(
@@ -212,7 +206,8 @@ class EditViewModel(
                             description = uiState.value.todoInputState.descriptionInputState.content,
                             date = when (uiState.value.todoInputState.dateInputState) {
                                 is DateInputState.Date -> (uiState.value.todoInputState.dateInputState as DateInputState.Date).date
-                                is DateInputState.Period -> (uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate
+                                is DateInputState.Period -> LocalDate.now()
+                                is DateInputState.DayOfWeek -> LocalDate.now()
                             },
                             time = when (_uiState.value.todoInputState.timeInputState) {
                                 is TimeInputState.NoTime -> null

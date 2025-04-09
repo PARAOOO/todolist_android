@@ -6,23 +6,6 @@ import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import java.time.LocalDate
-
-//@Entity
-//data class TodoEntity(
-//    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-//    val title: String,
-//    val description: String? = null,
-//    val date: Long,
-//    val hour : Int? = null,
-//    val minute : Int? = null,
-//    val progressAngle : Float = 0F,
-//
-//    // Period Todo만 가지고 있는 속성
-//    val groupId : String? = null,
-//    val startDate : Long? = null,
-//    val endDate : Long? = null
-//)
 
 @Entity(tableName = "todo_template")
 data class TodoTemplate(
@@ -62,21 +45,21 @@ data class TodoPeriod(
     val startDate: Long,
     val endDate: Long
 )
-//
-//// ✅ 4. 특정 요일에 반복되는 Todo 정보
-//@Entity(
-//    tableName = "todo_day_of_week",
-//    foreignKeys = [
-//        ForeignKey(entity = TodoTemplate::class, parentColumns = ["id"], childColumns = ["templateId"], onDelete = CASCADE)
-//    ],
-//    indices = [Index(value = ["templateId"]), Index(value = ["dayOfWeek"])] // 검색 속도 향상을 위해 요일 인덱스 추가
-//)
-//data class TodoDayOfWeek(
-//    @PrimaryKey(autoGenerate = true) val id: Long = 0,
-//    @ColumnInfo(index = true) val templateId: Long, // TodoTemplate의 ID
-//    val dayOfWeeks: List<Int>,
-//    val dayOfWeek: Int // 1(월) ~ 7(일)
-//)
+
+// ✅ 4. 특정 요일에 반복되는 Todo 정보
+@Entity(
+    tableName = "todo_day_of_week",
+    foreignKeys = [
+        ForeignKey(entity = TodoTemplate::class, parentColumns = ["id"], childColumns = ["templateId"], onDelete = CASCADE)
+    ],
+    indices = [Index(value = ["templateId"]), Index(value = ["dayOfWeek"])] // 검색 속도 향상을 위해 요일 인덱스 추가
+)
+data class TodoDayOfWeek(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val templateId: Long, // TodoTemplate의 ID
+    val dayOfWeeks: List<Int>,
+    val dayOfWeek: Int // 1(월) ~ 7(일)
+)
 
 // ✅ 5. Todo 유형 정의
 enum class TodoType {

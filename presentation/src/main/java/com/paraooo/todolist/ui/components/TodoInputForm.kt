@@ -59,7 +59,7 @@ sealed class DateInputState {
 //    val date : LocalDate = LocalDate.now()
     data class Date(val date : LocalDate) : DateInputState()
     data class Period(val startDate : LocalDate, val endDate : LocalDate) : DateInputState()
-//    data class DayOfWeek(val dayOfWeek : Int) : DateInputState()
+    data class DayOfWeek(val dayOfWeek : List<Int>) : DateInputState()
 }
 
 data class TodoInputState(
@@ -83,7 +83,10 @@ sealed class TodoInputFormType {
     data class PeriodEdit(
         val onPeriodInputClicked: () -> Unit
     ) : TodoInputFormType()
-//    data class DayOfWeekEdit : TodoInputFormType()
+
+    data class DayOfWeekEdit(
+        val onDayOfWeekInputClicked: () -> Unit
+    ) : TodoInputFormType()
 }
 
 @Composable
@@ -107,6 +110,9 @@ fun TodoInputForm(
             }
             is DateInputState.Period -> {
                 return "${getDateWithDot(date.startDate)} ~ ${getDateWithDot(date.endDate)}"
+            }
+            is DateInputState.DayOfWeek -> {
+                return getDayOfWeekText(date.dayOfWeek)
             }
         }
     }
@@ -215,6 +221,10 @@ fun TodoInputForm(
                                     }
                                     is TodoInputFormType.PeriodEdit -> {
                                         type.onPeriodInputClicked()
+                                    }
+
+                                    is TodoInputFormType.DayOfWeekEdit -> {
+                                        type.onDayOfWeekInputClicked()
                                     }
                                 }
                             }

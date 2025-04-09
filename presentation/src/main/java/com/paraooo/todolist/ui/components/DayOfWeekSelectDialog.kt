@@ -46,6 +46,27 @@ data class DayOfWeekState(
     val isSelected : Boolean
 )
 
+fun getDayOfWeekText(selectedDays: List<Int>): String {
+    val weekdays = setOf(
+        DayOfWeek.MONDAY.value,
+        DayOfWeek.TUESDAY.value,
+        DayOfWeek.WEDNESDAY.value,
+        DayOfWeek.THURSDAY.value,
+        DayOfWeek.FRIDAY.value
+    )
+    val weekends = setOf(DayOfWeek.SATURDAY.value, DayOfWeek.SUNDAY.value)
+
+    return when {
+        selectedDays.isEmpty() -> "Select day of week"
+        selectedDays.toSet() == weekdays + weekends -> "Everyday"
+        selectedDays.toSet() == weekdays -> "Weekday"
+        selectedDays.toSet() == weekends -> "Weekend"
+        else -> selectedDays.joinToString(", ") {
+            DayOfWeek.of(it).name.lowercase().replaceFirstChar { it.uppercase() }.take(3)
+        }
+    }
+}
+
 @Composable
 fun DayOfWeekSelectDialog(
     onDismiss: () -> Unit,
@@ -67,21 +88,6 @@ fun DayOfWeekSelectDialog(
         )
     }
 
-
-    fun getDayOfWeekText(): String {
-        val selectedDays = daysOfWeekList.filter { it.isSelected }.map { it.value }.toSet()
-
-        val weekdays = setOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY)
-        val weekends = setOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
-
-        return when {
-            selectedDays.isEmpty() -> "Select day of week"
-            selectedDays == weekdays + weekends -> "Everyday"
-            selectedDays == weekdays -> "Weekday"
-            selectedDays == weekends -> "Weekend"
-            else -> daysOfWeekList.filter { it.isSelected }.joinToString(", ") { it.label }
-        }
-    }
 
     if(showDialog){
         Dialog(
@@ -171,7 +177,11 @@ fun DayOfWeekSelectDialog(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     OutlinedTextField(
-                        value = getDayOfWeekText(),
+                        value = getDayOfWeekText(
+                            daysOfWeekList
+                            .filter { it.isSelected }
+                            .map { it.value.value }
+                        ),
                         onValueChange = {},
                         readOnly = true,
                         modifier = Modifier
