@@ -118,6 +118,7 @@ fun CreateScreen(
             onTodoNameChange = { viewModel.onEvent(CreateUiEvent.onTodoNameInputChanged(it)) },
             onDescriptionChange = { viewModel.onEvent(CreateUiEvent.onDescriptionInputChanged(it)) },
             onTimeInputClicked = { showTimePicker = true },
+            onAlarmChange = { viewModel.onEvent(CreateUiEvent.onAlarmInputChanged(it)) },
             type = TodoInputFormType.Add(
                 onDateInputClicked = { showDatePicker = true },
                 onPeriodInputClicked = { showPeriodPicker = true },

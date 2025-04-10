@@ -121,6 +121,7 @@ fun EditScreen(
                 onTodoNameChange = { viewModel.onEvent(EditUiEvent.onTodoNameInputChanged(it)) },
                 onDescriptionChange = { viewModel.onEvent(EditUiEvent.onDescriptionInputChanged(it)) },
                 onTimeInputClicked = { showTimePicker = true },
+                onAlarmChange = {},
                 type = when {
                     selectedTodo!!.startDate != null -> {
 

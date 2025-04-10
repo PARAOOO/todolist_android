@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import androidx.room.ColumnInfo
 import com.paraooo.todolist.ui.theme.PretendardFontFamily
 import com.paraooo.todolist.ui.util.computeTextHeight
 import com.paraooo.todolist.ui.util.dpToPx
@@ -56,24 +58,28 @@ sealed class TimeInputState {
 }
 
 sealed class DateInputState {
-//    val date : LocalDate = LocalDate.now()
     data class Date(val date : LocalDate) : DateInputState()
     data class Period(val startDate : LocalDate, val endDate : LocalDate) : DateInputState()
     data class DayOfWeek(val dayOfWeek : List<Int>) : DateInputState()
 }
+
+data class AlarmInputState (
+    val alarmType : AlarmType = AlarmType.Off
+)
 
 data class TodoInputState(
     val todoNameInputState : TodoNameInputState = TodoNameInputState(),
     val descriptionInputState : DescriptionInputState = DescriptionInputState(),
     val timeInputState: TimeInputState = TimeInputState.NoTime,
     val dateInputState : DateInputState = DateInputState.Date(LocalDate.now()),
+    val alarmInputState : AlarmInputState = AlarmInputState()
 )
 
 sealed class TodoInputFormType {
     data class Add(
         val onDateInputClicked: () -> Unit,
         val onPeriodInputClicked: () -> Unit,
-        val onDayOfWeekInputClicked: () -> Unit
+        val onDayOfWeekInputClicked: () -> Unit,
     ) : TodoInputFormType()
 
     data class Edit(
@@ -89,19 +95,30 @@ sealed class TodoInputFormType {
     ) : TodoInputFormType()
 }
 
+sealed class AlarmType(val label : String) {
+    data object Off : AlarmType("Off")
+    data object Notify : AlarmType("Notify")
+    data object PopUp : AlarmType("Pop-up")
+}
+
 @Composable
 fun TodoInputForm(
     uiState: TodoInputState,
     onTodoNameChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
     onTimeInputClicked: () -> Unit,
-//    onDateInputClicked: () -> Unit,
-//    onPeriodInputClicked: () -> Unit,
+    onAlarmChange: (alarm : AlarmType) -> Unit,
     type : TodoInputFormType
 ) {
 
     var isPopupVisible by remember { mutableStateOf(false) }
     val screenWidthDp = LocalConfiguration.current.screenWidthDp
+
+    val alarmList = listOf(
+        AlarmType.Off, AlarmType.Notify, AlarmType.PopUp
+    )
+//    var alarmState by remember { mutableStateOf(alarmList[0]) }
+
 
     fun getTextOfDateInput(date : DateInputState) : String {
         when(date) {
@@ -212,13 +229,15 @@ fun TodoInputForm(
                                 shape = RoundedCornerShape(12.dp)
                             )
                             .roundedClickable(12.dp) {
-                                when(type) {
+                                when (type) {
                                     is TodoInputFormType.Add -> {
                                         isPopupVisible = !isPopupVisible
                                     }
+
                                     is TodoInputFormType.Edit -> {
                                         type.onDateInputClicked()
                                     }
+
                                     is TodoInputFormType.PeriodEdit -> {
                                         type.onPeriodInputClicked()
                                     }
@@ -310,6 +329,65 @@ fun TodoInputForm(
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    "Alarm",
+                    fontSize = 14.sp,
+                    color = Color(0xFF7F7F7F),
+                    fontFamily = PretendardFontFamily,
+                    fontWeight = FontWeight.Normal,
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1F),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+
+                ) {
+                    for(alarm in alarmList){
+
+                        val isSelected = alarm == uiState.alarmInputState.alarmType
+
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .weight(1F)
+                                .fillMaxWidth()
+                                .border(
+                                    border = BorderStroke(
+                                        1.dp,
+                                        color = if (isSelected) Color(
+                                            0xFF54C392
+                                        ) else Color(0xFFECEEEE)
+                                    ),
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                                .roundedClickable(12.dp) {
+                                    onAlarmChange(alarm)
+                                }
+                        ) {
+                            Text(
+                                text = alarm.label,
+                                fontSize = 12.sp,
+                                color = if (isSelected) Color(
+                                    0xFF54C392
+                                ) else Color(0xFF7F7F7F),
+                                modifier = Modifier.padding(vertical = 10.dp),
+                                fontFamily = PretendardFontFamily,
+                                fontWeight = FontWeight.Normal,
+                            )
                         }
                     }
                 }
