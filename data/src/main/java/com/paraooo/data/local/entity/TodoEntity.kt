@@ -14,7 +14,8 @@ data class TodoTemplate(
     val description: String,
     val hour: Int?, // null이면 시간 미지정,
     val minute: Int?,
-    @ColumnInfo(index = true) val type: TodoType // GENERAL, PERIOD, DAY_OF_WEEK
+    @ColumnInfo(index = true) val type: TodoType, // GENERAL, PERIOD, DAY_OF_WEEK,
+    val alarmType : AlarmType
 )
 
 // ✅ 2. 특정 날짜에 생성된 Todo 인스턴스 (체크 상태 포함)
@@ -64,4 +65,8 @@ data class TodoDayOfWeek(
 // ✅ 5. Todo 유형 정의
 enum class TodoType {
     GENERAL, PERIOD, DAY_OF_WEEK
+}
+
+enum class AlarmType {
+    OFF, NOTIFY, POPUP
 }
