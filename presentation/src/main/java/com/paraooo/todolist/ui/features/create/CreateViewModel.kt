@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.repository.TodoRepository
+import com.paraooo.todolist.ui.components.AlarmInputState
 import com.paraooo.todolist.ui.components.DateInputState
 import com.paraooo.todolist.ui.components.TimeInputState
 import kotlinx.coroutines.Dispatchers
@@ -164,6 +165,14 @@ class CreateViewModel(
                 _uiState.value = _uiState.value.copy(
                     todoInputState = _uiState.value.todoInputState.copy(
                         dateInputState = DateInputState.DayOfWeek(event.daysOfWeek.map { it.value })
+                    )
+                )
+            }
+
+            is CreateUiEvent.onAlarmInputChanged -> {
+                _uiState.value = _uiState.value.copy(
+                    todoInputState = _uiState.value.todoInputState.copy(
+                        alarmInputState = AlarmInputState(event.alarm)
                     )
                 )
             }
