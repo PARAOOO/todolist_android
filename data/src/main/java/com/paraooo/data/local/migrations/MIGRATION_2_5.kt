@@ -9,13 +9,15 @@ val MIGRATION_2_5 = object : Migration(2, 5) {
         db.execSQL("""
             CREATE TABLE IF NOT EXISTS todo_template (
                 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                title TEXT NOT NULL,
-                description TEXT NOT NULL,
+                title TEXT NOT NULL DEFAULT 'undefined',
+                description TEXT NOT NULL DEFAULT 'undefined',
                 hour INTEGER,
                 minute INTEGER,
-                type TEXT NOT NULL
-            )
+                type TEXT NOT NULL DEFAULT 'undefined'
+            );
         """.trimIndent())
+
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_todo_template_type ON todo_template(type)")
 
         db.execSQL("""
             CREATE TABLE IF NOT EXISTS todo_instance (
@@ -27,24 +29,34 @@ val MIGRATION_2_5 = object : Migration(2, 5) {
             )
         """.trimIndent())
 
+        // ✅ Room이 자동 생성해주는 인덱스까지 수동으로 추가
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_todo_instance_templateId ON todo_instance(templateId)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_todo_instance_date ON todo_instance(date)")
+
         db.execSQL("""
             CREATE TABLE IF NOT EXISTS todo_period (
-                templateId INTEGER PRIMARY KEY NOT NULL,
-                startDate INTEGER NOT NULL,
-                endDate INTEGER NOT NULL,
+                templateId INTEGER NOT NULL,
+                startDate INTEGER NOT NULL DEFAULT 'undefined',
+                endDate INTEGER NOT NULL DEFAULT 'undefined',
+                PRIMARY KEY(templateId),
+                FOREIGN KEY(templateId) REFERENCES todo_template(id) ON DELETE CASCADE ON UPDATE NO ACTION
+            );
+        """.trimIndent())
+
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_todo_period_templateId ON todo_period(templateId)")
+
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS todo_day_of_week (
+                id INTEGER NOT NULL PRIMARY KEY,
+                templateId INTEGER NOT NULL,
+                dayOfWeek INTEGER NOT NULL,
+                dayOfWeeks TEXT NOT NULL,
                 FOREIGN KEY(templateId) REFERENCES todo_template(id) ON DELETE CASCADE
             )
         """.trimIndent())
 
-        db.execSQL("""
-            CREATE TABLE IF NOT EXISTS todo_day_of_week (
-                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                templateId INTEGER NOT NULL,
-                dayOfWeeks TEXT NOT NULL,
-                dayOfWeek INTEGER NOT NULL,
-                FOREIGN KEY(templateId) REFERENCES todo_template(id) ON DELETE CASCADE
-            )
-        """.trimIndent())
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_todo_day_of_week_dayOfWeek ON todo_day_of_week(dayOfWeek)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_todo_day_of_week_templateId ON todo_day_of_week(templateId)")
 
         // 2. 기존 데이터 마이그레이션
         val cursor = db.query("SELECT * FROM TodoEntity")
