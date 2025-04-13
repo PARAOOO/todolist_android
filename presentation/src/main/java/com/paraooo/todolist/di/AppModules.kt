@@ -5,6 +5,7 @@ import com.paraooo.data.datasource.TodoLocalDataSource
 import com.paraooo.data.local.database.TodoDatabase
 import com.paraooo.data.local.migrations.MIGRATION_1_2
 import com.paraooo.data.local.migrations.MIGRATION_2_5
+import com.paraooo.data.platform.alarm.AlarmScheduler
 import com.paraooo.data.repository.TodoRepositoryImpl
 import com.paraooo.domain.repository.TodoRepository
 import com.paraooo.todolist.ui.features.create.CreateViewModel
@@ -31,12 +32,16 @@ val databaseModule = module {
     single { get<TodoDatabase>().todoDao() }
 }
 
+val alarmSchedulerModule = module {
+    single { AlarmScheduler(androidContext()) }
+}
+
 val dataSourceModule = module {
     single { TodoLocalDataSource(get()) }
 }
 
 val repositoryModule = module {
-    single<TodoRepository> {TodoRepositoryImpl(get())}
+    single<TodoRepository> {TodoRepositoryImpl(get(), get())}
 }
 
 val viewModelModule = module {
@@ -46,4 +51,4 @@ val viewModelModule = module {
 }
 
 // DI 모듈 리스트
-val appModules = listOf(databaseModule, dataSourceModule, repositoryModule, viewModelModule)
+val appModules = listOf(databaseModule, alarmSchedulerModule, dataSourceModule, repositoryModule, viewModelModule)

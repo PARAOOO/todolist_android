@@ -1,7 +1,10 @@
 package com.paraooo.todolist.ui.features.create
 
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.paraooo.data.platform.alarm.AlarmScheduler
 import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.repository.TodoRepository
@@ -52,7 +55,8 @@ class CreateViewModel(
                                             (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).hour,
                                             (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
                                         )
-                                    }
+                                    },
+                                    alarmType = _uiState.value.todoInputState.alarmInputState.alarmType
                                 )
                             )
                         }
@@ -70,6 +74,7 @@ class CreateViewModel(
                                             (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
                                         )
                                     },
+                                    alarmType = _uiState.value.todoInputState.alarmInputState.alarmType,
                                     startDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate,
                                     endDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).endDate
                                 ),
@@ -91,7 +96,8 @@ class CreateViewModel(
                                             (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).hour,
                                             (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
                                         )
-                                    }
+                                    },
+                                    alarmType = _uiState.value.todoInputState.alarmInputState.alarmType,
                                 ),
                                 dayOfWeek = (_uiState.value.todoInputState.dateInputState as DateInputState.DayOfWeek).dayOfWeek
                             )

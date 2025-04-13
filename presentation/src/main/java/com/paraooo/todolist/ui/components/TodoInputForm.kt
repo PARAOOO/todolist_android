@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.room.ColumnInfo
+import com.paraooo.domain.model.AlarmType
 import com.paraooo.todolist.ui.theme.PretendardFontFamily
 import com.paraooo.todolist.ui.util.computeTextHeight
 import com.paraooo.todolist.ui.util.dpToPx
@@ -64,7 +65,7 @@ sealed class DateInputState {
 }
 
 data class AlarmInputState (
-    val alarmType : AlarmType = AlarmType.Off
+    val alarmType : AlarmType = AlarmType.OFF
 )
 
 data class TodoInputState(
@@ -95,12 +96,6 @@ sealed class TodoInputFormType {
     ) : TodoInputFormType()
 }
 
-sealed class AlarmType(val label : String) {
-    data object Off : AlarmType("Off")
-    data object Notify : AlarmType("Notify")
-    data object PopUp : AlarmType("Pop-up")
-}
-
 @Composable
 fun TodoInputForm(
     uiState: TodoInputState,
@@ -115,7 +110,7 @@ fun TodoInputForm(
     val screenWidthDp = LocalConfiguration.current.screenWidthDp
 
     val alarmList = listOf(
-        AlarmType.Off, AlarmType.Notify, AlarmType.PopUp
+        AlarmType.OFF, AlarmType.NOTIFY, AlarmType.POPUP
     )
 //    var alarmState by remember { mutableStateOf(alarmList[0]) }
 
@@ -351,8 +346,7 @@ fun TodoInputForm(
 
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1F),
+                        .fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
 
                 ) {

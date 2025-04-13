@@ -7,6 +7,12 @@ data class Time(
     val minute: Int
 )
 
+enum class AlarmType(val label : String) {
+    OFF("Off"),
+    NOTIFY("Notify"),
+    POPUP("Pop-up")
+}
+
 data class TodoModel(
     val instanceId : Long,
     val title : String,
@@ -18,5 +24,6 @@ data class TodoModel(
     val isToggleOpened : Boolean = false,
     val startDate : LocalDate? = null,
     val endDate : LocalDate? = null,
-    val dayOfWeeks : List<Int>? = null
+    val dayOfWeeks : List<Int>? = null,
+    val alarmType : AlarmType
 )

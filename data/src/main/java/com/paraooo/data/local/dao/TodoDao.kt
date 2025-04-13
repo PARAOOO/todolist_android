@@ -96,7 +96,7 @@ interface TodoDao {
     suspend fun getTodosByDayOfWeek(dayOfWeek: Int): List<TodoDayOfWeek>
 
     @Query("SELECT * FROM todo_day_of_week WHERE templateId = :templateId")
-    suspend fun getDayOfWeekByTemplateId(templateId: Long): List<TodoDayOfWeek>?
+    suspend fun getDayOfWeekByTemplateId(templateId: Long): List<TodoDayOfWeek>
 
     @Query("DELETE FROM todo_day_of_week WHERE templateId = :templateId AND dayOfWeek IN (:days)")
     suspend fun deleteSpecificDayOfWeeks(templateId: Long, days: List<Int>)
@@ -118,7 +118,8 @@ interface TodoDao {
             ti.date AS date,
             tt.hour AS hour,
             tt.minute AS minute,
-            ti.progressAngle AS progressAngle
+            ti.progressAngle AS progressAngle,
+            tt.alarmType AS alarmType
         FROM todo_instance AS ti
         INNER JOIN todo_template AS tt ON ti.templateId = tt.id
         WHERE ti.date = :selectedDate
@@ -136,5 +137,24 @@ interface TodoDao {
         """
     )
     suspend fun getDayOfWeekTodoTemplatesByDate(date: Long): List<TodoTemplate>
+
+    @Query("""
+    SELECT 
+        i.id AS instanceId,
+        t.id AS templateId,
+        t.title AS title,
+        t.description AS description,
+        i.date AS date,
+        t.hour AS hour,
+        t.minute AS minute,
+        i.progressAngle AS progressAngle,
+        t.alarmType AS alarmType
+    FROM todo_template t
+    INNER JOIN todo_instance i ON t.id = i.templateId
+    WHERE t.alarmType != 'OFF'
+      AND t.type = 'GENERAL'
+      AND i.date >= :todayMillis
+""")
+    suspend fun getAlarmTodos(todayMillis: Long): List<TodoDto>
 
 }

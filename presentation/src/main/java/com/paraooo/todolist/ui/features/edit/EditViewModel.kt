@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.repository.TodoRepository
+import com.paraooo.todolist.ui.components.AlarmInputState
 import com.paraooo.todolist.ui.components.DateInputState
 import com.paraooo.todolist.ui.components.TimeInputState
 import com.paraooo.todolist.ui.features.create.TAG
@@ -101,13 +102,22 @@ class EditViewModel(
                     )
                 )
             }
+
+            is EditUiEvent.onAlarmInputChanged -> {
+                _uiState.value = _uiState.value.copy(
+                    todoInputState = _uiState.value.todoInputState.copy(
+                        alarmInputState = AlarmInputState(event.alarm)
+                    )
+                )
+            }
         }
     }
 
-    fun fetchTodo(instanceId: Long) {
+    private fun fetchTodo(instanceId: Long) {
         viewModelScope.launch {
             try {
                 val todo = todoRepository.findTodoById(instanceId)
+                Log.d(TAG, "fetchTodo: ${todo}")
                 _uiState.value = _uiState.value.copy(
                     todoInputState = _uiState.value.todoInputState.copy(
                         todoNameInputState = _uiState.value.todoInputState.todoNameInputState.copy(
@@ -118,13 +128,16 @@ class EditViewModel(
                         ),
                         dateInputState = when {
                             todo.startDate != null -> DateInputState.Period(todo.startDate!!, todo.endDate!!)
-                            todo.dayOfWeeks != null -> DateInputState.DayOfWeek(todo.dayOfWeeks!!)
+                            (todo.dayOfWeeks != null ) -> DateInputState.DayOfWeek(todo.dayOfWeeks!!)
                             else -> DateInputState.Date(todo.date)
                         },
                         timeInputState = when (todo.time) {
                             null -> TimeInputState.NoTime
                             else -> TimeInputState.Time(todo.time!!.hour, todo.time!!.minute)
                         },
+                        alarmInputState = _uiState.value.todoInputState.alarmInputState.copy(
+                            alarmType = todo.alarmType
+                        ),
                     )
                 )
                 selectedTodo.value = todo
@@ -163,6 +176,7 @@ class EditViewModel(
                                     (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
                                 )
                             },
+                            alarmType = _uiState.value.todoInputState.alarmInputState.alarmType,
                             progressAngle = when (selectedTodo.value) {
                                 null -> 0f
                                 else -> selectedTodo.value!!.progressAngle
@@ -190,6 +204,7 @@ class EditViewModel(
                                    (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
                                )
                            },
+                           alarmType = _uiState.value.todoInputState.alarmInputState.alarmType,
                            progressAngle = when (selectedTodo.value) {
                                null -> 0f
                                else -> selectedTodo.value!!.progressAngle
@@ -216,6 +231,7 @@ class EditViewModel(
                                     (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
                                 )
                             },
+                            alarmType = _uiState.value.todoInputState.alarmInputState.alarmType,
                             progressAngle = when (selectedTodo.value) {
                                 null -> 0f
                                 else -> selectedTodo.value!!.progressAngle

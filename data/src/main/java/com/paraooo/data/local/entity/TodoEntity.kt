@@ -70,3 +70,5 @@ enum class TodoType {
 enum class AlarmType {
     OFF, NOTIFY, POPUP
 }
+
+

@@ -1,5 +1,6 @@
 package com.paraooo.data.dto
 
+import com.paraooo.data.local.entity.AlarmType
 import com.paraooo.data.local.entity.TodoType
 
 
@@ -11,5 +12,6 @@ data class TodoDto(
     val date: Long,
     val hour: Int?,
     val minute: Int?,
-    val progressAngle: Float, // 체크 상태
+    val progressAngle: Float, // 체크 상태,
+    val alarmType: AlarmType
 )
