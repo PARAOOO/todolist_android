@@ -1,6 +1,7 @@
 package com.paraooo.data.mapper
 
 import com.paraooo.data.dto.TodoDto
+import com.paraooo.data.local.entity.AlarmType
 //import com.paraooo.data.local.entity.TodoEntity
 import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
@@ -17,10 +18,26 @@ fun TodoDto.toModel() : TodoModel {
         time = when(hour) {
             null -> null
             else -> Time(hour, minute!!)
-        }
+        },
+        alarmType = alarmType.toModel()
     )
 }
 
+fun AlarmType.toModel() : com.paraooo.domain.model.AlarmType {
+    return when(this) {
+        AlarmType.OFF -> com.paraooo.domain.model.AlarmType.OFF
+        AlarmType.NOTIFY -> com.paraooo.domain.model.AlarmType.NOTIFY
+        AlarmType.POPUP -> com.paraooo.domain.model.AlarmType.POPUP
+    }
+}
+
+fun com.paraooo.domain.model.AlarmType.toEntity() : AlarmType {
+    return when (this) {
+        com.paraooo.domain.model.AlarmType.OFF -> AlarmType.OFF
+        com.paraooo.domain.model.AlarmType.NOTIFY -> AlarmType.NOTIFY
+        com.paraooo.domain.model.AlarmType.POPUP -> AlarmType.POPUP
+    }
+}
 //fun TodoEntity.toDto() : TodoDto {
 //    return TodoDto(
 //        id, title, description, date, hour, minute, progressAngle, groupId, startDate, endDate

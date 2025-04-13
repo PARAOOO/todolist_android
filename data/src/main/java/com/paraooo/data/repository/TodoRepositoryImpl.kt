@@ -10,10 +10,13 @@ import com.paraooo.data.local.entity.TodoInstance
 import com.paraooo.data.local.entity.TodoPeriod
 import com.paraooo.data.local.entity.TodoTemplate
 import com.paraooo.data.local.entity.TodoType
+import com.paraooo.data.mapper.toEntity
 //import com.paraooo.data.local.entity.TodoEntity
 //import com.paraooo.data.mapper.toDto
 //import com.paraooo.data.mapper.toEntity
 import com.paraooo.data.mapper.toModel
+import com.paraooo.data.platform.alarm.AlarmScheduler
+import com.paraooo.domain.model.AlarmType
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.repository.TodoRepository
 import com.paraooo.domain.util.transferLocalDateToMillis
@@ -29,8 +32,8 @@ import java.util.UUID
 const val TAG = "PARAOOO"
 
 class TodoRepositoryImpl(
-//    private val todoLocalDataSource: TodoLocalDataSource,
-    private val todoDao : TodoDao
+    private val todoDao : TodoDao,
+    private val alarmScheduler: AlarmScheduler
 ) : TodoRepository {
 
     override suspend fun getTodoByDate(date: Long): List<TodoModel> {
@@ -64,17 +67,29 @@ class TodoRepositoryImpl(
             description = todo.description ?: "",
             hour = todo.time?.hour,
             minute = todo.time?.minute,
-            type = TodoType.GENERAL
+            type = TodoType.GENERAL,
+            alarmType = todo.alarmType.toEntity()
         )
 
         val templateId = todoDao.insertTodoTemplate(todoTemplate)
 
-        todoDao.insertTodoInstance(
+        val instanceId = todoDao.insertTodoInstance(
             TodoInstance(
                 templateId = templateId,
                 date = transferLocalDateToMillis(todo.date)
             )
         )
+
+        if(todo.time != null){
+            when (todo.alarmType) {
+                AlarmType.OFF -> {}
+                AlarmType.NOTIFY -> {
+                    alarmScheduler.schedule(todo, instanceId)
+                }
+                AlarmType.POPUP -> {
+                }
+            }
+        }
     }
 
     override suspend fun updateTodoProgress(instanceId: Long, progress: Float) {
@@ -82,10 +97,11 @@ class TodoRepositoryImpl(
     }
 
     override suspend fun deleteTodoById(instanceId: Long) {
-
         val instanceTodo = todoDao.getTodoInstanceById(instanceId)
 
         todoDao.deleteTodoTemplate(instanceTodo!!.templateId)
+
+        alarmScheduler.cancel(instanceId)
     }
 
     override suspend fun updateTodo(todo: TodoModel) {
@@ -99,7 +115,8 @@ class TodoRepositoryImpl(
                 description = todo.description ?: "",
                 hour = todo.time?.hour,
                 minute = todo.time?.minute,
-                type = TodoType.GENERAL
+                type = TodoType.GENERAL,
+                alarmType = todo.alarmType.toEntity()
             )
         )
 
@@ -111,6 +128,8 @@ class TodoRepositoryImpl(
                 progressAngle = todo.progressAngle
             )
         )
+
+        alarmScheduler.reschedule(todo, todo.instanceId)
     }
 
     override suspend fun findTodoById(instanceId: Long): TodoModel {
@@ -118,7 +137,10 @@ class TodoRepositoryImpl(
         val template = todoDao.getTodoTemplateById(instance!!.templateId)
 
         val period = todoDao.getTodoPeriodByTemplateId(instance.templateId)
-        val dayOfWeek = todoDao.getDayOfWeekByTemplateId(instance.templateId)
+        val dayOfWeek = todoDao.getDayOfWeekByTemplateId(instance.templateId).takeIf { it.isNotEmpty() }
+
+        Log.d(TAG, "findTodoById: period : ${period}")
+        Log.d(TAG, "findTodoById: dayOfWeek : ${dayOfWeek}")
 
         return TodoModel(
             instanceId = instance.id,
@@ -130,6 +152,7 @@ class TodoRepositoryImpl(
             } else {
                 null
             },
+            alarmType = template.alarmType.toModel(),
             progressAngle = instance.progressAngle,
             startDate = period?.startDate?.let { transferMillis2LocalDate(it) },
             endDate = period?.endDate?.let { transferMillis2LocalDate(it) },
@@ -147,7 +170,8 @@ class TodoRepositoryImpl(
                 description = todo.description ?: "",
                 hour = todo.time?.hour,
                 minute = todo.time?.minute,
-                type = TodoType.PERIOD
+                type = TodoType.PERIOD,
+                alarmType = todo.alarmType.toEntity()
             )
 
             val templateId = todoDao.insertTodoTemplate(todoTemplate)
@@ -187,7 +211,8 @@ class TodoRepositoryImpl(
                 description = todo.description ?: "",
                 hour = todo.time?.hour,
                 minute = todo.time?.minute,
-                type = TodoType.PERIOD
+                type = TodoType.PERIOD,
+                alarmType = todo.alarmType.toEntity()
             )
         )
 
@@ -230,7 +255,8 @@ class TodoRepositoryImpl(
             description = todo.description ?: "",
             hour = todo.time?.hour,
             minute = todo.time?.minute,
-            type = TodoType.PERIOD
+            type = TodoType.PERIOD,
+            alarmType = todo.alarmType.toEntity()
         )
 
         val templateId = todoDao.insertTodoTemplate(todoTemplate)
@@ -258,7 +284,8 @@ class TodoRepositoryImpl(
                 description = todo.description ?: "",
                 hour = todo.time?.hour,
                 minute = todo.time?.minute,
-                type = TodoType.DAY_OF_WEEK
+                type = TodoType.DAY_OF_WEEK,
+                alarmType = todo.alarmType.toEntity()
             )
         )
 
