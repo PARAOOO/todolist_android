@@ -8,7 +8,9 @@ import androidx.room.OnConflictStrategy.Companion.REPLACE
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import com.paraooo.data.dto.TodoDayOfWeekAlarm
 import com.paraooo.data.dto.TodoDto
+import com.paraooo.data.dto.TodoPeriodAlarm
 import com.paraooo.data.local.entity.TodoDayOfWeek
 //import com.paraooo.data.local.entity.TodoDayOfWeek
 //import com.paraooo.data.local.entity.TodoEntity
@@ -56,7 +58,7 @@ interface TodoDao {
     @Query("SELECT * FROM todo_instance WHERE id = :todoInstanceId")
     suspend fun getTodoInstanceById(todoInstanceId: Long): TodoInstance?
 
-    @Query("SELECT * FROM todo_instance WHERE templateId = :templateId")
+    @Query("SELECT * FROM todo_instance WHERE templateId = :templateId ORDER BY date ASC")
     suspend fun getInstancesByTemplateId(templateId: Long): List<TodoInstance>
 
     @Query("DELETE FROM todo_instance WHERE templateId = :templateId AND date IN (:dates)")
@@ -157,4 +159,41 @@ interface TodoDao {
 """)
     suspend fun getAlarmTodos(todayMillis: Long): List<TodoDto>
 
+    @Query("""
+        SELECT 
+            template.id AS templateId,
+            template.hour AS hour,
+            template.minute AS minute,
+            period.startDate AS startDate,
+            period.endDate AS endDate
+        FROM todo_template AS template
+        INNER JOIN todo_period AS period ON template.id = period.templateId
+        WHERE template.type = "PERIOD"
+          AND template.alarmType != "OFF"
+          AND period.startDate <= :todayMillis
+          AND period.endDate >= :todayMillis
+    """)
+    suspend fun getAlarmPeriodTodos(
+        todayMillis: Long
+    ): List<TodoPeriodAlarm>
+
+
+    @Query("""
+    SELECT 
+        template.id AS templateId, 
+        template.hour AS hour, 
+        template.minute AS minute, 
+        dow.dayOfWeeks AS dayOfWeeks
+    FROM todo_template AS template
+    INNER JOIN (
+        SELECT * FROM todo_day_of_week
+        WHERE id IN (
+            SELECT MIN(id)
+            FROM todo_day_of_week
+            GROUP BY templateId
+        )
+    ) AS dow ON dow.templateId = template.id
+    WHERE template.type = 'DAY_OF_WEEK' AND template.alarmType != 'OFF'
+""")
+    suspend fun getAlarmDayOfWeekTodos(): List<TodoDayOfWeekAlarm>
 }

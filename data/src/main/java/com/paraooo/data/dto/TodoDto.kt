@@ -13,5 +13,24 @@ data class TodoDto(
     val hour: Int?,
     val minute: Int?,
     val progressAngle: Float, // 체크 상태,
-    val alarmType: AlarmType
+    val alarmType: AlarmType,
+    val startDate: Long? = null,
+    val endDate: Long? = null,
+    val dayOfWeeks: List<Int>? = null
+)
+
+data class TodoPeriodAlarm(
+    val templateId : Long,
+    val hour: Int?,
+    val minute: Int?,
+    val startDate: Long,
+    val endDate: Long
+)
+
+
+data class TodoDayOfWeekAlarm(
+    val templateId : Long,
+    val hour: Int?,
+    val minute: Int?,
+    val dayOfWeeks : List<Int>
 )

@@ -15,12 +15,12 @@ const val TAG = "PARAOOO"
 
 class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent) {
-        val todoId = intent.getLongExtra("todoId", -1)
+        val templateId = intent.getLongExtra("templateId", -1)
 
-        Log.d(TAG, "AlarmReceiver - Alarm Received / todoId : ${todoId}")
+        Log.d(TAG, "AlarmReceiver - Alarm Received / todoId : ${templateId}")
 
         val workRequest = OneTimeWorkRequestBuilder<AlarmWorker>()
-            .setInputData(workDataOf("todoId" to todoId))
+            .setInputData(workDataOf("templateId" to templateId))
             .build()
 
         WorkManager.getInstance(context!!).enqueue(workRequest)
