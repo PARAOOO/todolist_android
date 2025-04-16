@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.paraooo.domain.model.AlarmType
 import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.repository.TodoRepository
@@ -35,6 +36,18 @@ class EditViewModel(
 
     var selectedTodo = mutableStateOf<TodoModel?>(null)
 
+    private fun updateCreateButtonEnabled() {
+        val isAlarmValid = _uiState.value.todoInputState.alarmInputState.alarmType != AlarmType.OFF
+        val isTimeValid = _uiState.value.todoInputState.timeInputState != TimeInputState.NoTime
+        val isTodoNameEmpty = _uiState.value.todoInputState.todoNameInputState.content.isEmpty()
+
+        _uiState.value = _uiState.value.copy(
+            editButtonState = _uiState.value.editButtonState.copy(
+                isEnabled = ((!isAlarmValid && !isTimeValid) || isTimeValid) && !isTodoNameEmpty
+            )
+        )
+    }
+
     fun onEvent(event : EditUiEvent) {
         when(event){
             is EditUiEvent.onInit -> {
@@ -43,18 +56,13 @@ class EditViewModel(
 
             is EditUiEvent.onTodoNameInputChanged -> {
                 _uiState.value = _uiState.value.copy(
-                    editButtonState = _uiState.value.editButtonState.copy(
-                        isValid = event.text.isNotEmpty()
-                    )
-                )
-                _uiState.value = _uiState.value.copy(
                     todoInputState = _uiState.value.todoInputState.copy(
                         todoNameInputState = _uiState.value.todoInputState.todoNameInputState.copy(
                             content = event.text,
-                            isValid = event.text.isNotEmpty()
                         )
                     )
                 )
+                updateCreateButtonEnabled()
             }
 
             is EditUiEvent.onDateInputChanged -> {
@@ -85,6 +93,7 @@ class EditViewModel(
                         timeInputState = event.timeInputState
                     )
                 )
+                updateCreateButtonEnabled()
             }
 
             is EditUiEvent.onPeriodInputChanged -> {
@@ -109,6 +118,7 @@ class EditViewModel(
                         alarmInputState = AlarmInputState(event.alarm)
                     )
                 )
+                updateCreateButtonEnabled()
             }
         }
     }
@@ -153,7 +163,7 @@ class EditViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = _uiState.value.copy(
                 editButtonState = _uiState.value.editButtonState.copy(
-                    isEnable = false
+                    isEnabled = false
                 )
             )
 
@@ -244,7 +254,7 @@ class EditViewModel(
             _effectChannel.send(EditUiEffect.onUpdateTodoSuccess(todoTitle = _uiState.value.todoInputState.todoNameInputState.content))
             _uiState.value = _uiState.value.copy(
                 editButtonState = _uiState.value.editButtonState.copy(
-                    isEnable = true
+                    isEnabled = true
                 )
             )
         }
