@@ -47,7 +47,12 @@ object PermissionManager {
     }
 
     fun shouldShowRationale(activity: ComponentActivity, permission: String): Boolean {
-        return ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)
+        return when(permission) {
+            android.Manifest.permission.SCHEDULE_EXACT_ALARM -> true
+            android.Manifest.permission.SYSTEM_ALERT_WINDOW -> true
+            else -> ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)
+        }
+
     }
 
     @Composable
@@ -71,55 +76,16 @@ object PermissionManager {
 
         return remember(permission) {
             {
-//                when(permission) {
-//                    android.Manifest.permission.SCHEDULE_EXACT_ALARM -> {
-//                        if (isPermissionGranted(context, permission)) {
-//                            onGranted()
-//                        } else {
-//                            openAppSettings(context, permission)
-//                            onDenied() // 설정 다녀온 후 확인은 별도 처리 필요
-//                        }
-//                    }
-//                    android.Manifest.permission.SYSTEM_ALERT_WINDOW -> {
-//                        if (isPermissionGranted(context, permission)) {
-//                            onGranted()
-//                        } else {
-//                            openAppSettings(context, permission)
-//                            onDenied() // 설정 다녀온 후 확인은 별도 처리 필요
-//                        }
-//                    }
-//                    else -> {
-//                        when {
-//                            isPermissionGranted(context, permission) -> onGranted()
-//                            shouldShowRationale(activity, permission) -> {
-//                                openAppSettings(context, permission)
-//                                onDenied()
-//                            }
-//                            else -> {
-//                                permissionLauncher.launch(permission)
-//                            }
-//                        }
-//                    }
-//                }
-
-//                when {
-//                    isPermissionGranted(context, permission) -> onGranted()
-//                    shouldShowRationale(activity, permission) -> {
-//                        openAppSettings(context, permission)
-//                        onDenied()
-//                    }
-//                    else -> {
-//                        permissionLauncher.launch(permission)
-//                    }
-//                }
-
-                if (isPermissionGranted(context, permission)) {
-                    onGranted()
-                } else {
-                    openAppSettings(context, permission)
-                    onDenied() // 설정 다녀온 후 확인은 별도 처리 필요
+                when {
+                    isPermissionGranted(context, permission) -> onGranted()
+                    shouldShowRationale(activity, permission) -> {
+                        openAppSettings(context, permission)
+                        onDenied()
+                    }
+                    else -> {
+                        permissionLauncher.launch(permission)
+                    }
                 }
-
             }
         }
     }
@@ -132,9 +98,6 @@ object PermissionManager {
                 }
             }
             android.Manifest.permission.SYSTEM_ALERT_WINDOW -> {
-//                Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
-//                    data = Uri.parse("package:${context.packageName}")
-//                }
                 Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${context.packageName}"))
             }
             // 그 외 권한은 앱 설정 화면으로 이동
