@@ -34,8 +34,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.room.ColumnInfo
 import com.paraooo.domain.model.AlarmType
+import com.paraooo.todolist.ui.base.PermissionManager
 import com.paraooo.todolist.ui.theme.PretendardFontFamily
 import com.paraooo.todolist.ui.util.computeTextHeight
 import com.paraooo.todolist.ui.util.dpToPx
@@ -112,6 +114,28 @@ fun TodoInputForm(
     val alarmList = listOf(
         AlarmType.OFF, AlarmType.NOTIFY, AlarmType.POPUP
     )
+
+    val exactAlarmPermissionRequest = PermissionManager.rememberPermissionRequestLauncher(
+        permission = android.Manifest.permission.SCHEDULE_EXACT_ALARM,
+        onGranted = { onAlarmChange(AlarmType.NOTIFY) },
+        onDenied = { /* 권한 거부됨 */ }
+    )
+
+    val notificationPermissionRequest = PermissionManager.rememberPermissionRequestLauncher(
+        permission = android.Manifest.permission.POST_NOTIFICATIONS,
+        onGranted = { exactAlarmPermissionRequest() },
+        onDenied = { exactAlarmPermissionRequest() }
+    )
+
+    val overlayPermissionRequest = PermissionManager.rememberPermissionRequestLauncher(
+        permission = android.Manifest.permission.SYSTEM_ALERT_WINDOW,
+        onGranted = { onAlarmChange(AlarmType.POPUP) },
+        onDenied = {  }
+    )
+
+
+
+
 //    var alarmState by remember { mutableStateOf(alarmList[0]) }
 
 
@@ -369,7 +393,11 @@ fun TodoInputForm(
                                     shape = RoundedCornerShape(12.dp)
                                 )
                                 .roundedClickable(12.dp) {
-                                    onAlarmChange(alarm)
+                                    when(alarm) {
+                                        AlarmType.NOTIFY -> notificationPermissionRequest()
+                                        AlarmType.POPUP -> overlayPermissionRequest()
+                                        else -> onAlarmChange(alarm)
+                                    }
                                 }
                         ) {
                             Text(
