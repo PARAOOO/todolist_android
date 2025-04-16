@@ -20,6 +20,7 @@ class AlarmWorker(
 ) : CoroutineWorker(appContext, params), KoinComponent {
 
     private val alarmScheduler: AlarmScheduler by inject()
+    private val notificationHelper: NotificationHelper by inject()
 
     override suspend fun doWork(): Result {
         val templateId = inputData.getLong("templateId", -1L)
@@ -82,7 +83,7 @@ class AlarmWorker(
         }
 
         if (todayInstance != null && todayInstance.progressAngle < 360F){
-            NotificationHelper.showNotification(applicationContext, todayInstance, todoTemplate)
+            notificationHelper.showNotification(applicationContext, todayInstance, todoTemplate)
         }
         // 다음 알람 예약 로직도 여기서
         return Result.success()
