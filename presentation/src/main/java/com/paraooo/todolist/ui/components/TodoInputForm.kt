@@ -48,7 +48,6 @@ import java.time.LocalDate
 
 data class TodoNameInputState (
     val content : String = "",
-    val isValid : Boolean = false
 )
 
 data class DescriptionInputState (
@@ -112,7 +111,8 @@ fun TodoInputForm(
     val screenWidthDp = LocalConfiguration.current.screenWidthDp
 
     val alarmList = listOf(
-        AlarmType.OFF, AlarmType.NOTIFY, AlarmType.POPUP
+        AlarmType.OFF, AlarmType.NOTIFY,
+//        AlarmType.POPUP
     )
 
     val exactAlarmPermissionRequest = PermissionManager.rememberPermissionRequestLauncher(
