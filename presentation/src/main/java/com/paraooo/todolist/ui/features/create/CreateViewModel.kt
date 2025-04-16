@@ -136,6 +136,7 @@ class CreateViewModel(
                 )
             }
             is CreateUiEvent.onTodoNameInputChanged -> {
+
                 _uiState.value = _uiState.value.copy(
                     createButtonState = _uiState.value.createButtonState.copy(
                         isValid = event.text.isNotEmpty()

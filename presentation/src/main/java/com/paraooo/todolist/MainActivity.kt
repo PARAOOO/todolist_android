@@ -24,34 +24,34 @@ import com.paraooo.todolist.ui.theme.TodoListTheme
 
 class MainActivity : ComponentActivity() {
 
-    private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
-            if (isGranted) {
-                // 권한 허용됨, 알림 가능
-                Toast.makeText(this, "알림 권한 허용됨", Toast.LENGTH_SHORT).show()
-            } else {
-                // 권한 거부됨
-                Toast.makeText(this, "알림 권한이 거부되었습니다", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-    private fun askNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    android.Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                // 권한 요청
-                requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }
-    }
+//    private val requestPermissionLauncher =
+//        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+//            if (isGranted) {
+//                // 권한 허용됨, 알림 가능
+//                Toast.makeText(this, "알림 권한 허용됨", Toast.LENGTH_SHORT).show()
+//            } else {
+//                // 권한 거부됨
+//                Toast.makeText(this, "알림 권한이 거부되었습니다", Toast.LENGTH_SHORT).show()
+//            }
+//        }
+//
+//    private fun askNotificationPermission() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//            if (ContextCompat.checkSelfPermission(
+//                    this,
+//                    android.Manifest.permission.POST_NOTIFICATIONS
+//                ) != PackageManager.PERMISSION_GRANTED
+//            ) {
+//                // 권한 요청
+//                requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+//            }
+//        }
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        askNotificationPermission()
+//        askNotificationPermission()
 
         enableEdgeToEdge()
         setContent {
