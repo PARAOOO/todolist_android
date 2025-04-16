@@ -150,6 +150,7 @@ class CreateViewModel(
                 updateCreateButtonEnabled()
             }
             is CreateUiEvent.onTodoNameInputChanged -> {
+
                 _uiState.value = _uiState.value.copy(
                     todoInputState = _uiState.value.todoInputState.copy(
                         todoNameInputState = _uiState.value.todoInputState.todoNameInputState.copy(
