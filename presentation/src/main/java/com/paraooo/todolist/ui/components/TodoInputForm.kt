@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
@@ -107,6 +108,8 @@ fun TodoInputForm(
     type : TodoInputFormType
 ) {
 
+    val context = LocalContext.current
+
     var isPopupVisible by remember { mutableStateOf(false) }
     val screenWidthDp = LocalConfiguration.current.screenWidthDp
 
@@ -117,7 +120,11 @@ fun TodoInputForm(
 
     val exactAlarmPermissionRequest = PermissionManager.rememberPermissionRequestLauncher(
         permission = android.Manifest.permission.SCHEDULE_EXACT_ALARM,
-        onGranted = { onAlarmChange(AlarmType.NOTIFY) },
+        onGranted = {
+            if(PermissionManager.isPermissionGranted(context, android.Manifest.permission.POST_NOTIFICATIONS)){
+                onAlarmChange(AlarmType.NOTIFY)
+            }
+        },
         onDenied = { /* 권한 거부됨 */ }
     )
 
