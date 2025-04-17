@@ -6,8 +6,8 @@ import com.paraooo.data.local.database.TodoDatabase
 import com.paraooo.data.local.migrations.MIGRATION_1_2
 import com.paraooo.data.local.migrations.MIGRATION_2_5
 import com.paraooo.data.platform.alarm.AlarmScheduler
+import com.paraooo.data.platform.alarm.IntentProvider
 import com.paraooo.data.platform.alarm.NotificationHelper
-import com.paraooo.data.platform.alarm.NotificationIntentProvider
 import com.paraooo.data.repository.TodoRepositoryImpl
 import com.paraooo.domain.repository.TodoRepository
 import com.paraooo.todolist.ui.features.create.CreateViewModel
@@ -53,7 +53,7 @@ val viewModelModule = module {
 }
 
 val notificationModule = module {
-    single<NotificationIntentProvider> { AppNotificationIntentProvider() }
+    single<IntentProvider> { AppIntentProvider() }
     single { NotificationHelper(get()) }
 }
 

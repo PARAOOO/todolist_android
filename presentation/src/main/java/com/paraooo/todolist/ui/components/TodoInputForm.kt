@@ -114,8 +114,7 @@ fun TodoInputForm(
     val screenWidthDp = LocalConfiguration.current.screenWidthDp
 
     val alarmList = listOf(
-        AlarmType.OFF, AlarmType.NOTIFY,
-//        AlarmType.POPUP
+        AlarmType.OFF, AlarmType.NOTIFY, AlarmType.POPUP
     )
 
     val exactAlarmPermissionRequest = PermissionManager.rememberPermissionRequestLauncher(
@@ -134,17 +133,21 @@ fun TodoInputForm(
         onDenied = { exactAlarmPermissionRequest() }
     )
 
-    val overlayPermissionRequest = PermissionManager.rememberPermissionRequestLauncher(
-        permission = android.Manifest.permission.SYSTEM_ALERT_WINDOW,
-        onGranted = { onAlarmChange(AlarmType.POPUP) },
-        onDenied = {  }
+    val popupAlarmPermissionRequest = PermissionManager.rememberPermissionRequestLauncher(
+        permission = android.Manifest.permission.SCHEDULE_EXACT_ALARM,
+        onGranted = {
+            if(PermissionManager.isPermissionGranted(context, android.Manifest.permission.SYSTEM_ALERT_WINDOW)){
+                onAlarmChange(AlarmType.POPUP)
+            }
+        },
+        onDenied = { /* 권한 거부됨 */ }
     )
 
-
-
-
-//    var alarmState by remember { mutableStateOf(alarmList[0]) }
-
+    val overlayPermissionRequest = PermissionManager.rememberPermissionRequestLauncher(
+        permission = android.Manifest.permission.SYSTEM_ALERT_WINDOW,
+        onGranted = { popupAlarmPermissionRequest() },
+        onDenied = { popupAlarmPermissionRequest() }
+    )
 
     fun getTextOfDateInput(date : DateInputState) : String {
         when(date) {

@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.paraooo.data.local.database.TodoDatabase
+import com.paraooo.data.local.entity.AlarmType
 import com.paraooo.data.local.entity.TodoType
 import com.paraooo.domain.model.Time
 import com.paraooo.domain.util.transferLocalDateToMillis
@@ -21,6 +22,7 @@ class AlarmWorker(
 
     private val alarmScheduler: AlarmScheduler by inject()
     private val notificationHelper: NotificationHelper by inject()
+    private val intentProvider: IntentProvider by inject()
 
     override suspend fun doWork(): Result {
         val templateId = inputData.getLong("templateId", -1L)
@@ -83,7 +85,15 @@ class AlarmWorker(
         }
 
         if (todayInstance != null && todayInstance.progressAngle < 360F){
-            notificationHelper.showNotification(applicationContext, todayInstance, todoTemplate)
+            when(todoTemplate.alarmType) {
+                AlarmType.OFF -> {}
+                AlarmType.NOTIFY -> notificationHelper.showNotification(applicationContext, todayInstance, todoTemplate)
+                AlarmType.POPUP -> {
+                    val intent = intentProvider.getPopupIntent(applicationContext)
+                    intent.putExtra("todoName", todoTemplate.title)  // 여기서 데이터를 전달
+                    applicationContext.startActivity(intent)
+                }
+            }
         }
         // 다음 알람 예약 로직도 여기서
         return Result.success()
