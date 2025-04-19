@@ -90,7 +90,7 @@ class AlarmWorker(
                 AlarmType.NOTIFY -> notificationHelper.showNotification(applicationContext, todayInstance, todoTemplate)
                 AlarmType.POPUP -> {
                     val intent = intentProvider.getPopupIntent(applicationContext)
-                    intent.putExtra("todoName", todoTemplate.title)  // 여기서 데이터를 전달
+                    intent.putExtra("instanceId", todayInstance.id)  // 여기서 데이터를 전달
                     applicationContext.startActivity(intent)
                 }
             }

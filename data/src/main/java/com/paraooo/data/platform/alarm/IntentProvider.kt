@@ -7,5 +7,4 @@ import android.content.Intent
 interface IntentProvider {
     fun getNotificationIntent(context: Context, todoId: Long): PendingIntent
     fun getPopupIntent(context: Context): Intent
-
 }

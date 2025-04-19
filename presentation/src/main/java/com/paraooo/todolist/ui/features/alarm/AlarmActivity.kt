@@ -1,6 +1,9 @@
 package com.paraooo.todolist.ui.features.alarm
 
 import android.content.Context
+import android.media.AudioManager
+import android.media.MediaPlayer
+import android.media.RingtoneManager
 import android.os.Build
 import android.os.Bundle
 import android.os.PersistableBundle
@@ -18,13 +21,19 @@ class AlarmActivity : ComponentActivity() {
 
     private var wakeLock: PowerManager.WakeLock? = null
     private var isWakeLockReleased = false
+    private var mediaPlayer: MediaPlayer? = null
+
+    private fun onDismiss() {
+        stopVibrate()
+        stopAlarmSound()
+        releaseWakeLock()
+        finish()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        vibrate()
-
-        val todoName = intent.getStringExtra("todoName") ?: "Todo 정보를 가져오지 못했습니다."
+        val instanceId = intent.getLongExtra("instanceId", 0)
 
         // deprecated 플래그 사용 (잠금화면 위 + 화면 켜기)
         window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED)
@@ -47,11 +56,15 @@ class AlarmActivity : ComponentActivity() {
 
         setContent {
             AlarmScreen(
-                todoName = todoName,
+                instanceId = instanceId,
                 onDismiss = {
-                    stopVibrate()
-                    releaseWakeLock()
-                    finish()
+                    onDismiss()
+                },
+                onVibrate = {
+                    vibrate()
+                },
+                onSound = {
+                    playAlarmSound()
                 }
             )
         }
@@ -64,9 +77,7 @@ class AlarmActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
-        stopVibrate()
-        releaseWakeLock()
-        finish()
+        onDismiss()
     }
 
     private fun releaseWakeLock() {
@@ -75,7 +86,6 @@ class AlarmActivity : ComponentActivity() {
             isWakeLockReleased = true
         }
     }
-
 
     private fun vibrate() {
         val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -107,5 +117,25 @@ class AlarmActivity : ComponentActivity() {
         }
 
         vibrator.cancel()
+    }
+
+    private fun playAlarmSound() {
+        // 기본 알람음 가져오기
+        val alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+            ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+
+        mediaPlayer = MediaPlayer().apply {
+            setDataSource(this@AlarmActivity, alarmUri)
+            setAudioStreamType(AudioManager.STREAM_ALARM)
+            isLooping = true
+            prepare()
+            start()
+        }
+    }
+
+    private fun stopAlarmSound() {
+        mediaPlayer?.stop()
+        mediaPlayer?.release()
+        mediaPlayer = null
     }
 }

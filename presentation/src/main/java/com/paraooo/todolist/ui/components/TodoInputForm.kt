@@ -1,5 +1,13 @@
 package com.paraooo.todolist.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -70,12 +78,18 @@ data class AlarmInputState (
     val alarmType : AlarmType = AlarmType.OFF
 )
 
+data class AlarmSettingInputState (
+    val vibration : Boolean = false,
+    val sound : Boolean = false
+ )
+
 data class TodoInputState(
     val todoNameInputState : TodoNameInputState = TodoNameInputState(),
     val descriptionInputState : DescriptionInputState = DescriptionInputState(),
     val timeInputState: TimeInputState = TimeInputState.NoTime,
     val dateInputState : DateInputState = DateInputState.Date(LocalDate.now()),
-    val alarmInputState : AlarmInputState = AlarmInputState()
+    val alarmInputState : AlarmInputState = AlarmInputState(),
+    val alarmSettingInputState : AlarmSettingInputState = AlarmSettingInputState()
 )
 
 sealed class TodoInputFormType {
@@ -105,6 +119,7 @@ fun TodoInputForm(
     onDescriptionChange: (String) -> Unit,
     onTimeInputClicked: () -> Unit,
     onAlarmChange: (alarm : AlarmType) -> Unit,
+    onAlarmSettingChange: (vibration : Boolean, sound : Boolean) -> Unit,
     type : TodoInputFormType
 ) {
 
@@ -167,6 +182,7 @@ fun TodoInputForm(
         modifier = Modifier
             .fillMaxWidth()
             .padding(18.dp)
+            .animateContentSize()
     ){
         Column(modifier = Modifier.fillMaxWidth()) {
             TLTextField(
@@ -403,7 +419,7 @@ fun TodoInputForm(
                                     shape = RoundedCornerShape(12.dp)
                                 )
                                 .roundedClickable(12.dp) {
-                                    when(alarm) {
+                                    when (alarm) {
                                         AlarmType.NOTIFY -> notificationPermissionRequest()
                                         AlarmType.POPUP -> overlayPermissionRequest()
                                         else -> onAlarmChange(alarm)
@@ -414,6 +430,98 @@ fun TodoInputForm(
                                 text = alarm.label,
                                 fontSize = 12.sp,
                                 color = if (isSelected) Color(
+                                    0xFF54C392
+                                ) else Color(0xFF7F7F7F),
+                                modifier = Modifier.padding(vertical = 10.dp),
+                                fontFamily = PretendardFontFamily,
+                                fontWeight = FontWeight.Normal,
+                            )
+                        }
+                    }
+                }
+            }
+
+            if(uiState.alarmInputState.alarmType == AlarmType.POPUP){
+
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1F)) {
+                        Text(
+                            "Vibration",
+                            fontSize = 14.sp,
+                            color = Color(0xFF7F7F7F),
+                            fontFamily = PretendardFontFamily,
+                            fontWeight = FontWeight.Normal,
+                        )
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(
+                                    border = BorderStroke(
+                                        1.dp,
+                                        color = if (uiState.alarmSettingInputState.vibration) Color(
+                                            0xFF54C392
+                                        ) else Color(0xFFECEEEE)
+                                    ),
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                                .roundedClickable(12.dp) {
+                                    onAlarmSettingChange(!uiState.alarmSettingInputState.vibration, uiState.alarmSettingInputState.sound)
+                                }
+                        ) {
+                            Text(
+                                text = if(uiState.alarmSettingInputState.vibration) "On" else "Off",
+                                fontSize = 12.sp,
+                                color = if (uiState.alarmSettingInputState.vibration) Color(
+                                    0xFF54C392
+                                ) else Color(0xFF7F7F7F),
+                                modifier = Modifier.padding(vertical = 10.dp),
+                                fontFamily = PretendardFontFamily,
+                                fontWeight = FontWeight.Normal,
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Column(modifier = Modifier.weight(1F)) {
+                        Text(
+                            "Sound",
+                            fontSize = 14.sp,
+                            color = Color(0xFF7F7F7F),
+                            fontFamily = PretendardFontFamily,
+                            fontWeight = FontWeight.Normal,
+                        )
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(
+                                    border = BorderStroke(
+                                        1.dp,
+                                        color = if (uiState.alarmSettingInputState.sound) Color(
+                                            0xFF54C392
+                                        ) else Color(0xFFECEEEE)
+                                    ),
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                                .roundedClickable(12.dp) {
+                                    onAlarmSettingChange(uiState.alarmSettingInputState.vibration, !uiState.alarmSettingInputState.sound)
+                                }
+                        ) {
+                            Text(
+                                text = if(uiState.alarmSettingInputState.sound) "On" else "Off",
+                                fontSize = 12.sp,
+                                color = if (uiState.alarmSettingInputState.sound) Color(
                                     0xFF54C392
                                 ) else Color(0xFF7F7F7F),
                                 modifier = Modifier.padding(vertical = 10.dp),

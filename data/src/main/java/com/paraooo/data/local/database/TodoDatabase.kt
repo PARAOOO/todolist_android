@@ -16,7 +16,7 @@ import com.paraooo.data.local.util.TodoConverters
 
 //import com.paraooo.data.local.entity.TodoEntity
 
-@Database(entities = [TodoInstance::class, TodoTemplate::class, TodoPeriod::class, TodoDayOfWeek::class], version = 6, exportSchema = false)
+@Database(entities = [TodoInstance::class, TodoTemplate::class, TodoPeriod::class, TodoDayOfWeek::class], version = 7, exportSchema = false)
 @TypeConverters(TodoConverters::class) // 여기 등록
 abstract class TodoDatabase : RoomDatabase() {
     abstract fun todoDao(): TodoDao
