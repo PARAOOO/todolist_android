@@ -15,6 +15,7 @@ sealed class EditUiEvent {
     data class onPeriodInputChanged(val startDate : LocalDate, val endDate : LocalDate) : EditUiEvent()
     data class onDayOfWeekInputChanged(val daysOfWeek : List<DayOfWeek>) : EditUiEvent()
     data class onAlarmInputChanged(val alarm : AlarmType) : EditUiEvent()
+    data class onAlarmSettingInputChanged(val vibration: Boolean, val sound: Boolean) : EditUiEvent()
     data class onInit(val instanceId : Long) : EditUiEvent()
     data class onEditClicked(val instanceId: Long) : EditUiEvent()
 

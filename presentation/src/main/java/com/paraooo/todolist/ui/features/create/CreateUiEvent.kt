@@ -15,6 +15,7 @@ sealed class CreateUiEvent {
     data class onPeriodInputChanged(val startDate : LocalDate, val endDate : LocalDate) : CreateUiEvent()
     data class onDayOfWeekInputChanged(val daysOfWeek : List<DayOfWeek>) : CreateUiEvent()
     data class onAlarmInputChanged(val alarm : AlarmType) : CreateUiEvent()
+    data class onAlarmSettingInputChanged(val vibration : Boolean, val sound : Boolean) : CreateUiEvent()
     data object onCreateClicked : CreateUiEvent()
 
 }

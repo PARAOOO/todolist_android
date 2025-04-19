@@ -5,11 +5,13 @@ import com.paraooo.data.datasource.TodoLocalDataSource
 import com.paraooo.data.local.database.TodoDatabase
 import com.paraooo.data.local.migrations.MIGRATION_1_2
 import com.paraooo.data.local.migrations.MIGRATION_2_5
+import com.paraooo.data.local.migrations.MIGRATION_5_7
 import com.paraooo.data.platform.alarm.AlarmScheduler
 import com.paraooo.data.platform.alarm.IntentProvider
 import com.paraooo.data.platform.alarm.NotificationHelper
 import com.paraooo.data.repository.TodoRepositoryImpl
 import com.paraooo.domain.repository.TodoRepository
+import com.paraooo.todolist.ui.features.alarm.AlarmViewModel
 import com.paraooo.todolist.ui.features.create.CreateViewModel
 import com.paraooo.todolist.ui.features.edit.EditViewModel
 import com.paraooo.todolist.ui.features.home.HomeViewModel
@@ -26,7 +28,8 @@ val databaseModule = module {
         ).fallbackToDestructiveMigration()
         .addMigrations(
             MIGRATION_1_2,
-            MIGRATION_2_5
+            MIGRATION_2_5,
+            MIGRATION_5_7
         )
         .build()
     }
@@ -50,6 +53,7 @@ val viewModelModule = module {
     viewModel { HomeViewModel(get()) }
     viewModel { CreateViewModel(get()) }
     viewModel { EditViewModel(get())}
+    viewModel { AlarmViewModel(get()) }
 }
 
 val notificationModule = module {

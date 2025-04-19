@@ -68,7 +68,9 @@ class TodoRepositoryImpl(
             hour = todo.time?.hour,
             minute = todo.time?.minute,
             type = TodoType.GENERAL,
-            alarmType = todo.alarmType.toEntity()
+            alarmType = todo.alarmType.toEntity(),
+            isAlarmHasVibration = todo.isAlarmHasVibration,
+            isAlarmHasSound = todo.isAlarmHasSound
         )
 
         val templateId = todoDao.insertTodoTemplate(todoTemplate)
@@ -117,7 +119,9 @@ class TodoRepositoryImpl(
                 hour = todo.time?.hour,
                 minute = todo.time?.minute,
                 type = TodoType.GENERAL,
-                alarmType = todo.alarmType.toEntity()
+                alarmType = todo.alarmType.toEntity(),
+                isAlarmHasVibration = todo.isAlarmHasVibration,
+                isAlarmHasSound = todo.isAlarmHasSound
             )
         )
 
@@ -169,7 +173,9 @@ class TodoRepositoryImpl(
             progressAngle = instance.progressAngle,
             startDate = period?.startDate?.let { transferMillis2LocalDate(it) },
             endDate = period?.endDate?.let { transferMillis2LocalDate(it) },
-            dayOfWeeks = dayOfWeek?.map { it.dayOfWeek }
+            dayOfWeeks = dayOfWeek?.map { it.dayOfWeek },
+            isAlarmHasVibration = template.isAlarmHasVibration,
+            isAlarmHasSound = template.isAlarmHasSound
         )
     }
 
@@ -184,7 +190,9 @@ class TodoRepositoryImpl(
                 hour = todo.time?.hour,
                 minute = todo.time?.minute,
                 type = TodoType.PERIOD,
-                alarmType = todo.alarmType.toEntity()
+                alarmType = todo.alarmType.toEntity(),
+                isAlarmHasVibration = todo.isAlarmHasVibration,
+                isAlarmHasSound = todo.isAlarmHasSound
             )
 
             val templateId = todoDao.insertTodoTemplate(todoTemplate)
@@ -246,7 +254,9 @@ class TodoRepositoryImpl(
                 hour = todo.time?.hour,
                 minute = todo.time?.minute,
                 type = TodoType.PERIOD,
-                alarmType = todo.alarmType.toEntity()
+                alarmType = todo.alarmType.toEntity(),
+                isAlarmHasVibration = todo.isAlarmHasVibration,
+                isAlarmHasSound = todo.isAlarmHasSound
             )
         )
 
@@ -313,7 +323,9 @@ class TodoRepositoryImpl(
             hour = todo.time?.hour,
             minute = todo.time?.minute,
             type = TodoType.DAY_OF_WEEK,
-            alarmType = todo.alarmType.toEntity()
+            alarmType = todo.alarmType.toEntity(),
+            isAlarmHasVibration = todo.isAlarmHasVibration,
+            isAlarmHasSound = todo.isAlarmHasSound
         )
 
         val templateId = todoDao.insertTodoTemplate(todoTemplate)
@@ -366,7 +378,9 @@ class TodoRepositoryImpl(
                 hour = todo.time?.hour,
                 minute = todo.time?.minute,
                 type = TodoType.DAY_OF_WEEK,
-                alarmType = todo.alarmType.toEntity()
+                alarmType = todo.alarmType.toEntity(),
+                isAlarmHasVibration = todo.isAlarmHasVibration,
+                isAlarmHasSound = todo.isAlarmHasSound
             )
         )
 
