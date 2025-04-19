@@ -10,6 +10,7 @@ import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.repository.TodoRepository
 import com.paraooo.todolist.ui.components.AlarmInputState
+import com.paraooo.todolist.ui.components.AlarmSettingInputState
 import com.paraooo.todolist.ui.components.DateInputState
 import com.paraooo.todolist.ui.components.TimeInputState
 import kotlinx.coroutines.Dispatchers
@@ -69,7 +70,9 @@ class CreateViewModel(
                                             (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
                                         )
                                     },
-                                    alarmType = _uiState.value.todoInputState.alarmInputState.alarmType
+                                    alarmType = _uiState.value.todoInputState.alarmInputState.alarmType,
+                                    isAlarmHasVibration = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.vibration else false,
+                                    isAlarmHasSound = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.sound else false
                                 )
                             )
                         }
@@ -88,6 +91,8 @@ class CreateViewModel(
                                         )
                                     },
                                     alarmType = _uiState.value.todoInputState.alarmInputState.alarmType,
+                                    isAlarmHasVibration = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.vibration else false,
+                                    isAlarmHasSound = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.sound else false,
                                     startDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate,
                                     endDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).endDate
                                 ),
@@ -111,6 +116,8 @@ class CreateViewModel(
                                         )
                                     },
                                     alarmType = _uiState.value.todoInputState.alarmInputState.alarmType,
+                                    isAlarmHasVibration = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.vibration else false,
+                                    isAlarmHasSound = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.sound else false
                                 ),
                                 dayOfWeek = (_uiState.value.todoInputState.dateInputState as DateInputState.DayOfWeek).dayOfWeek
                             )
@@ -193,6 +200,17 @@ class CreateViewModel(
                     )
                 )
                 updateCreateButtonEnabled()
+            }
+
+            is CreateUiEvent.onAlarmSettingInputChanged -> {
+                _uiState.value = _uiState.value.copy(
+                    todoInputState = _uiState.value.todoInputState.copy(
+                        alarmSettingInputState = AlarmSettingInputState(
+                            vibration = event.vibration,
+                            sound = event.sound
+                        )
+                    )
+                )
             }
         }
     }

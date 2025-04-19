@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 const val TAG = "PARAOOO"
 
 class AlarmReceiver : BroadcastReceiver() {
+
     override fun onReceive(context: Context?, intent: Intent) {
         val templateId = intent.getLongExtra("templateId", -1)
 

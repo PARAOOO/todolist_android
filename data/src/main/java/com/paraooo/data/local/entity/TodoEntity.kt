@@ -15,7 +15,9 @@ data class TodoTemplate(
     val hour: Int?, // null이면 시간 미지정,
     val minute: Int?,
     @ColumnInfo(index = true) val type: TodoType, // GENERAL, PERIOD, DAY_OF_WEEK,
-    val alarmType : AlarmType
+    val alarmType : AlarmType, // OFF, NOTIFY, POPUP
+    val isAlarmHasVibration : Boolean,
+    val isAlarmHasSound : Boolean
 )
 
 // ✅ 2. 특정 날짜에 생성된 Todo 인스턴스 (체크 상태 포함)

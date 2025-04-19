@@ -68,7 +68,9 @@ class TodoRepositoryImpl(
             hour = todo.time?.hour,
             minute = todo.time?.minute,
             type = TodoType.GENERAL,
-            alarmType = todo.alarmType.toEntity()
+            alarmType = todo.alarmType.toEntity(),
+            isAlarmHasVibration = todo.isAlarmHasVibration,
+            isAlarmHasSound = todo.isAlarmHasSound
         )
 
         val templateId = todoDao.insertTodoTemplate(todoTemplate)
@@ -87,6 +89,7 @@ class TodoRepositoryImpl(
                     alarmScheduler.schedule(todo.date, todo.time!!, templateId)
                 }
                 AlarmType.POPUP -> {
+                    alarmScheduler.schedule(todo.date, todo.time!!, templateId)
                 }
             }
         }
@@ -116,7 +119,9 @@ class TodoRepositoryImpl(
                 hour = todo.time?.hour,
                 minute = todo.time?.minute,
                 type = TodoType.GENERAL,
-                alarmType = todo.alarmType.toEntity()
+                alarmType = todo.alarmType.toEntity(),
+                isAlarmHasVibration = todo.isAlarmHasVibration,
+                isAlarmHasSound = todo.isAlarmHasSound
             )
         )
 
@@ -136,6 +141,7 @@ class TodoRepositoryImpl(
                     alarmScheduler.reschedule(todo.date, todo.time!!, instanceTodo.templateId)
                 }
                 AlarmType.POPUP -> {
+                    alarmScheduler.reschedule(todo.date, todo.time!!, instanceTodo.templateId)
                 }
             }
         } else {
@@ -167,7 +173,9 @@ class TodoRepositoryImpl(
             progressAngle = instance.progressAngle,
             startDate = period?.startDate?.let { transferMillis2LocalDate(it) },
             endDate = period?.endDate?.let { transferMillis2LocalDate(it) },
-            dayOfWeeks = dayOfWeek?.map { it.dayOfWeek }
+            dayOfWeeks = dayOfWeek?.map { it.dayOfWeek },
+            isAlarmHasVibration = template.isAlarmHasVibration,
+            isAlarmHasSound = template.isAlarmHasSound
         )
     }
 
@@ -182,7 +190,9 @@ class TodoRepositoryImpl(
                 hour = todo.time?.hour,
                 minute = todo.time?.minute,
                 type = TodoType.PERIOD,
-                alarmType = todo.alarmType.toEntity()
+                alarmType = todo.alarmType.toEntity(),
+                isAlarmHasVibration = todo.isAlarmHasVibration,
+                isAlarmHasSound = todo.isAlarmHasSound
             )
 
             val templateId = todoDao.insertTodoTemplate(todoTemplate)
@@ -209,7 +219,7 @@ class TodoRepositoryImpl(
                 )
             )
 
-            if(todo.time != null){
+            if(todo.time != null && todo.alarmType != AlarmType.OFF){
                 val nowLocalDateMillis = transferLocalDateToMillis(LocalDate.now())
 
                 for (todoInstance in todos) {
@@ -244,7 +254,9 @@ class TodoRepositoryImpl(
                 hour = todo.time?.hour,
                 minute = todo.time?.minute,
                 type = TodoType.PERIOD,
-                alarmType = todo.alarmType.toEntity()
+                alarmType = todo.alarmType.toEntity(),
+                isAlarmHasVibration = todo.isAlarmHasVibration,
+                isAlarmHasSound = todo.isAlarmHasSound
             )
         )
 
@@ -280,7 +292,7 @@ class TodoRepositoryImpl(
 
         alarmScheduler.cancel(instanceTodo.templateId)
 
-        if(todo.time != null){
+        if(todo.time != null && todo.alarmType != AlarmType.OFF){
             val nowLocalDateMillis = transferLocalDateToMillis(LocalDate.now())
 
             for (todoInstance in existingInstances) {
@@ -311,7 +323,9 @@ class TodoRepositoryImpl(
             hour = todo.time?.hour,
             minute = todo.time?.minute,
             type = TodoType.DAY_OF_WEEK,
-            alarmType = todo.alarmType.toEntity()
+            alarmType = todo.alarmType.toEntity(),
+            isAlarmHasVibration = todo.isAlarmHasVibration,
+            isAlarmHasSound = todo.isAlarmHasSound
         )
 
         val templateId = todoDao.insertTodoTemplate(todoTemplate)
@@ -326,27 +340,29 @@ class TodoRepositoryImpl(
             )
         }
 
-        val today = LocalDate.now()
-        val now = LocalTime.now()
+        if(todo.time != null && todo.alarmType != AlarmType.OFF){
+            val today = LocalDate.now()
+            val now = LocalTime.now()
 
-        val todoTime = LocalTime.of(todo.time!!.hour, todo.time!!.minute) // ⏰ 시간 조합
-        val isTimePassed = now > todoTime
+            val todoTime = LocalTime.of(todo.time!!.hour, todo.time!!.minute) // ⏰ 시간 조합
+            val isTimePassed = now > todoTime
 
-        val startDayOffset = if (isTimePassed) 1 else 0
+            val startDayOffset = if (isTimePassed) 1 else 0
 
-        val alarmDate = (startDayOffset..6).map { offset ->
-            today.plusDays(offset.toLong())
-        }.first { date ->
-            dayOfWeek.contains(date.dayOfWeek.value)
+            val alarmDate = (startDayOffset..6).map { offset ->
+                today.plusDays(offset.toLong())
+            }.first { date ->
+                dayOfWeek.contains(date.dayOfWeek.value)
+            }
+
+            Log.d(TAG, "postDayOfWeekTodo: ${alarmDate} ")
+
+            alarmScheduler.schedule(
+                date = alarmDate,
+                time = todo.time!!,
+                templateId = templateId
+            )
         }
-
-        Log.d(TAG, "postDayOfWeekTodo: ${alarmDate} ")
-
-        alarmScheduler.schedule(
-            date = alarmDate,
-            time = todo.time!!,
-            templateId = templateId
-        )
     }
 
     override suspend fun updateDayOfWeekTodo(todo: TodoModel) {
@@ -362,7 +378,9 @@ class TodoRepositoryImpl(
                 hour = todo.time?.hour,
                 minute = todo.time?.minute,
                 type = TodoType.DAY_OF_WEEK,
-                alarmType = todo.alarmType.toEntity()
+                alarmType = todo.alarmType.toEntity(),
+                isAlarmHasVibration = todo.isAlarmHasVibration,
+                isAlarmHasSound = todo.isAlarmHasSound
             )
         )
 
@@ -392,25 +410,26 @@ class TodoRepositoryImpl(
 
         alarmScheduler.cancel(templateId)
 
-        val today = LocalDate.now()
-        val now = LocalTime.now()
+        if(todo.time != null && todo.alarmType != AlarmType.OFF){
+            val today = LocalDate.now()
+            val now = LocalTime.now()
 
-        val todoTime = LocalTime.of(todo.time!!.hour, todo.time!!.minute) // ⏰ 시간 조합
-        val isTimePassed = now > todoTime
+            val todoTime = LocalTime.of(todo.time!!.hour, todo.time!!.minute) // ⏰ 시간 조합
+            val isTimePassed = now > todoTime
 
-        val startDayOffset = if (isTimePassed) 1 else 0
+            val startDayOffset = if (isTimePassed) 1 else 0
 
-        val alarmDate = (startDayOffset..6).map { offset ->
-            today.plusDays(offset.toLong())
-        }.first { date ->
-            todo.dayOfWeeks!!.contains(date.dayOfWeek.value)
+            val alarmDate = (startDayOffset..6).map { offset ->
+                today.plusDays(offset.toLong())
+            }.first { date ->
+                todo.dayOfWeeks!!.contains(date.dayOfWeek.value)
+            }
+
+            alarmScheduler.schedule(
+                date = alarmDate,
+                time = todo.time!!,
+                templateId = templateId
+            )
         }
-
-        alarmScheduler.schedule(
-            date = alarmDate,
-            time = todo.time!!,
-            templateId = templateId
-        )
-
     }
 }

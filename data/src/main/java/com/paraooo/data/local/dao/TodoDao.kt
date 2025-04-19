@@ -80,7 +80,6 @@ interface TodoDao {
     @Query("SELECT * FROM todo_period WHERE templateId = :templateId")
     suspend fun getTodoPeriodByTemplateId(templateId: Long): TodoPeriod?
 
-
     // 📌 4. TodoDayOfWeek 관련 DAO
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTodoDayOfWeek(todoDayOfWeek: TodoDayOfWeek)

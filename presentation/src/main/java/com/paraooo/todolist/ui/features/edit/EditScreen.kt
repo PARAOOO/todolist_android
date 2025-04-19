@@ -122,6 +122,9 @@ fun EditScreen(
                 onDescriptionChange = { viewModel.onEvent(EditUiEvent.onDescriptionInputChanged(it)) },
                 onTimeInputClicked = { showTimePicker = true },
                 onAlarmChange = { viewModel.onEvent(EditUiEvent.onAlarmInputChanged(it)) },
+                onAlarmSettingChange = { vibration: Boolean, sound: Boolean ->
+                    viewModel.onEvent(EditUiEvent.onAlarmSettingInputChanged(vibration, sound))
+                },
                 type = when {
                     selectedTodo!!.startDate != null -> {
 
@@ -142,9 +145,6 @@ fun EditScreen(
                         )
                     }
                 }
-//                type = TodoInputFormType.Edit(
-//                    onDateInputClicked = { showDatePicker = true }
-//                )
             )
         }
 

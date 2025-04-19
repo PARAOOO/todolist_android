@@ -25,5 +25,7 @@ data class TodoModel(
     val startDate : LocalDate? = null,
     val endDate : LocalDate? = null,
     val dayOfWeeks : List<Int>? = null,
-    val alarmType : AlarmType
+    val alarmType : AlarmType,
+    val isAlarmHasVibration : Boolean = false,
+    val isAlarmHasSound : Boolean = false
 )

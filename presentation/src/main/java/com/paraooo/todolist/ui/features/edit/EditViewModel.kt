@@ -12,6 +12,7 @@ import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.repository.TodoRepository
 import com.paraooo.todolist.ui.components.AlarmInputState
+import com.paraooo.todolist.ui.components.AlarmSettingInputState
 import com.paraooo.todolist.ui.components.DateInputState
 import com.paraooo.todolist.ui.components.TimeInputState
 import com.paraooo.todolist.ui.features.create.TAG
@@ -120,6 +121,17 @@ class EditViewModel(
                 )
                 updateCreateButtonEnabled()
             }
+
+            is EditUiEvent.onAlarmSettingInputChanged -> {
+                _uiState.value = _uiState.value.copy(
+                    todoInputState = _uiState.value.todoInputState.copy(
+                        alarmSettingInputState = AlarmSettingInputState(
+                            vibration = event.vibration,
+                            sound = event.sound
+                        )
+                    )
+                )
+            }
         }
     }
 
@@ -148,6 +160,10 @@ class EditViewModel(
                         alarmInputState = _uiState.value.todoInputState.alarmInputState.copy(
                             alarmType = todo.alarmType
                         ),
+                        alarmSettingInputState = _uiState.value.todoInputState.alarmSettingInputState.copy(
+                            sound = todo.isAlarmHasSound,
+                            vibration = todo.isAlarmHasVibration
+                        )
                     )
                 )
                 selectedTodo.value = todo
@@ -187,6 +203,9 @@ class EditViewModel(
                                 )
                             },
                             alarmType = _uiState.value.todoInputState.alarmInputState.alarmType,
+
+                            isAlarmHasVibration = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.vibration else false,
+                            isAlarmHasSound = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.sound else false,
                             progressAngle = when (selectedTodo.value) {
                                 null -> 0f
                                 else -> selectedTodo.value!!.progressAngle
@@ -215,6 +234,8 @@ class EditViewModel(
                                )
                            },
                            alarmType = _uiState.value.todoInputState.alarmInputState.alarmType,
+                           isAlarmHasVibration = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.vibration else false,
+                           isAlarmHasSound = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.sound else false,
                            progressAngle = when (selectedTodo.value) {
                                null -> 0f
                                else -> selectedTodo.value!!.progressAngle
@@ -242,6 +263,8 @@ class EditViewModel(
                                 )
                             },
                             alarmType = _uiState.value.todoInputState.alarmInputState.alarmType,
+                            isAlarmHasVibration = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.vibration else false,
+                            isAlarmHasSound = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.sound else false,
                             progressAngle = when (selectedTodo.value) {
                                 null -> 0f
                                 else -> selectedTodo.value!!.progressAngle
