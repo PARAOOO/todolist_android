@@ -42,13 +42,13 @@ class AlarmRestoreWorker(
         val todayLocalDate = LocalDate.now()
         val todayDateMillis = transferLocalDateToMillis(todayLocalDate)
 
-        val alarmTodos = db.todoDao().getAlarmTodos(todayDateMillis)
+        val alarmTodos = db.todoTemplateDao().getAlarmTodos(todayDateMillis)
         // todoType = GENERAL, alarmType != OFF, date >= today
 
-        val alarmPeriodTodos = db.todoDao().getAlarmPeriodTodos(todayDateMillis)
+        val alarmPeriodTodos = db.todoPeriodDao().getAlarmPeriodTodos(todayDateMillis)
         // todoType = PERIOD, alarmType != OFF, startDate <= today <= endDate
 
-        val alarmDayOfWeekTodos = db.todoDao().getAlarmDayOfWeekTodos()
+        val alarmDayOfWeekTodos = db.todoDayOfWeekDao().getAlarmDayOfWeekTodos()
         // todoType = DAYOFWEEK, alarmType != OFF
 
         for (alarmTodo in alarmTodos) {

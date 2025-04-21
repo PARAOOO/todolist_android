@@ -52,7 +52,7 @@ val dataSourceModule = module {
 }
 
 val repositoryModule = module {
-    single<TodoRepository> {TodoRepositoryImpl(get(), get())}
+    single<TodoRepository> {TodoRepositoryImpl(get(), get(), get(), get(), get())}
 }
 
 val viewModelModule = module {

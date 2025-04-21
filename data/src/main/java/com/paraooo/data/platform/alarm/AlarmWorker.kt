@@ -35,10 +35,10 @@ class AlarmWorker(
             "todo-database"
         ).build()
 
-        val todoInstances = db.todoDao().getInstancesByTemplateId(templateId)
-        val todoTemplate = db.todoDao().getTodoTemplateById(templateId) ?: return Result.failure()
-        val period = db.todoDao().getTodoPeriodByTemplateId(templateId)
-        val dayOfWeek = db.todoDao().getDayOfWeekByTemplateId(templateId).takeIf { it.isNotEmpty() }
+        val todoInstances = db.todoInstanceDao().getInstancesByTemplateId(templateId)
+        val todoTemplate = db.todoTemplateDao().getTodoTemplateById(templateId) ?: return Result.failure()
+        val period = db.todoPeriodDao().getTodoPeriodByTemplateId(templateId)
+        val dayOfWeek = db.todoDayOfWeekDao().getDayOfWeekByTemplateId(templateId).takeIf { it.isNotEmpty() }
 
 
         val todayInstance = todoInstances.firstOrNull {

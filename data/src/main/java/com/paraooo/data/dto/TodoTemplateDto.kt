@@ -6,7 +6,7 @@ import com.paraooo.data.local.entity.AlarmType
 import com.paraooo.data.local.entity.TodoType
 
 data class TodoTemplateDto(
-    val id: Long,
+    val id: Long = 0,
     val title: String,
     val description: String,
     val hour: Int?,

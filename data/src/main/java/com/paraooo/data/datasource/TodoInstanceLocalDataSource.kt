@@ -18,8 +18,8 @@ class TodoInstanceLocalDataSource(
         todoInstanceDao.insertTodoInstance(todoInstance.toEntity())
     }
 
-    suspend fun insertInstances(instances: List<TodoInstanceDto>) {
-        todoInstanceDao.insertInstances(instances.map { it.toEntity() })
+    suspend fun insertTodoInstances(instances: List<TodoInstanceDto>) {
+        todoInstanceDao.insertTodoInstances(instances.map { it.toEntity() })
     }
 
     suspend fun updateTodoInstance(todoInstance: TodoInstanceDto) {
