@@ -1,7 +1,10 @@
 package com.paraooo.todolist.di
 
 import androidx.room.Room
-import com.paraooo.data.datasource.TodoLocalDataSource
+import com.paraooo.data.datasource.TodoDayOfWeekLocalDataSource
+import com.paraooo.data.datasource.TodoInstanceLocalDataSource
+import com.paraooo.data.datasource.TodoPeriodLocalDataSource
+import com.paraooo.data.datasource.TodoTemplateLocalDataSource
 import com.paraooo.data.local.database.TodoDatabase
 import com.paraooo.data.local.migrations.MIGRATION_1_2
 import com.paraooo.data.local.migrations.MIGRATION_2_5
@@ -31,7 +34,10 @@ val databaseModule = module {
         .build()
     }
 
-    single { get<TodoDatabase>().todoDao() }
+    single { get<TodoDatabase>().todoTemplateDao() }
+    single { get<TodoDatabase>().todoInstanceDao() }
+    single { get<TodoDatabase>().todoPeriodDao() }
+    single { get<TodoDatabase>().todoDayOfWeekDao() }
 }
 
 val alarmSchedulerModule = module {
@@ -39,7 +45,10 @@ val alarmSchedulerModule = module {
 }
 
 val dataSourceModule = module {
-    single { TodoLocalDataSource(get()) }
+    single { TodoTemplateLocalDataSource(get()) }
+    single { TodoInstanceLocalDataSource(get()) }
+    single { TodoPeriodLocalDataSource(get()) }
+    single { TodoDayOfWeekLocalDataSource(get()) }
 }
 
 val repositoryModule = module {

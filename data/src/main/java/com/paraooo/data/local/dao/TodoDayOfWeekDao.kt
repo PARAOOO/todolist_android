@@ -6,8 +6,8 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.paraooo.data.dto.TodoDayOfWeekAlarm
 import com.paraooo.data.local.entity.TodoDayOfWeek
+import com.paraooo.data.local.entity.TodoDayOfWeekWithTime
 import com.paraooo.data.local.entity.TodoTemplate
 
 @Dao
@@ -68,6 +68,6 @@ interface TodoDayOfWeekDao {
     ) AS dow ON dow.templateId = template.id
     WHERE template.type = 'DAY_OF_WEEK' AND template.alarmType != 'OFF'
 """)
-    suspend fun getAlarmDayOfWeekTodos(): List<TodoDayOfWeekAlarm>
+    suspend fun getAlarmDayOfWeekTodos(): List<TodoDayOfWeekWithTime>
 
 }

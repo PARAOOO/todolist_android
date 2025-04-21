@@ -35,7 +35,4 @@ interface TodoInstanceDao {
     @Query("DELETE FROM todo_instance WHERE templateId = :templateId AND date IN (:dates)")
     suspend fun deleteInstancesByDates(templateId: Long, dates: Set<Long>)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertInstances(instances: List<TodoInstance>)
-
 }

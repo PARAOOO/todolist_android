@@ -1,21 +1,11 @@
 package com.paraooo.data.local.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
-import androidx.room.OnConflictStrategy.Companion.REPLACE
 import androidx.room.Query
 import androidx.room.Update
-import com.paraooo.data.dto.TodoDayOfWeekAlarm
-import com.paraooo.data.dto.TodoDto
-import com.paraooo.data.dto.TodoPeriodAlarm
-import com.paraooo.data.local.entity.TodoDayOfWeek
-//import com.paraooo.data.local.entity.TodoDayOfWeek
-//import com.paraooo.data.local.entity.TodoEntity
-import com.paraooo.data.local.entity.TodoInstance
-import com.paraooo.data.local.entity.TodoPeriod
-//import com.paraooo.data.local.entity.TodoPeriod
+import com.paraooo.data.local.entity.TodoEntity
 import com.paraooo.data.local.entity.TodoTemplate
 
 @Dao
@@ -54,7 +44,7 @@ interface TodoTemplateDao {
         ORDER BY tt.hour ASC, tt.minute ASC
         """
     )
-    suspend fun getTodosByDate(selectedDate: Long): List<TodoDto>
+    suspend fun getTodosByDate(selectedDate: Long): List<TodoEntity>
 
     @Query("""
     SELECT 
@@ -73,6 +63,6 @@ interface TodoTemplateDao {
       AND t.type = 'GENERAL'
       AND i.date >= :todayMillis
 """)
-    suspend fun getAlarmTodos(todayMillis: Long): List<TodoDto>
+    suspend fun getAlarmTodos(todayMillis: Long): List<TodoEntity>
 
 }

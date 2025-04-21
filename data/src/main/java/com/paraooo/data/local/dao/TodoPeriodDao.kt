@@ -6,8 +6,8 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.paraooo.data.dto.TodoPeriodAlarm
 import com.paraooo.data.local.entity.TodoPeriod
+import com.paraooo.data.local.entity.TodoPeriodWithTime
 
 @Dao
 interface TodoPeriodDao {
@@ -39,5 +39,5 @@ interface TodoPeriodDao {
     """)
     suspend fun getAlarmPeriodTodos(
         todayMillis: Long
-    ): List<TodoPeriodAlarm>
+    ): List<TodoPeriodWithTime>
 }
