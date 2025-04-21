@@ -59,6 +59,36 @@ data class TodoDayOfWeek(
     val dayOfWeek: Int // 1(월) ~ 7(일)
 )
 
+data class TodoEntity(
+    val instanceId: Long,
+    val templateId: Long,
+    val title: String,
+    val description: String,
+    val date: Long,
+    val hour: Int?,
+    val minute: Int?,
+    val progressAngle: Float,
+    val alarmType: AlarmType,
+    val startDate: Long? = null,
+    val endDate: Long? = null,
+    val dayOfWeeks: List<Int>? = null
+)
+
+data class TodoPeriodWithTime(
+    val templateId : Long,
+    val hour: Int?,
+    val minute: Int?,
+    val startDate: Long,
+    val endDate: Long
+)
+
+data class TodoDayOfWeekWithTime(
+    val templateId : Long,
+    val hour: Int?,
+    val minute: Int?,
+    val dayOfWeeks : List<Int>
+)
+
 enum class TodoType {
     GENERAL, PERIOD, DAY_OF_WEEK
 }

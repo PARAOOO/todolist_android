@@ -10,7 +10,7 @@ import com.paraooo.data.dto.TodoPeriodAlarm
 import com.paraooo.data.local.entity.TodoPeriod
 
 @Dao
-interface PeriodTodoDao {
+interface TodoPeriodDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTodoPeriod(todoPeriod: TodoPeriod)
 

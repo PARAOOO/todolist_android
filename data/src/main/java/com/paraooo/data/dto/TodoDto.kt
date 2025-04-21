@@ -19,18 +19,3 @@ data class TodoDto(
     val dayOfWeeks: List<Int>? = null
 )
 
-data class TodoPeriodAlarm(
-    val templateId : Long,
-    val hour: Int?,
-    val minute: Int?,
-    val startDate: Long,
-    val endDate: Long
-)
-
-
-data class TodoDayOfWeekAlarm(
-    val templateId : Long,
-    val hour: Int?,
-    val minute: Int?,
-    val dayOfWeeks : List<Int>
-)

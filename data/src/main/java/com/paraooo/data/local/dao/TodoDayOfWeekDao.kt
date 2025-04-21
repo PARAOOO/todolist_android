@@ -11,7 +11,7 @@ import com.paraooo.data.local.entity.TodoDayOfWeek
 import com.paraooo.data.local.entity.TodoTemplate
 
 @Dao
-interface DayOfWeekTodoDao {
+interface TodoDayOfWeekDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTodoDayOfWeek(todoDayOfWeek: TodoDayOfWeek)

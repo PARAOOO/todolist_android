@@ -2,42 +2,77 @@ package com.paraooo.data.mapper
 
 import com.paraooo.data.dto.TodoDto
 import com.paraooo.data.local.entity.AlarmType
+import com.paraooo.data.local.entity.TodoEntity
 //import com.paraooo.data.local.entity.TodoEntity
 import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.util.transferLocalDateToMillis
 import com.paraooo.domain.util.transferMillis2LocalDate
 
-fun TodoDto.toModel() : TodoModel {
-    return TodoModel(
+fun TodoDto.toEntity() : TodoEntity {
+    return TodoEntity(
         instanceId = instanceId,
+        templateId = templateId,
         title = title,
         description = description,
-        date = transferMillis2LocalDate(date),
+        date = date,
+        hour = hour,
+        minute = minute,
         progressAngle = progressAngle,
-        time = when(hour) {
-            null -> null
-            else -> Time(hour, minute!!)
-        },
-        alarmType = alarmType.toModel()
+        alarmType = alarmType,
+        startDate = startDate,
+        endDate = endDate,
+        dayOfWeeks = dayOfWeeks
     )
 }
 
-fun AlarmType.toModel() : com.paraooo.domain.model.AlarmType {
-    return when(this) {
-        AlarmType.OFF -> com.paraooo.domain.model.AlarmType.OFF
-        AlarmType.NOTIFY -> com.paraooo.domain.model.AlarmType.NOTIFY
-        AlarmType.POPUP -> com.paraooo.domain.model.AlarmType.POPUP
-    }
+fun TodoEntity.toDto() : TodoDto {
+    return TodoDto(
+        instanceId = instanceId,
+        templateId = templateId,
+        title = title,
+        description = description,
+        date = date,
+        hour = hour,
+        minute = minute,
+        progressAngle = progressAngle,
+        alarmType = alarmType,
+        startDate = startDate,
+        endDate = endDate,
+        dayOfWeeks = dayOfWeeks
+    )
 }
 
-fun com.paraooo.domain.model.AlarmType.toEntity() : AlarmType {
-    return when (this) {
-        com.paraooo.domain.model.AlarmType.OFF -> AlarmType.OFF
-        com.paraooo.domain.model.AlarmType.NOTIFY -> AlarmType.NOTIFY
-        com.paraooo.domain.model.AlarmType.POPUP -> AlarmType.POPUP
-    }
-}
+//fun TodoDto.toModel() : TodoModel {
+//    return TodoModel(
+//        instanceId = instanceId,
+//        title = title,
+//        description = description,
+//        date = transferMillis2LocalDate(date),
+//        progressAngle = progressAngle,
+//        time = when(hour) {
+//            null -> null
+//            else -> Time(hour, minute!!)
+//        },
+//        alarmType = alarmType.toModel()
+//    )
+//}
+//
+//fun AlarmType.toModel() : com.paraooo.domain.model.AlarmType {
+//    return when(this) {
+//        AlarmType.OFF -> com.paraooo.domain.model.AlarmType.OFF
+//        AlarmType.NOTIFY -> com.paraooo.domain.model.AlarmType.NOTIFY
+//        AlarmType.POPUP -> com.paraooo.domain.model.AlarmType.POPUP
+//    }
+//}
+//
+//fun com.paraooo.domain.model.AlarmType.toEntity() : AlarmType {
+//    return when (this) {
+//        com.paraooo.domain.model.AlarmType.OFF -> AlarmType.OFF
+//        com.paraooo.domain.model.AlarmType.NOTIFY -> AlarmType.NOTIFY
+//        com.paraooo.domain.model.AlarmType.POPUP -> AlarmType.POPUP
+//    }
+//}
 //fun TodoEntity.toDto() : TodoDto {
 //    return TodoDto(
 //        id, title, description, date, hour, minute, progressAngle, groupId, startDate, endDate

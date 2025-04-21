@@ -9,7 +9,7 @@ import androidx.room.Update
 import com.paraooo.data.local.entity.TodoInstance
 
 @Dao
-interface TodoInstanceTodo {
+interface TodoInstanceDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTodoInstance(todoInstance: TodoInstance): Long
