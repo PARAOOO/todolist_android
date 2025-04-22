@@ -11,6 +11,8 @@ import com.paraooo.data.local.migrations.MIGRATION_2_5
 import com.paraooo.data.platform.alarm.AlarmScheduler
 import com.paraooo.data.platform.alarm.NotificationHelper
 import com.paraooo.data.platform.alarm.NotificationIntentProvider
+import com.paraooo.data.platform.handler.AlarmHandler
+import com.paraooo.data.platform.handler.AlarmRestoreHandler
 import com.paraooo.data.repository.TodoRepositoryImpl
 import com.paraooo.domain.repository.TodoRepository
 import com.paraooo.todolist.ui.features.create.CreateViewModel
@@ -66,5 +68,10 @@ val notificationModule = module {
     single { NotificationHelper(get()) }
 }
 
+val handlerModule = module {
+    single { AlarmHandler(get(), get(), get(), get(), get(), get()) }
+    single { AlarmRestoreHandler(get(), get(), get(), get()) }
+}
+
 // DI 모듈 리스트
-val appModules = listOf(notificationModule, databaseModule, alarmSchedulerModule, dataSourceModule, repositoryModule, viewModelModule)
+val appModules = listOf(handlerModule, notificationModule, databaseModule, alarmSchedulerModule, dataSourceModule, repositoryModule, viewModelModule)

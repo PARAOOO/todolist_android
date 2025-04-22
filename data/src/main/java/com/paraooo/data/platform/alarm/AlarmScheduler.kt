@@ -42,16 +42,6 @@ class AlarmScheduler(
 
     fun schedule(date: LocalDate, time: Time, templateId : Long) {
 
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-//            val alarmManager = context.getSystemService(AlarmManager::class.java)
-//            if (!alarmManager.canScheduleExactAlarms()) {
-//                val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
-//                intent.data = Uri.parse("package:${context.packageName}")
-//                context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-//                return
-//            }
-//        }
-
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra("templateId", templateId)
         }
