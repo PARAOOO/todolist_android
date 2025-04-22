@@ -46,17 +46,11 @@ class AlarmRestoreHandler(
             )
 
             if(alarmMillis > todayDateTimeMillis){
-                when (alarmTodo.alarmType) {
-                    AlarmType.OFF -> {}
-                    AlarmType.NOTIFY -> {
-                        alarmScheduler.schedule(
-                            date = transferMillis2LocalDate(alarmTodo.date),
-                            time = Time(alarmTodo.hour, alarmTodo.minute),
-                            templateId = alarmTodo.templateId
-                        )
-                    }
-                    AlarmType.POPUP -> {}
-                }
+                alarmScheduler.schedule(
+                    date = transferMillis2LocalDate(alarmTodo.date),
+                    time = Time(alarmTodo.hour, alarmTodo.minute),
+                    templateId = alarmTodo.templateId
+                )
             }
         }
 
@@ -109,6 +103,7 @@ class AlarmRestoreHandler(
                 templateId = alarmDayOfWeekTodo.templateId
             )
         }
+
         return Result.success()
     }
 }

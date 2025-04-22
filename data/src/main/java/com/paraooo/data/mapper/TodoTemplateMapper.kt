@@ -17,7 +17,9 @@ fun TodoTemplate.toDto() : TodoTemplateDto {
         hour = hour,
         minute = minute,
         type = type.toDto(),
-        alarmType = alarmType.toDto()
+        alarmType = alarmType.toDto(),
+        isAlarmHasVibration = isAlarmHasVibration,
+        isAlarmHasSound = isAlarmHasSound
     )
 }
 
@@ -29,6 +31,8 @@ fun TodoTemplateDto.toEntity() : TodoTemplate {
         hour = hour,
         minute = minute,
         type = type.toEntity(),
-        alarmType = alarmType.toEntity()
+        alarmType = alarmType.toEntity(),
+        isAlarmHasVibration = isAlarmHasVibration,
+        isAlarmHasSound = isAlarmHasSound
     )
 }

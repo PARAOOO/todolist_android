@@ -15,6 +15,8 @@ data class TodoDto(
     val alarmType: AlarmTypeDto,
     val startDate: Long? = null,
     val endDate: Long? = null,
-    val dayOfWeeks: List<Int>? = null
+    val dayOfWeeks: List<Int>? = null,
+    val isAlarmHasVibration : Boolean,
+    val isAlarmHasSound : Boolean
 )
 

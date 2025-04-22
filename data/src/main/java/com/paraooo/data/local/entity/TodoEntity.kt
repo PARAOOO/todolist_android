@@ -13,9 +13,11 @@ data class TodoTemplate(
     val title: String,
     val description: String,
     val hour: Int?, // null이면 시간 미지정,
-    val minute: Int?, // null이면 시간 미지정
+    val minute: Int?,
     @ColumnInfo(index = true) val type: TodoType, // GENERAL, PERIOD, DAY_OF_WEEK,
-    val alarmType : AlarmType // OFF, NOTIFY, POPUP
+    val alarmType : AlarmType, // OFF, NOTIFY, POPUP
+    val isAlarmHasVibration : Boolean,
+    val isAlarmHasSound : Boolean
 )
 
 @Entity(
@@ -71,7 +73,9 @@ data class TodoEntity(
     val alarmType: AlarmType,
     val startDate: Long? = null,
     val endDate: Long? = null,
-    val dayOfWeeks: List<Int>? = null
+    val dayOfWeeks: List<Int>? = null,
+    val isAlarmHasVibration : Boolean,
+    val isAlarmHasSound : Boolean
 )
 
 data class TodoPeriodWithTime(

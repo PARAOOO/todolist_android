@@ -12,7 +12,9 @@ data class TodoTemplateDto(
     val hour: Int?,
     val minute: Int?,
     val type: TodoTypeDto,
-    val alarmType: AlarmTypeDto
+    val alarmType: AlarmTypeDto,
+    val isAlarmHasVibration : Boolean,
+    val isAlarmHasSound : Boolean
 )
 
 enum class TodoTypeDto{

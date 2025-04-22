@@ -25,7 +25,9 @@ fun TodoDto.toEntity() : TodoEntity {
         alarmType = alarmType.toEntity(),
         startDate = startDate,
         endDate = endDate,
-        dayOfWeeks = dayOfWeeks
+        dayOfWeeks = dayOfWeeks,
+        isAlarmHasVibration = isAlarmHasVibration,
+        isAlarmHasSound = isAlarmHasSound
     )
 }
 
@@ -42,7 +44,9 @@ fun TodoEntity.toDto() : TodoDto {
         alarmType = alarmType.toDto(),
         startDate = startDate,
         endDate = endDate,
-        dayOfWeeks = dayOfWeeks
+        dayOfWeeks = dayOfWeeks,
+        isAlarmHasVibration = isAlarmHasVibration,
+        isAlarmHasSound = isAlarmHasSound
     )
 }
 

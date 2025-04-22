@@ -15,7 +15,7 @@ import com.paraooo.data.local.entity.TodoTemplate
 import com.paraooo.domain.model.TodoModel
 
 class NotificationHelper(
-    private val intentProvider: NotificationIntentProvider
+    private val intentProvider: IntentProvider
 ) {
 
     fun showNotification(context: Context, todoInstance: TodoInstance, todoTemplate: TodoTemplate) {
@@ -37,7 +37,7 @@ class NotificationHelper(
             .setSmallIcon(R.drawable.bg_todolist_notification)
             .setContentTitle(todoTemplate.title)
             .setContentText("Todo 알림이 도착했습니다.")
-            .setContentIntent(intentProvider.getPendingIntent(context, todoInstance.id))
+            .setContentIntent(intentProvider.getNotificationIntent(context, todoInstance.id))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
 

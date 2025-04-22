@@ -37,7 +37,9 @@ interface TodoTemplateDao {
             tt.hour AS hour,
             tt.minute AS minute,
             ti.progressAngle AS progressAngle,
-            tt.alarmType AS alarmType
+            tt.alarmType AS alarmType,
+            tt.isAlarmHasSound AS isAlarmHasSound,
+            tt.isAlarmHasVibration AS isAlarmHasVibration
         FROM todo_instance AS ti
         INNER JOIN todo_template AS tt ON ti.templateId = tt.id
         WHERE ti.date = :selectedDate
@@ -56,7 +58,9 @@ interface TodoTemplateDao {
         t.hour AS hour,
         t.minute AS minute,
         i.progressAngle AS progressAngle,
-        t.alarmType AS alarmType
+        t.alarmType AS alarmType,
+        t.isAlarmHasSound AS isAlarmHasSound,
+        t.isAlarmHasVibration AS isAlarmHasVibration
     FROM todo_template t
     INNER JOIN todo_instance i ON t.id = i.templateId
     WHERE t.alarmType != 'OFF'
