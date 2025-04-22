@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.paraooo.domain.model.TodoModel
 import com.paraooo.todolist.R
 import com.paraooo.todolist.ui.components.TLBoxRounded
 import com.paraooo.todolist.ui.components.DateSelectDialog
@@ -45,12 +46,12 @@ import com.paraooo.todolist.ui.features.home.component.TodoVerticalList
 import com.paraooo.todolist.ui.navigation.Destinations
 import com.paraooo.todolist.ui.theme.PretendardFontFamily
 import com.paraooo.domain.util.getDateDiff
-import com.paraooo.domain.util.getDateWithDot
 import com.paraooo.domain.util.transferMillis2LocalDate
 import com.paraooo.todolist.ui.components.TLDialog
 import com.paraooo.todolist.ui.features.home.component.CreateFloatingButton
 import com.paraooo.todolist.ui.features.home.component.TodoVerticalListSkeleton
 import com.paraooo.todolist.ui.util.circleClickable
+import com.paraooo.todolist.ui.util.getDateWithDot
 import com.paraooo.todolist.ui.util.roundedClickable
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -197,33 +198,32 @@ fun HomeScreen(
                 else -> {
                     TodoVerticalList(
                         uiState.todoListState.todoList,
-                        onIsSwipedChanged = { todoId: Int, isSwiped: Boolean ->
+                        onIsSwipedChanged = { todo : TodoModel, isSwiped: Boolean ->
                             viewModel.onEvent(
                                 HomeUiEvent.onIsSwipedChanged(
-                                    todoId, isSwiped
+                                    todo, isSwiped
                                 )
                             )
                         },
-                        onProgressChanged = { todoId: Int, angle: Float ->
+                        onProgressChanged = { todo : TodoModel, angle: Float ->
                             viewModel.onEvent(
                                 HomeUiEvent.onTodoProgressChanged(
-                                    todoId, angle
+                                    todo, angle
                                 )
                             )
                         },
-                        onDeleteClicked = { todoId: Int, todoTitle: String ->
-                            viewModel.selectedTodoId = todoId
-                            viewModel.selectedTodoTitle = todoTitle
+                        onDeleteClicked = { todo : TodoModel ->
+                            viewModel.selectedTodo.value = todo
                             showDeleteDialog = true
                         },
-                        onEditClicked = { todoId: Int ->
-                            viewModel.selectedTodoId = todoId
-                            navController.navigate("${Destinations.Edit.route}/${todoId}/${uiState.selectedDateState.date.toEpochDay()}")
+                        onEditClicked = { todo : TodoModel ->
+                            viewModel.selectedTodo.value = todo
+                            navController.navigate("${Destinations.Edit.route}/${todo.instanceId}")
                         },
-                        onIsToggledOpenedChanged = { todoId: Int, isToggledOpened: Boolean ->
+                        onIsToggledOpenedChanged = { todo : TodoModel, isToggledOpened: Boolean ->
                             viewModel.onEvent(
                                 HomeUiEvent.onIsToggleOpenedChanged(
-                                    todoId, isToggledOpened
+                                    todo, isToggledOpened
                                 )
                             )
                         }
@@ -232,43 +232,49 @@ fun HomeScreen(
             }
         }
 
-        TLDialog(
-            showDialog = showDeleteDialog,
-            onDismiss = { showDeleteDialog = false },
-            content = "\"${viewModel.selectedTodoTitle}\" Todo를 정말로 삭제하시겠습니까?",
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 32.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End
+        if(viewModel.selectedTodo.value != null){
+            TLDialog(
+                showDialog = showDeleteDialog,
+                onDismiss = { showDeleteDialog = false },
+                content = "\"${viewModel.selectedTodo.value!!.title}\" Todo를 정말로 삭제하시겠습니까?",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp)
             ) {
-                Text(
-                    text = "취소",
-                    fontFamily = PretendardFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 14.sp,
-                    color = Color(0xFF545454),
-                    modifier = Modifier.circleClickable(20.dp) {
-                        showDeleteDialog = false
-                    }
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Text(
+                        text = "취소",
+                        fontFamily = PretendardFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp,
+                        color = Color(0xFF545454),
+                        modifier = Modifier.circleClickable(20.dp) {
+                            showDeleteDialog = false
+                        }
+                    )
 
-                Spacer(modifier = Modifier.width(40.dp))
+                    Spacer(modifier = Modifier.width(40.dp))
 
-                Text(
-                    text = "확인",
-                    fontFamily = PretendardFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 14.sp,
-                    color = Color(0xFFFF6E6E),
-                    modifier = Modifier.circleClickable(20.dp) {
-                        showDeleteDialog = false
-                        viewModel.onEvent(HomeUiEvent.onTodoDeleteClicked(viewModel.selectedTodoId))
-                    }
-                )
+                    Text(
+                        text = "확인",
+                        fontFamily = PretendardFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp,
+                        color = Color(0xFFFF6E6E),
+                        modifier = Modifier.circleClickable(20.dp) {
+                            showDeleteDialog = false
+                            viewModel.onEvent(
+                                HomeUiEvent.onTodoDeleteClicked(
+                                    todo = viewModel.selectedTodo.value!!
+                                )
+                            )
+                        }
+                    )
+                }
             }
         }
 

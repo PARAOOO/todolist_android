@@ -1,6 +1,8 @@
 package com.paraooo.todolist.ui.features.create
 
+import com.paraooo.domain.model.AlarmType
 import com.paraooo.todolist.ui.components.TimeInputState
+import java.time.DayOfWeek
 import java.time.LocalDate
 
 sealed class CreateUiEvent {
@@ -10,6 +12,10 @@ sealed class CreateUiEvent {
     data class onTimeInputChanged(val timeInputState: TimeInputState) : CreateUiEvent()
     data class onDateInputChanged(val date : LocalDate) : CreateUiEvent()
     data class onSelectedDateChanged(val date : LocalDate) : CreateUiEvent()
+    data class onPeriodInputChanged(val startDate : LocalDate, val endDate : LocalDate) : CreateUiEvent()
+    data class onDayOfWeekInputChanged(val daysOfWeek : List<DayOfWeek>) : CreateUiEvent()
+    data class onAlarmInputChanged(val alarm : AlarmType) : CreateUiEvent()
+    data class onAlarmSettingInputChanged(val vibration : Boolean, val sound : Boolean) : CreateUiEvent()
     data object onCreateClicked : CreateUiEvent()
 
 }

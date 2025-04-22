@@ -41,6 +41,12 @@ fun pxToDp(px: Int): Dp {
 }
 
 @Composable
+fun dpToPx(dpValue: Dp): Int {
+    val density = LocalDensity.current.density
+    return with(LocalDensity.current) { dpValue.toPx().toInt() }
+}
+
+@Composable
 fun Modifier.roundedClickable(
     cornerRadius : Dp,
     onClick : () -> Unit,
@@ -127,7 +133,7 @@ fun computeTextHeight(
     textStyle: TextStyle,
     text: String,
     maxLines: Int
-) : Dp {
+) : Int {
 
     val density = LocalDensity.current
     val fontFamilyResolver = LocalFontFamilyResolver.current
@@ -144,7 +150,7 @@ fun computeTextHeight(
             fontFamilyResolver = fontFamilyResolver,
             text = text,
             maxLines = maxLines
-        ).height.toDp()
+        ).height
     }
 
     return descriptionTextHeight

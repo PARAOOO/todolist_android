@@ -2,16 +2,11 @@ package com.paraooo.domain.util
 
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
-fun getDateWithDot(date : LocalDate) : String {
-    val formatter = DateTimeFormatter.ofPattern("yyyy. M. d") // 원하는 포맷 설정
-    val formattedDate = date.format(formatter)
-
-    return formattedDate
-}
 
 fun getDateOfWeekEEE(date : LocalDate) : String {
     val dayOfWeekFormatter = DateTimeFormatter.ofPattern("EEE")
@@ -38,6 +33,12 @@ fun transferMillis2LocalDate( millis : Long?) : LocalDate {
 fun transferLocalDateToMillis(localDate: LocalDate?): Long {
     return localDate?.atStartOfDay(ZoneId.systemDefault())?.toInstant()?.toEpochMilli()
         ?: System.currentTimeMillis()
+}
+
+fun transferLocalDateTimeToMillis(localDateTime : LocalDateTime): Long {
+    return localDateTime.atZone(ZoneId.systemDefault()) // 시스템 기본 시간대 사용
+        .toInstant()
+        .toEpochMilli()
 }
 
 fun getDateDiff(date1 : LocalDate, date2 : LocalDate) : Int {

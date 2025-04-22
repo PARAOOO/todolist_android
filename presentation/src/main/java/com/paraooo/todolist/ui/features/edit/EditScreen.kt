@@ -42,14 +42,18 @@ import com.paraooo.todolist.ui.components.DateSelectDialog
 import com.paraooo.todolist.ui.components.TodoInputForm
 import com.paraooo.todolist.ui.theme.PretendardFontFamily
 import com.paraooo.domain.util.transferMillis2LocalDate
+import com.paraooo.todolist.ui.components.DayOfWeekSelectDialog
+import com.paraooo.todolist.ui.components.PeriodSelectDialog
 import com.paraooo.todolist.ui.components.TLDialog
 import com.paraooo.todolist.ui.components.TLTopbar
 import com.paraooo.todolist.ui.components.TimeInputState
 import com.paraooo.todolist.ui.components.TimePickerDialog
+import com.paraooo.todolist.ui.components.TodoInputFormType
 import com.paraooo.todolist.ui.util.circleClickable
 import com.paraooo.todolist.ui.util.roundedClickable
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
+import java.time.DayOfWeek
 import java.time.LocalDate
 
 
@@ -59,12 +63,11 @@ import java.time.LocalDate
 fun EditScreen(
     navController: NavController,
     viewModel : EditViewModel = koinViewModel(),
-    todoId : Int,
-    selectedDate : LocalDate
+    instanceId : Long,
 ) {
 
-    LaunchedEffect(todoId) {
-        viewModel.onEvent(EditUiEvent.onInit(todoId, selectedDate))
+    LaunchedEffect(instanceId) {
+        viewModel.onEvent(EditUiEvent.onInit(instanceId))
     }
 
     val context = LocalContext.current
@@ -74,8 +77,12 @@ fun EditScreen(
     var showTimePicker by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
     var showBackDialog by remember { mutableStateOf(false) }
+    var showPeriodPicker by remember { mutableStateOf(false) }
+    var showDayOfWeekPicker by remember { mutableStateOf(false) }
 
-    var snackbarHostState = remember { SnackbarHostState() }
+
+
+    val selectedTodo by viewModel.selectedTodo
 
     LaunchedEffect(Unit) {
         viewModel.effectFlow.collectLatest { effect ->
@@ -108,13 +115,38 @@ fun EditScreen(
         
         Spacer(modifier = Modifier.height(28.dp))
 
-        TodoInputForm(
-            uiState = uiState.todoInputState,
-            onTodoNameChange = { viewModel.onEvent(EditUiEvent.onTodoNameInputChanged(it)) },
-            onDescriptionChange = { viewModel.onEvent(EditUiEvent.onDescriptionInputChanged(it)) },
-            onTimeInputClicked = { showTimePicker = true },
-            onDateInputClicked = { showDatePicker = true }
-        )
+        if(selectedTodo != null){
+            TodoInputForm(
+                uiState = uiState.todoInputState,
+                onTodoNameChange = { viewModel.onEvent(EditUiEvent.onTodoNameInputChanged(it)) },
+                onDescriptionChange = { viewModel.onEvent(EditUiEvent.onDescriptionInputChanged(it)) },
+                onTimeInputClicked = { showTimePicker = true },
+                onAlarmChange = { viewModel.onEvent(EditUiEvent.onAlarmInputChanged(it)) },
+                onAlarmSettingChange = { vibration: Boolean, sound: Boolean ->
+                    viewModel.onEvent(EditUiEvent.onAlarmSettingInputChanged(vibration, sound))
+                },
+                type = when {
+                    selectedTodo!!.startDate != null -> {
+
+                        TodoInputFormType.PeriodEdit(
+                            onPeriodInputClicked = { showPeriodPicker = true }
+                        )
+                    }
+
+                    selectedTodo!!.dayOfWeeks != null -> {
+                        TodoInputFormType.DayOfWeekEdit(
+                            onDayOfWeekInputClicked = { showDayOfWeekPicker = true }
+                        )
+                    }
+
+                    else -> {
+                        TodoInputFormType.Edit(
+                            onDateInputClicked = { showDatePicker = true }
+                        )
+                    }
+                }
+            )
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -124,14 +156,14 @@ fun EditScreen(
                 .height(53.dp)
                 .background(
                     shape = RoundedCornerShape(12.dp),
-                    color = when (uiState.editButtonState.isValid && uiState.editButtonState.isEnable) {
+                    color = when (uiState.editButtonState.isEnabled) {
                         true -> Color(0xFF529DFF)
                         false -> Color(0xFF7F7F7F)
                     }
                 )
                 .roundedClickable(12.dp) {
-                    if(uiState.editButtonState.isValid && uiState.editButtonState.isEnable){
-                        viewModel.onEvent(EditUiEvent.onEditClicked(todoId))
+                    if (uiState.editButtonState.isEnabled) {
+                        viewModel.onEvent(EditUiEvent.onEditClicked(instanceId))
                     }
                 },
             contentAlignment = Alignment.Center
@@ -144,7 +176,9 @@ fun EditScreen(
         }
 
         TimePickerDialog(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp),
             showDialog = showTimePicker,
             onDismiss = { showTimePicker = false },
             onConfirm = { result : TimeInputState ->
@@ -162,11 +196,35 @@ fun EditScreen(
             }
         )
 
+        PeriodSelectDialog(
+            showDialog = showPeriodPicker,
+            onDismiss = { showPeriodPicker = false },
+            onPeriodSelected = { startDate : Long?, endDate : Long? ->
+                showPeriodPicker = false
+                viewModel.onEvent(
+                    EditUiEvent.onPeriodInputChanged(
+                    transferMillis2LocalDate(startDate),
+                    transferMillis2LocalDate(endDate)
+                ))
+            }
+        )
+
+        DayOfWeekSelectDialog(
+            showDialog = showDayOfWeekPicker,
+            onDismiss = { showDayOfWeekPicker = false },
+            onDaysOfWeekSelected = { daysOfWeek : List<DayOfWeek> ->
+                showDayOfWeekPicker = false
+                viewModel.onEvent(EditUiEvent.onDayOfWeekInputChanged(daysOfWeek))
+            }
+        )
+
         TLDialog(
             showDialog = showBackDialog,
             onDismiss = { showBackDialog = false },
             content = "확인을 누르면 이전 화면으로 돌아갑니다.\n작성 중인 Todo는 저장되지 않습니다.",
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -209,7 +267,6 @@ fun EditScreen(
 fun PreviewEditScreen() {
     EditScreen(
         navController = rememberNavController(),
-        todoId = 1,
-        selectedDate = LocalDate.now()
+        instanceId = 1,
     )
 }

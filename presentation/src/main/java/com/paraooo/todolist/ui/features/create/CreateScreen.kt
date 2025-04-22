@@ -42,14 +42,18 @@ import com.paraooo.todolist.ui.components.DateSelectDialog
 import com.paraooo.todolist.ui.components.TodoInputForm
 import com.paraooo.todolist.ui.theme.PretendardFontFamily
 import com.paraooo.domain.util.transferMillis2LocalDate
+import com.paraooo.todolist.ui.components.DayOfWeekSelectDialog
+import com.paraooo.todolist.ui.components.PeriodSelectDialog
 import com.paraooo.todolist.ui.components.TLDialog
 import com.paraooo.todolist.ui.components.TLTopbar
 import com.paraooo.todolist.ui.components.TimeInputState
 import com.paraooo.todolist.ui.components.TimePickerDialog
+import com.paraooo.todolist.ui.components.TodoInputFormType
 import com.paraooo.todolist.ui.util.circleClickable
 import com.paraooo.todolist.ui.util.roundedClickable
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
+import java.time.DayOfWeek
 import java.time.LocalDate
 
 
@@ -72,6 +76,8 @@ fun CreateScreen(
 
     var showTimePicker by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
+    var showPeriodPicker by remember { mutableStateOf(false) }
+    var showDayOfWeekPicker by remember { mutableStateOf(false) }
     var showBackDialog by remember { mutableStateOf(false) }
 
     var snackbarHostState = remember { SnackbarHostState() }
@@ -112,7 +118,15 @@ fun CreateScreen(
             onTodoNameChange = { viewModel.onEvent(CreateUiEvent.onTodoNameInputChanged(it)) },
             onDescriptionChange = { viewModel.onEvent(CreateUiEvent.onDescriptionInputChanged(it)) },
             onTimeInputClicked = { showTimePicker = true },
-            onDateInputClicked = { showDatePicker = true }
+            onAlarmChange = { viewModel.onEvent(CreateUiEvent.onAlarmInputChanged(it)) },
+            onAlarmSettingChange = { vibration: Boolean, sound: Boolean ->
+                viewModel.onEvent(CreateUiEvent.onAlarmSettingInputChanged(vibration,sound))
+            },
+            type = TodoInputFormType.Add(
+                onDateInputClicked = { showDatePicker = true },
+                onPeriodInputClicked = { showPeriodPicker = true },
+                onDayOfWeekInputClicked = { showDayOfWeekPicker = true }
+            )
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -123,13 +137,13 @@ fun CreateScreen(
                 .height(53.dp)
                 .background(
                     shape = RoundedCornerShape(12.dp),
-                    color = when (uiState.createButtonState.isValid && uiState.createButtonState.isEnable) {
+                    color = when (uiState.createButtonState.isEnabled) {
                         true -> Color(0xFF54C392)
                         false -> Color(0xFF7F7F7F)
                     }
                 )
                 .roundedClickable(12.dp) {
-                    if(uiState.createButtonState.isValid && uiState.createButtonState.isEnable){
+                    if(uiState.createButtonState.isEnabled){
                         viewModel.onEvent(CreateUiEvent.onCreateClicked)
                     }
                 },
@@ -158,6 +172,27 @@ fun CreateScreen(
             onDateSelected = { date: Long? ->
                 showDatePicker = false
                 viewModel.onEvent(CreateUiEvent.onDateInputChanged(transferMillis2LocalDate(date)))
+            }
+        )
+        
+        PeriodSelectDialog(
+            showDialog = showPeriodPicker,
+            onDismiss = { showPeriodPicker = false },
+            onPeriodSelected = { startDate : Long?, endDate : Long? ->
+                showPeriodPicker = false
+                viewModel.onEvent(CreateUiEvent.onPeriodInputChanged(
+                    transferMillis2LocalDate(startDate),
+                    transferMillis2LocalDate(endDate)
+                ))
+            }
+        )
+
+        DayOfWeekSelectDialog(
+            showDialog = showDayOfWeekPicker,
+            onDismiss = { showDayOfWeekPicker = false },
+            onDaysOfWeekSelected = { daysOfWeek : List<DayOfWeek> ->
+                showDayOfWeekPicker = false
+                viewModel.onEvent(CreateUiEvent.onDayOfWeekInputChanged(daysOfWeek))
             }
         )
 

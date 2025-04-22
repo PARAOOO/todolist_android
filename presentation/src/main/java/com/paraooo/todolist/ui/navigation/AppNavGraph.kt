@@ -61,21 +61,16 @@ fun AppNavGraph(navController: NavHostController) {
         }
 
         composable(
-            route = "${Destinations.Edit.route}/{todoId}/{selectedDate}",
+            route = "${Destinations.Edit.route}/{instanceId}",
             arguments = listOf(
-                navArgument("todoId") { type = NavType.IntType },
-                navArgument("selectedDate") { type = NavType.LongType },
+                navArgument("instanceId") { type = NavType.LongType },
             )
         ) { backStackEntry ->
-            val todoId = backStackEntry.arguments?.getInt("todoId") ?: 0
-
-            val epochDay = backStackEntry.arguments?.getLong("selectedDate") ?: 0
-            val selectedDate = LocalDate.ofEpochDay(epochDay)
+            val instanceId = backStackEntry.arguments?.getLong("instanceId") ?: 0
 
             EditScreen(
                 navController = navController,
-                todoId = todoId,
-                selectedDate = selectedDate
+                instanceId = instanceId,
             )
         }
 

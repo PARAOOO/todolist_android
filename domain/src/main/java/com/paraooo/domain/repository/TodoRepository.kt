@@ -1,6 +1,7 @@
 package com.paraooo.domain.repository
 
 import com.paraooo.domain.model.TodoModel
+import java.time.LocalDate
 
 interface TodoRepository {
 
@@ -8,11 +9,27 @@ interface TodoRepository {
 
     suspend fun postTodo(todo : TodoModel)
 
-    suspend fun updateTodoProgress(todoId : Int, progress : Float)
+    suspend fun updateTodoProgress(instanceId: Long, progress : Float)
 
-    suspend fun deleteTodoById(todoId : Int)
+    suspend fun deleteTodoById(instanceId: Long)
 
     suspend fun updateTodo(todo : TodoModel)
 
-    suspend fun findTodoById(todoId : Int) : TodoModel
+    suspend fun findTodoById(instanceId : Long) : TodoModel
+
+    suspend fun postPeriodTodo(
+        todo : TodoModel,
+        startDate : LocalDate,
+        endDate : LocalDate
+    )
+
+    suspend fun updatePeriodTodo(todo: TodoModel)
+
+    suspend fun postDayOfWeekTodo(
+        todo: TodoModel,
+        dayOfWeek : List<Int>
+    )
+
+    suspend fun updateDayOfWeekTodo(todo: TodoModel)
+
 }
