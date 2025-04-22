@@ -18,8 +18,6 @@ class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent) {
         val templateId = intent.getLongExtra("templateId", -1)
 
-        Log.d(TAG, "AlarmReceiver - Alarm Received / todoId : ${templateId}")
-
         val workRequest = OneTimeWorkRequestBuilder<AlarmWorker>()
             .setInputData(workDataOf("templateId" to templateId))
             .build()

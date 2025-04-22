@@ -1,7 +1,10 @@
 package com.paraooo.todolist.di
 
 import androidx.room.Room
-import com.paraooo.data.datasource.TodoLocalDataSource
+import com.paraooo.data.datasource.TodoDayOfWeekLocalDataSource
+import com.paraooo.data.datasource.TodoInstanceLocalDataSource
+import com.paraooo.data.datasource.TodoPeriodLocalDataSource
+import com.paraooo.data.datasource.TodoTemplateLocalDataSource
 import com.paraooo.data.local.database.TodoDatabase
 import com.paraooo.data.local.migrations.MIGRATION_1_2
 import com.paraooo.data.local.migrations.MIGRATION_2_5
@@ -9,6 +12,8 @@ import com.paraooo.data.local.migrations.MIGRATION_5_7
 import com.paraooo.data.platform.alarm.AlarmScheduler
 import com.paraooo.data.platform.alarm.IntentProvider
 import com.paraooo.data.platform.alarm.NotificationHelper
+import com.paraooo.data.platform.handler.AlarmHandler
+import com.paraooo.data.platform.handler.AlarmRestoreHandler
 import com.paraooo.data.repository.TodoRepositoryImpl
 import com.paraooo.domain.repository.TodoRepository
 import com.paraooo.todolist.ui.features.alarm.AlarmViewModel
@@ -34,7 +39,10 @@ val databaseModule = module {
         .build()
     }
 
-    single { get<TodoDatabase>().todoDao() }
+    single { get<TodoDatabase>().todoTemplateDao() }
+    single { get<TodoDatabase>().todoInstanceDao() }
+    single { get<TodoDatabase>().todoPeriodDao() }
+    single { get<TodoDatabase>().todoDayOfWeekDao() }
 }
 
 val alarmSchedulerModule = module {
@@ -42,11 +50,14 @@ val alarmSchedulerModule = module {
 }
 
 val dataSourceModule = module {
-    single { TodoLocalDataSource(get()) }
+    single { TodoTemplateLocalDataSource(get()) }
+    single { TodoInstanceLocalDataSource(get()) }
+    single { TodoPeriodLocalDataSource(get()) }
+    single { TodoDayOfWeekLocalDataSource(get()) }
 }
 
 val repositoryModule = module {
-    single<TodoRepository> {TodoRepositoryImpl(get(), get())}
+    single<TodoRepository> {TodoRepositoryImpl(get(), get(), get(), get(), get())}
 }
 
 val viewModelModule = module {
@@ -61,5 +72,10 @@ val notificationModule = module {
     single { NotificationHelper(get()) }
 }
 
+val handlerModule = module {
+    single { AlarmHandler(get(), get(), get(), get(), get(), get(), get()) }
+    single { AlarmRestoreHandler(get(), get(), get(), get()) }
+}
+
 // DI 모듈 리스트
-val appModules = listOf(notificationModule, databaseModule, alarmSchedulerModule, dataSourceModule, repositoryModule, viewModelModule)
+val appModules = listOf(handlerModule, notificationModule, databaseModule, alarmSchedulerModule, dataSourceModule, repositoryModule, viewModelModule)
