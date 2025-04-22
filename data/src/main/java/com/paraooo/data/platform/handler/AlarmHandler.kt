@@ -1,6 +1,7 @@
 package com.paraooo.data.platform.handler
 
 import android.content.Context
+import android.content.Intent
 import androidx.work.ListenableWorker.Result
 import com.paraooo.data.local.dao.TodoDayOfWeekDao
 import com.paraooo.data.local.dao.TodoInstanceDao
@@ -77,6 +78,7 @@ class AlarmHandler(
                 AlarmType.POPUP -> {
                     val intent = intentProvider.getPopupIntent(context)
                     intent.putExtra("instanceId", todayInstance.id)  // 여기서 데이터를 전달
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     context.startActivity(intent)
                 }
             }

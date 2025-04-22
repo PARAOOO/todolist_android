@@ -141,7 +141,7 @@ class TodoRepositoryImpl(
                     alarmScheduler.reschedule(todo.date, todo.time!!, instanceTodo.templateId)
                 }
                 AlarmType.POPUP -> {
-                    alarmScheduler.schedule(todo.date, todo.time!!, instanceTodo.templateId)
+                    alarmScheduler.reschedule(todo.date, todo.time!!, instanceTodo.templateId)
                 }
             }
         } else {
