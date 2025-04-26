@@ -34,9 +34,9 @@ interface TodoPeriodDao {
         INNER JOIN todo_period AS period ON template.id = period.templateId
         WHERE template.type = "PERIOD"
           AND template.alarmType != "OFF"
-          AND period.startDate <= :todayMillis
           AND period.endDate >= :todayMillis
     """)
+//    AND period.startDate <= :todayMillis
     suspend fun getAlarmPeriodTodos(
         todayMillis: Long
     ): List<TodoPeriodWithTime>

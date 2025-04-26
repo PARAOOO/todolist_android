@@ -31,7 +31,6 @@ fun todoToMillis(date : LocalDate, time : Time) : Long {
             .atZone(ZoneId.systemDefault())
             .toLocalDateTime()
     }
-    Log.d(TAG, "todoToMillis: ${transferredTime}")
 
     return millis
 }
