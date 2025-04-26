@@ -56,28 +56,60 @@ class AlarmRestoreHandler(
 
         for (alarmPeriodTodo in alarmPeriodTodos) {
 
-            val now = LocalTime.now()
+//            val now = LocalTime.now()
+//            val todoTime = LocalTime.of(alarmPeriodTodo.hour!!, alarmPeriodTodo.minute!!) // ⏰ 시간 조합
+//            val isTimePassed = now > todoTime
+//            val endLocalDate = transferMillis2LocalDate(alarmPeriodTodo.endDate)
 
-            val todoTime = LocalTime.of(alarmPeriodTodo.hour!!, alarmPeriodTodo.minute!!) // ⏰ 시간 조합
-            val isTimePassed = now > todoTime
-            val endLocalDate = transferMillis2LocalDate(alarmPeriodTodo.endDate)
+            // StartDateTime >= todayTime : startDate에 schedule
+            // StartDateTime <= todayTime <= endDateTime
+            //    if AlarmTime <= todayTime : today에 schedule
+            //    else : today + 1에 schedule
+            // endDateTime < todayTime : schedule 안함
 
-            if(isTimePassed) {
-                if(endLocalDate > todayLocalDate){
-                    val nextLocalDate = todayLocalDate.plusDays(1)
-                    alarmScheduler.schedule(
-                        date = nextLocalDate,
-                        time = Time(alarmPeriodTodo.hour, alarmPeriodTodo.minute),
-                        templateId = alarmPeriodTodo.templateId,
-                    )
-                }
-            } else {
+            val todayDateTime = LocalDateTime.now()
+            val todayTime = LocalTime.now()
+            val alarmTime = LocalTime.of(alarmPeriodTodo.hour!!, alarmPeriodTodo.minute!!)
+
+            val startDate = transferMillis2LocalDate(alarmPeriodTodo.startDate)
+            val startDateTime = startDate.atTime(alarmPeriodTodo.hour, alarmPeriodTodo.minute)
+            val endDate = transferMillis2LocalDate(alarmPeriodTodo.endDate)
+            val endDateTime = endDate.atTime(alarmPeriodTodo.hour, alarmPeriodTodo.minute)
+
+            if(startDateTime >= todayDateTime){
                 alarmScheduler.schedule(
-                    date = todayLocalDate,
+                    date = startDate,
+                    time = Time(alarmPeriodTodo.hour, alarmPeriodTodo.minute),
+                    templateId = alarmPeriodTodo.templateId,
+                )
+            } else if(todayDateTime in startDateTime..endDateTime) {
+
+                val isTimePassed = todayTime >= alarmTime
+
+                val alarmDate = if (isTimePassed) todayLocalDate else todayLocalDate.plusDays(1)
+
+                alarmScheduler.schedule(
+                    date = alarmDate,
                     time = Time(alarmPeriodTodo.hour, alarmPeriodTodo.minute),
                     templateId = alarmPeriodTodo.templateId,
                 )
             }
+//            if(isTimePassed) {
+//                if(endLocalDate > todayLocalDate){
+//                    val nextLocalDate = todayLocalDate.plusDays(1)
+//                    alarmScheduler.schedule(
+//                        date = nextLocalDate,
+//                        time = Time(alarmPeriodTodo.hour, alarmPeriodTodo.minute),
+//                        templateId = alarmPeriodTodo.templateId,
+//                    )
+//                }
+//            } else {
+//                alarmScheduler.schedule(
+//                    date = todayLocalDate,
+//                    time = Time(alarmPeriodTodo.hour, alarmPeriodTodo.minute),
+//                    templateId = alarmPeriodTodo.templateId,
+//                )
+//            }
         }
 
         for (alarmDayOfWeekTodo in alarmDayOfWeekTodos) {

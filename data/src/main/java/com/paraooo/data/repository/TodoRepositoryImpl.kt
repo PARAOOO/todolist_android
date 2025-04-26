@@ -38,11 +38,12 @@ class TodoRepositoryImpl(
 ) : TodoRepository {
 
     override suspend fun getTodoByDate(date: Long): List<TodoModel> {
-        val instances = todoTemplateLocalDataSource.getTodosByDate(date)
+
+        val todos = todoTemplateLocalDataSource.getTodosByDate(date)
         val dayOfWeekTemplates = todoDayOfWeekLocalDataSource.getDayOfWeekTodoTemplatesByDate(date)
 
-        val instanceTemplateIds = instances.map { it.templateId }.toSet()
-        val filteredDayOfWeekTemplates = dayOfWeekTemplates.filterNot { instanceTemplateIds.contains(it.id) }
+        val templateIds = todos.map { it.templateId }.toSet()
+        val filteredDayOfWeekTemplates = dayOfWeekTemplates.filterNot { templateIds.contains(it.id) }
 
         for (template in filteredDayOfWeekTemplates) {
             todoInstanceLocalDataSource.insertTodoInstance(
@@ -85,10 +86,7 @@ class TodoRepositoryImpl(
         if(todo.time != null){
             when (todo.alarmType) {
                 AlarmType.OFF -> {}
-                AlarmType.NOTIFY -> {
-                    alarmScheduler.schedule(todo.date, todo.time!!, templateId)
-                }
-                AlarmType.POPUP -> {
+                AlarmType.NOTIFY, AlarmType.POPUP -> {
                     alarmScheduler.schedule(todo.date, todo.time!!, templateId)
                 }
             }
@@ -137,10 +135,7 @@ class TodoRepositoryImpl(
         if(todo.time != null){
             when (todo.alarmType) {
                 AlarmType.OFF -> {}
-                AlarmType.NOTIFY -> {
-                    alarmScheduler.reschedule(todo.date, todo.time!!, instanceTodo.templateId)
-                }
-                AlarmType.POPUP -> {
+                AlarmType.NOTIFY, AlarmType.POPUP -> {
                     alarmScheduler.reschedule(todo.date, todo.time!!, instanceTodo.templateId)
                 }
             }
@@ -152,7 +147,6 @@ class TodoRepositoryImpl(
     override suspend fun findTodoById(instanceId: Long): TodoModel {
         val instance = todoInstanceLocalDataSource.getTodoInstanceById(instanceId)
         val template = todoTemplateLocalDataSource.getTodoTemplateById(instance!!.templateId)
-
         val period = todoPeriodLocalDataSource.getTodoPeriodByTemplateId(instance.templateId)
         val dayOfWeek = todoDayOfWeekLocalDataSource.getDayOfWeekByTemplateId(instance.templateId).takeIf { it.isNotEmpty() }
 
@@ -350,8 +344,6 @@ class TodoRepositoryImpl(
             }.first { date ->
                 dayOfWeek.contains(date.dayOfWeek.value)
             }
-
-            Log.d(TAG, "postDayOfWeekTodo: ${alarmDate} ")
 
             alarmScheduler.schedule(
                 date = alarmDate,
