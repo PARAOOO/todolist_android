@@ -260,15 +260,16 @@ class TodoRepositoryUnitTest {
         val instanceId = 1L
         val deletedInstance = sampleTodoInstanceDto.copy(
             id = instanceId,
+            templateId = 2L
         )
 
         coEvery { todoInstanceLocalDataSource.getTodoInstanceById(instanceId) } returns deletedInstance
-        coEvery { todoTemplateLocalDataSource.deleteTodoTemplate(sampleTodoInstanceDto.templateId) } just Runs
+        coEvery { todoTemplateLocalDataSource.deleteTodoTemplate(deletedInstance.templateId) } just Runs
 
         repository.deleteTodoById(instanceId)
 
         coVerify { todoInstanceLocalDataSource.getTodoInstanceById(instanceId) }
-        coVerify { todoTemplateLocalDataSource.deleteTodoTemplate(instanceId) }
+        coVerify { todoTemplateLocalDataSource.deleteTodoTemplate(deletedInstance.templateId) }
     }
 
     @Test
