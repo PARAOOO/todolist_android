@@ -3,12 +3,12 @@ package com.paraooo.data.platform.handler
 import android.content.Context
 import android.content.Intent
 import androidx.work.ListenableWorker.Result
-import com.paraooo.data.local.dao.TodoDayOfWeekDao
-import com.paraooo.data.local.dao.TodoInstanceDao
-import com.paraooo.data.local.dao.TodoPeriodDao
-import com.paraooo.data.local.dao.TodoTemplateDao
-import com.paraooo.data.local.entity.AlarmType
-import com.paraooo.data.local.entity.TodoType
+import com.paraooo.data.datasource.TodoDayOfWeekLocalDataSource
+import com.paraooo.data.datasource.TodoInstanceLocalDataSource
+import com.paraooo.data.datasource.TodoPeriodLocalDataSource
+import com.paraooo.data.datasource.TodoTemplateLocalDataSource
+import com.paraooo.data.dto.AlarmTypeDto
+import com.paraooo.data.dto.TodoTypeDto
 import com.paraooo.data.platform.alarm.AlarmScheduler
 import com.paraooo.data.platform.alarm.IntentProvider
 import com.paraooo.data.platform.alarm.NotificationHelper
@@ -20,10 +20,10 @@ import java.time.LocalDate
 class AlarmHandler(
     private val alarmScheduler: AlarmScheduler,
     private val notificationHelper: NotificationHelper,
-    private val todoTemplateDao: TodoTemplateDao,
-    private val todoInstanceDao: TodoInstanceDao,
-    private val todoPeriodDao: TodoPeriodDao,
-    private val todoDayOfWeekDao: TodoDayOfWeekDao,
+    private val todoTemplateLocalDataSource: TodoTemplateLocalDataSource,
+    private val todoInstanceLocalDataSource: TodoInstanceLocalDataSource,
+    private val todoPeriodLocalDataSource: TodoPeriodLocalDataSource,
+    private val todoDayOfWeekLocalDataSource: TodoDayOfWeekLocalDataSource,
     private val intentProvider: IntentProvider,
 ) {
     suspend fun handleAlarm(templateId : Long, context: Context) : Result {
@@ -32,21 +32,20 @@ class AlarmHandler(
         val todayMillis = transferLocalDateToMillis(LocalDate.now())
         val todayLocalDate = LocalDate.now()
 
-        val todoInstances =todoInstanceDao.getInstancesByTemplateId(templateId)
-        val todoTemplate = todoTemplateDao.getTodoTemplateById(templateId) ?: return Result.failure()
-        val period = todoPeriodDao.getTodoPeriodByTemplateId(templateId)
-        val dayOfWeek = todoDayOfWeekDao.getDayOfWeekByTemplateId(templateId).takeIf { it.isNotEmpty() }
-
+        val todoInstances = todoInstanceLocalDataSource.getInstancesByTemplateId(templateId)
+        val todoTemplate = todoTemplateLocalDataSource.getTodoTemplateById(templateId) ?: return Result.failure()
+        val period = todoPeriodLocalDataSource.getTodoPeriodByTemplateId(templateId)
+        val dayOfWeek = todoDayOfWeekLocalDataSource.getDayOfWeekByTemplateId(templateId).takeIf { it.isNotEmpty() }
 
         val todayInstance = todoInstances.firstOrNull {
             transferMillis2LocalDate(it.date) == todayLocalDate
         }
 
         when(todoTemplate.type) {
-            TodoType.GENERAL -> {
+            TodoTypeDto.GENERAL -> {
 
             }
-            TodoType.PERIOD -> {
+            TodoTypeDto.PERIOD -> {
                 if(period!!.endDate > todayMillis) {
                     val tomorrowLocalDate = todayLocalDate.plusDays(1)
                     alarmScheduler.schedule(
@@ -56,7 +55,7 @@ class AlarmHandler(
                     )
                 }
             }
-            TodoType.DAY_OF_WEEK -> {
+            TodoTypeDto.DAY_OF_WEEK -> {
                 val availableDays = dayOfWeek!!.first().dayOfWeeks
 
                 val nextAlarmDate = (1..7)
@@ -73,9 +72,9 @@ class AlarmHandler(
 
         if (todayInstance != null && todayInstance.progressAngle < 360F){
             when(todoTemplate.alarmType) {
-                AlarmType.OFF -> {}
-                AlarmType.NOTIFY -> notificationHelper.showNotification(context, todayInstance, todoTemplate)
-                AlarmType.POPUP -> {
+                AlarmTypeDto.OFF -> {}
+                AlarmTypeDto.NOTIFY -> notificationHelper.showNotification(context, todayInstance, todoTemplate)
+                AlarmTypeDto.POPUP -> {
                     val intent = intentProvider.getPopupIntent(context)
                     intent.putExtra("instanceId", todayInstance.id)  // 여기서 데이터를 전달
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

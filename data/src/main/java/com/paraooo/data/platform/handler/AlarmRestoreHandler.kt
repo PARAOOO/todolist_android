@@ -1,10 +1,9 @@
 package com.paraooo.data.platform.handler
 
 import androidx.work.ListenableWorker.Result
-import com.paraooo.data.local.dao.TodoDayOfWeekDao
-import com.paraooo.data.local.dao.TodoPeriodDao
-import com.paraooo.data.local.dao.TodoTemplateDao
-import com.paraooo.data.local.entity.AlarmType
+import com.paraooo.data.datasource.TodoDayOfWeekLocalDataSource
+import com.paraooo.data.datasource.TodoPeriodLocalDataSource
+import com.paraooo.data.datasource.TodoTemplateLocalDataSource
 import com.paraooo.data.platform.alarm.AlarmScheduler
 import com.paraooo.data.platform.alarm.todoToMillis
 import com.paraooo.domain.model.Time
@@ -17,9 +16,9 @@ import java.time.ZoneId
 
 class AlarmRestoreHandler(
     private val alarmScheduler: AlarmScheduler,
-    private val todoTemplateDao: TodoTemplateDao,
-    private val todoPeriodDao: TodoPeriodDao,
-    private val todoDayOfWeekDao: TodoDayOfWeekDao
+    private val todoTemplateLocalDataSource: TodoTemplateLocalDataSource,
+    private val todoPeriodLocalDataSource: TodoPeriodLocalDataSource,
+    private val todoDayOfWeekLocalDataSource: TodoDayOfWeekLocalDataSource
 ) {
     suspend fun handleAlarm() : Result {
 
@@ -31,11 +30,11 @@ class AlarmRestoreHandler(
         val todayLocalDate = LocalDate.now()
         val todayDateMillis = transferLocalDateToMillis(todayLocalDate)
 
-        val alarmTodos = todoTemplateDao.getAlarmTodos(todayDateMillis)
+        val alarmTodos = todoTemplateLocalDataSource.getAlarmTodos(todayDateMillis)
         // todoType = GENERAL, alarmType != OFF, date >= today
-        val alarmPeriodTodos = todoPeriodDao.getAlarmPeriodTodos(todayDateMillis)
+        val alarmPeriodTodos = todoPeriodLocalDataSource.getAlarmPeriodTodos(todayDateMillis)
         // todoType = PERIOD, alarmType != OFF, startDate <= today <= endDate
-        val alarmDayOfWeekTodos = todoDayOfWeekDao.getAlarmDayOfWeekTodos()
+        val alarmDayOfWeekTodos = todoDayOfWeekLocalDataSource.getAlarmDayOfWeekTodos()
         // todoType = DAYOFWEEK, alarmType != OFF
 
         for (alarmTodo in alarmTodos) {
@@ -55,11 +54,6 @@ class AlarmRestoreHandler(
         }
 
         for (alarmPeriodTodo in alarmPeriodTodos) {
-
-//            val now = LocalTime.now()
-//            val todoTime = LocalTime.of(alarmPeriodTodo.hour!!, alarmPeriodTodo.minute!!) // ⏰ 시간 조합
-//            val isTimePassed = now > todoTime
-//            val endLocalDate = transferMillis2LocalDate(alarmPeriodTodo.endDate)
 
             // StartDateTime >= todayTime : startDate에 schedule
             // StartDateTime <= todayTime <= endDateTime
@@ -94,22 +88,6 @@ class AlarmRestoreHandler(
                     templateId = alarmPeriodTodo.templateId,
                 )
             }
-//            if(isTimePassed) {
-//                if(endLocalDate > todayLocalDate){
-//                    val nextLocalDate = todayLocalDate.plusDays(1)
-//                    alarmScheduler.schedule(
-//                        date = nextLocalDate,
-//                        time = Time(alarmPeriodTodo.hour, alarmPeriodTodo.minute),
-//                        templateId = alarmPeriodTodo.templateId,
-//                    )
-//                }
-//            } else {
-//                alarmScheduler.schedule(
-//                    date = todayLocalDate,
-//                    time = Time(alarmPeriodTodo.hour, alarmPeriodTodo.minute),
-//                    templateId = alarmPeriodTodo.templateId,
-//                )
-//            }
         }
 
         for (alarmDayOfWeekTodo in alarmDayOfWeekTodos) {

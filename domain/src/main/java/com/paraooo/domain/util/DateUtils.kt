@@ -15,7 +15,7 @@ fun getDateOfWeekEEE(date : LocalDate) : String {
     return dayOfWeek
 }
 
-fun transferMillis2LocalDate( millis : Long?) : LocalDate {
+fun transferMillis2LocalDate(millis : Long?) : LocalDate {
     if(millis != null) {
         val transferredDate: LocalDate = millis.let {
             Instant.ofEpochMilli(it)
