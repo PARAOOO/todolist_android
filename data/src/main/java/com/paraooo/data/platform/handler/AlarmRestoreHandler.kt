@@ -33,7 +33,7 @@ class AlarmRestoreHandler(
         val alarmTodos = todoTemplateLocalDataSource.getAlarmTodos(todayDateMillis)
         // todoType = GENERAL, alarmType != OFF, date >= today
         val alarmPeriodTodos = todoPeriodLocalDataSource.getAlarmPeriodTodos(todayDateMillis)
-        // todoType = PERIOD, alarmType != OFF, startDate <= today <= endDate
+        // todoType = PERIOD, alarmType != OFF, today <= endDate
         val alarmDayOfWeekTodos = todoDayOfWeekLocalDataSource.getAlarmDayOfWeekTodos()
         // todoType = DAYOFWEEK, alarmType != OFF
 

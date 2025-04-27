@@ -36,7 +36,6 @@ interface TodoPeriodDao {
           AND template.alarmType != "OFF"
           AND period.endDate >= :todayMillis
     """)
-//    AND period.startDate <= :todayMillis
     suspend fun getAlarmPeriodTodos(
         todayMillis: Long
     ): List<TodoPeriodWithTime>
