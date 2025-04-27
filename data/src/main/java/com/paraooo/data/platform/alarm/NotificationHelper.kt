@@ -10,6 +10,8 @@ import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.paraooo.data.R
+import com.paraooo.data.dto.TodoInstanceDto
+import com.paraooo.data.dto.TodoTemplateDto
 import com.paraooo.data.local.entity.TodoInstance
 import com.paraooo.data.local.entity.TodoTemplate
 import com.paraooo.domain.model.TodoModel
@@ -18,7 +20,7 @@ class NotificationHelper(
     private val intentProvider: IntentProvider
 ) {
 
-    fun showNotification(context: Context, todoInstance: TodoInstance, todoTemplate: TodoTemplate) {
+    fun showNotification(context: Context, todoInstance: TodoInstanceDto, todoTemplate: TodoTemplateDto) {
         val channelId = "todo_channel"
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
