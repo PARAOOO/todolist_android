@@ -18,6 +18,7 @@ TODOLIST는 나만의 Todolist를 만드는 장기 프로젝트입니다.
 - Coroutine, Flow
 - Koin
 - Room
+- JUnit4, Mockk
 - MVI, Clean Architecture
 - Github Flow
 
