@@ -13,6 +13,7 @@ import com.paraooo.todolist.ui.components.AlarmInputState
 import com.paraooo.todolist.ui.components.AlarmSettingInputState
 import com.paraooo.todolist.ui.components.DateInputState
 import com.paraooo.todolist.ui.components.TimeInputState
+import com.paraooo.todolist.ui.features.home.HomeUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,10 +25,11 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 
 class CreateViewModel(
-    private val todoRepository: TodoRepository
+    private val todoRepository: TodoRepository,
+    private val initialUiState : CreateUiState = CreateUiState()
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(CreateUiState())
+    private val _uiState = MutableStateFlow(initialUiState)
     val uiState: StateFlow<CreateUiState> = _uiState.asStateFlow()
 
     private val _effectChannel = Channel<CreateUiEffect>()
