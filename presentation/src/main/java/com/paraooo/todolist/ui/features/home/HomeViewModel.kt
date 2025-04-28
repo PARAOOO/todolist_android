@@ -18,23 +18,21 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class HomeViewModel(
-    private val todoRepository: TodoRepository
+    private val todoRepository: TodoRepository,
+    private val initialUiState : HomeUiState = HomeUiState()
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(HomeUiState())
+    private val _uiState = MutableStateFlow(initialUiState)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     private val _effectChannel = Channel<HomeUiEffect>()
     val effectFlow = _effectChannel.receiveAsFlow()
 
-//    var selectedTodoId : Int = 0
-//    var selectedTodoTitle : String = ""
-
     var selectedTodo = mutableStateOf<TodoModel?>(null)
 
     private fun fetchTodoList(date: LocalDate) {
         viewModelScope.launch {
-            // 로딩 상태로 변경
+
             _uiState.value = _uiState.value.copy(
                 todoListState = _uiState.value.todoListState.copy(
                     isLoading = true
@@ -104,18 +102,9 @@ class HomeViewModel(
                     todoRepository.updateTodoProgress(event.todo.instanceId, event.progress)
                 }
             }
+
             is HomeUiEvent.onTodoDeleteClicked -> {
                 viewModelScope.launch{
-
-//                    when(event.todo.groupId) {
-//                        null -> {
-//
-//                            todoRepository.deleteTodoById(event.todo.id)
-//                        }
-//                        else -> {
-////                            todoRepository.deletePeriodTodo(event.todo.groupId!!)
-//                        }
-//                    }
 
                     todoRepository.deleteTodoById(event.todo.instanceId)
 
@@ -124,9 +113,6 @@ class HomeViewModel(
                     fetchTodoList(_uiState.value.selectedDateState.date)
                 }
             }
-
-//            is HomeUiEvent.onTodoEditClicked -> {
-//            }
 
             is HomeUiEvent.onIsToggleOpenedChanged -> {
                 Log.d(TAG, "onEvent: ${uiState.value.todoListState.todoList}")
