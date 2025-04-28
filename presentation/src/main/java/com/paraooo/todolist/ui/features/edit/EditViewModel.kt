@@ -26,10 +26,11 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class EditViewModel(
-    private val todoRepository: TodoRepository
+    private val todoRepository: TodoRepository,
+    private val initialUiState : EditUiState = EditUiState()
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(EditUiState())
+    private val _uiState = MutableStateFlow(initialUiState)
     val uiState: StateFlow<EditUiState> = _uiState.asStateFlow()
 
     private val _effectChannel = Channel<EditUiEffect>()
