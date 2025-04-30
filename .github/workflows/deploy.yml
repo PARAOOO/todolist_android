@@ -55,4 +55,8 @@ jobs:
         run: fastlane deploy
         env:
           GOOGLE_PLAY_JSON_KEY: ${{ secrets.GOOGLE_PLAY_JSON_KEY }}  # GitHub Secrets에 저장한 Google Play JSON 키
+          KEYSTORE_FILE: ../todolist_keystore.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 #          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}  # GitHub Secrets에 저장한 Slack Webhook URL
