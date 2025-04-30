@@ -28,12 +28,22 @@ platform :android do
     puts "Release Notes: #{release_notes}"
 
     # Upload to Google Play
-    upload_to_play_store(
-      aab: "presentation/build/outputs/bundle/release/presentation-release.aab", # AAB 파일 경로
-      track: "production", # 배포 트랙: "production" 또는 "beta"
-      json_key_data: ENV["GOOGLE_PLAY_JSON_KEY"], # 서비스 계정 JSON 키 파일 경로
-      changelog: release_notes # 릴리즈 노트 전달
-    )
+#     upload_to_play_store(
+#       aab: "presentation/build/outputs/bundle/release/presentation-release.aab", # AAB 파일 경로
+#       track: "production", # 배포 트랙: "production" 또는 "beta"
+#       json_key_data: ENV["GOOGLE_PLAY_JSON_KEY"], # 서비스 계정 JSON 키 파일 경로
+#       changelog: release_notes # 릴리즈 노트 전달
+#     )
+
+    supply(
+        aab: "presentation/build/outputs/bundle/release/presentation-release.aab",  # AAB 파일 경로
+        track: "production",  # 배포 트랙: production, beta 등
+        json_key_data: ENV["GOOGLE_PLAY_JSON_KEY"],  # 서비스 계정의 JSON 키 데이터를 환경 변수로 전달
+        changelog: release_notes,  # 릴리즈 노트
+        skip_upload_apk: true,  # AAB만 업로드하고 APK는 업로드하지 않음
+        skip_upload_images: true,  # 이미지는 업로드하지 않음
+        skip_upload_metadata: false  # 메타데이터는 업로드
+      )
 
     # Slack 알림
 #     slack(
