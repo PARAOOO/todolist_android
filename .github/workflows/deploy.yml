@@ -19,6 +19,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '11'  # 사용하는 Java 버전
+          distribution: 'adoptopenjdk'  # JDK 배포판 (예: 'adoptopenjdk', 'zulu', 'temurin')
 
       # 3. Gradle 의존성 캐시
       - name: Cache Gradle dependencies
