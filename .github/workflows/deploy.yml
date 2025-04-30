@@ -27,8 +27,10 @@ jobs:
           echo "PR Body: $PR_BODY"
           
           # PR 본문에서 릴리즈 노트 추출하는 코드 (예시)
-          RELEASE_NOTES=$(echo "$PR_BODY" | grep -oP '(?<=## 패치 노트)[\s\S]*?(?=##|$)')
-          echo "Release Notes: $RELEASE_NOTES"
+          RELEASE_NOTES=$(echo "$PR_BODY" | grep -oP '(?<=## 패치 노트)[\s\S]*?(?=___|##|$)' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+          # Release Notes 출력
+          echo "Release Notes: '$RELEASE_NOTES'"
           
           # Output 변수로 저장
           echo "::set-output name=release_notes::$RELEASE_NOTES"
