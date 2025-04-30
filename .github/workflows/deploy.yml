@@ -40,7 +40,7 @@ jobs:
       - name: Build AAB
         run: ./gradlew clean bundleRelease
         env:
-          KEYSTORE_FILE: todolist_keystore.jks
+          KEYSTORE_FILE: ../todolist_keystore.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
