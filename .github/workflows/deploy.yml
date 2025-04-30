@@ -31,7 +31,7 @@ jobs:
 
       # 4. Gradle로 AAB 파일 빌드
       - name: Build AAB
-        run: ./gradlew clean assembleRelease
+        run: ./gradlew clean bundleRelease
 
       # 5. Fastlane 설치
       - name: Set up Fastlane
