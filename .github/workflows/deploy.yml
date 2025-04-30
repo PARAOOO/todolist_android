@@ -21,6 +21,16 @@ jobs:
           java-version: '17'  # 사용하는 Java 버전
           distribution: 'temurin'  # JDK 배포판 (예: 'adoptopenjdk', 'zulu', 'temurin')
 
+      # 2.5 Keystore 디코딩
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > keystore/todolist_keystore.jks
+        env:
+          KEYSTORE_FILE: keystore/todolist_keystore.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
       # 3. Gradle 의존성 캐시
       - name: Cache Gradle dependencies
         uses: actions/cache@v4
