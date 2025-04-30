@@ -1,0 +1,38 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:android)
+
+platform :android do
+  # Deploy a new version to Google Play
+  desc "Deploy a new version to the Google Play"
+  lane :deploy do
+    gradle(task: "clean assembleRelease")
+
+    # Upload to Google Play
+    upload_to_play_store(
+      aab: "app/build/outputs/bundle/release/app-release.aab", # AAB 파일 경로
+      track: "production", # 배포 트랙: "production" 또는 "beta"
+      json_key: "/Users/paraooo/Documents/TodoList/todolist-458323-0c6400a297c6.json" # 서비스 계정 JSON 키 파일 경로
+    )
+
+    # Slack 알림
+#     slack(
+#       message: "A new version has been successfully uploaded to Google Play!",
+#       channel: "#deployments", # 알림을 받을 Slack 채널
+#       slack_url: "your_slack_webhook_url" # Slack Incoming Webhook URL
+#     )
+  end
+end
