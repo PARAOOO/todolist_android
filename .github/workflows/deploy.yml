@@ -1,18 +1,37 @@
 name: Deploy to Google Play
 
 on:
-  push:
+  pull_request:
+    types:
+      - closed  # PR이 close 될 때만 트리거
     branches:
       - production  # production 브랜치에 푸시될 때 배포를 트리거
 
 jobs:
   deploy:
+    if: ${{ github.event.pull_request.merged == true }} # PR이 머지된 경우에만 실행되도록 조건 추가
+
     runs-on: ubuntu-latest  # GitHub Actions가 실행될 환경
 
     steps:
       # 1. 리포지토리 체크아웃
       - name: Checkout repository
         uses: actions/checkout@v2
+
+      - name: Get PR details
+        id: pr_details
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_BODY="${{ github.event.pull_request.body }}"
+          echo "PR Title: $PR_TITLE"
+          echo "PR Body: $PR_BODY"
+          
+          # PR 본문에서 릴리즈 노트 추출하는 코드 (예시)
+          RELEASE_NOTES=$(echo "$PR_BODY" | grep -oP '(?<=## 패치 노트)[\s\S]*?(?=##|$)')
+          echo "Release Notes: $RELEASE_NOTES"
+          
+          # Output 변수로 저장
+          echo "::set-output name=release_notes::$RELEASE_NOTES"
 
       # 2. JDK 설정 (필요한 Java 버전 지정)
       - name: Set up JDK
@@ -59,4 +78,5 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          RELEASE_NOTES: ${{ steps.pr_details.outputs.release_notes }}
 #          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}  # GitHub Secrets에 저장한 Slack Webhook URL
