@@ -3,7 +3,7 @@ name: Deploy to Google Play
 on:
   push:
     branches:
-      - production  # main 브랜치에 푸시될 때 배포를 트리거
+      - production  # production 브랜치에 푸시될 때 배포를 트리거
 
 jobs:
   deploy:
@@ -22,7 +22,7 @@ jobs:
 
       # 3. Gradle 의존성 캐시
       - name: Cache Gradle dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/.gradle/caches
           key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
