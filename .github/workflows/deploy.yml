@@ -25,11 +25,7 @@ jobs:
       - name: Decode keystore
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > todolist_keystore.jks
-        env:
-          KEYSTORE_FILE: todolist_keystore.jks
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        
 
       # 3. Gradle 의존성 캐시
       - name: Cache Gradle dependencies
@@ -43,6 +39,11 @@ jobs:
       # 4. Gradle로 AAB 파일 빌드
       - name: Build AAB
         run: ./gradlew clean bundleRelease
+        env:
+          KEYSTORE_FILE: todolist_keystore.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
       # 5. Fastlane 설치
       - name: Install Fastlane
