@@ -25,7 +25,7 @@ platform :android do
     upload_to_play_store(
       aab: "app/build/outputs/bundle/release/app-release.aab", # AAB 파일 경로
       track: "production", # 배포 트랙: "production" 또는 "beta"
-      json_key: ENV["GOOGLE_PLAY_JSON_KEY"] # 서비스 계정 JSON 키 파일 경로
+      json_key_data: ENV["GOOGLE_PLAY_JSON_KEY"] # 서비스 계정 JSON 키 파일 경로
     )
 
     # Slack 알림
