@@ -34,8 +34,9 @@ jobs:
         run: ./gradlew clean bundleRelease
 
       # 5. Fastlane 설치
-      - name: Set up Fastlane
-        uses: fastlane/actions/setup-fastlane@v2
+      - name: Install Fastlane
+        run: |
+          sudo gem install fastlane -NV
 
       # 6. Fastlane 배포 실행
       - name: Run Fastlane deploy
