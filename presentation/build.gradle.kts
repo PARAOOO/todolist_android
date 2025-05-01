@@ -13,6 +13,13 @@ val localProperties = Properties().apply {
     }
 }
 
+tasks.register("printVersionCode") {
+    group = "versioning"
+    doLast {
+        println(android.defaultConfig.versionCode)
+    }
+}
+
 android {
     namespace = "com.paraooo.todolist"
     compileSdk = 35

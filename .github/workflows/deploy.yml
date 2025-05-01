@@ -35,8 +35,22 @@ jobs:
           mkdir -p ./fastlane/metadata/android/ko/changelogs
           echo "$RELEASE_NOTES" > ./fastlane/metadata/android/ko/changelogs/default.txt
 
-              # Output 변수로 저장
+          # Output 변수로 저장
           echo "::set-output name=release_notes::$RELEASE_NOTES"
+      
+
+      - name: Generate versionCode and write changelog
+        run: |
+          # 1) versionCode 추출
+          CODE=$(./gradlew -q printVersionCode)
+          echo "VersionCode: $CODE"
+      
+          # 2) PR Body에서 릴리즈 노트 가져오기 (이미 pr_details 스텝이 있다면 ${{ steps.pr_details.outputs.release_notes }} 사용)
+          NOTES="${{ steps.pr_details.outputs.release_notes }}"
+      
+          # 3) changelog 파일 생성
+          mkdir -p fastlane/metadata/android/ko/changelogs
+          echo "$NOTES" > fastlane/metadata/android/ko/changelogs/${CODE}.txt
 
       # 2. JDK 설정 (필요한 Java 버전 지정)
       - name: Set up JDK
