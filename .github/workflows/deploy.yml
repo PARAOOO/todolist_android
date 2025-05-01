@@ -51,6 +51,11 @@ jobs:
           # 3) changelog 파일 생성
           mkdir -p fastlane/metadata/android/ko/changelogs
           echo "$NOTES" > fastlane/metadata/android/ko/changelogs/${CODE}.txt
+        env:
+          KEYSTORE_FILE: ../todolist_keystore.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
       # 2. JDK 설정 (필요한 Java 버전 지정)
       - name: Set up JDK
