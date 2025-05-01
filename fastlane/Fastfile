@@ -16,39 +16,38 @@
 default_platform(:android)
 
 platform :android do
-  # Deploy a new version to Google Play
-  desc "Deploy a new version to the Google Play"
-  lane :deploy do
-    gradle(task: "clean bundleRelease")
+    # Deploy a new version to Google Play
+    desc "Deploy a new version to the Google Play"
+    lane :deploy do
+        gradle(task: "clean bundleRelease")
 
-    release_notes = ENV["RELEASE_NOTES"]
-    release_notes ||= "패치 노트 없음"
+        release_notes = ENV["RELEASE_NOTES"]
+        release_notes ||= "패치 노트 없음"
 
-    # 릴리즈 노트를 출력
-    puts "Release Notes: #{release_notes}"
+        # 릴리즈 노트를 출력
+        puts "Release Notes: #{release_notes}"
 
-    # Upload to Google Play
-#     upload_to_play_store(
-#       aab: "presentation/build/outputs/bundle/release/presentation-release.aab", # AAB 파일 경로
-#       track: "production", # 배포 트랙: "production" 또는 "beta"
-#       json_key_data: ENV["GOOGLE_PLAY_JSON_KEY"], # 서비스 계정 JSON 키 파일 경로
-#       changelog: release_notes # 릴리즈 노트 전달
-#     )
+        supply(
+            aab: "presentation/build/outputs/bundle/release/presentation-release.aab",  # AAB 파일 경로
+            track: "production",  # 배포 트랙: production, beta 등
+            json_key_data: ENV["GOOGLE_PLAY_JSON_KEY"],  # 서비스 계정의 JSON 키 데이터를 환경 변수로 전달
+    #         skip_upload_metadata: true,
+    #         skip_upload_changelogs: false,
+    #         metadata_path: "./fastlane/metadata"
+        )
 
-    supply(
-        aab: "presentation/build/outputs/bundle/release/presentation-release.aab",  # AAB 파일 경로
-        track: "production",  # 배포 트랙: production, beta 등
-        json_key_data: ENV["GOOGLE_PLAY_JSON_KEY"],  # 서비스 계정의 JSON 키 데이터를 환경 변수로 전달
-#         skip_upload_metadata: true,
-#         skip_upload_changelogs: false,
-#         metadata_path: "./fastlane/metadata"
-    )
+        slack(
+            message: "✅TODOLIST 배포가 정상적으로 성공했습니다.",
+            success: true,
+            slack_url: ENV["AUTO_DEPLOY_SLACK_WEBHOOK_URL"]
+        )
+    end
 
-    # Slack 알림
-#     slack(
-#       message: "A new version has been successfully uploaded to Google Play!",
-#       channel: "#deployments", # 알림을 받을 Slack 채널
-#       slack_url: "your_slack_webhook_url" # Slack Incoming Webhook URL
-#     )
-  end
+    error do |lane, exception|
+        slack(
+            message: "❌TODOLIST 배포 실패: #{exception.message}",
+            success: false,
+            slack_url: ENV["AUTO_DEPLOY_SLACK_WEBHOOK_URL"]
+        )
+    end
 end

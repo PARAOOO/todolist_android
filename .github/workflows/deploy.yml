@@ -84,4 +84,4 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           RELEASE_NOTES: ${{ steps.pr_details.outputs.release_notes }}
-#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}  # GitHub Secrets에 저장한 Slack Webhook URL
+          AUTO_DEPLOY_SLACK_WEBHOOK_URL: ${{ secrets.AUTO_DEPLOY_SLACK_WEBHOOK_URL}}  # GitHub Secrets에 저장한 Slack Webhook URL
