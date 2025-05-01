@@ -31,9 +31,9 @@ platform :android do
             aab: "presentation/build/outputs/bundle/release/presentation-release.aab",  # AAB 파일 경로
             track: "production",  # 배포 트랙: production, beta 등
             json_key_data: ENV["GOOGLE_PLAY_JSON_KEY"],  # 서비스 계정의 JSON 키 데이터를 환경 변수로 전달
-    #         skip_upload_metadata: true,
-    #         skip_upload_changelogs: false,
-    #         metadata_path: "./fastlane/metadata"
+            skip_upload_metadata: true,
+            skip_upload_changelogs: false,
+            metadata_path: "./fastlane/metadata"
         )
 
         slack(
