@@ -46,8 +46,8 @@ jobs:
           NOTES="${{ steps.pr_details.outputs.release_notes }}"
       
           # 3) changelog 파일 생성
-          mkdir -p fastlane/metadata/android/ko/changelogs
-          echo "$NOTES" > fastlane/metadata/android/ko/changelogs/${CODE}.txt
+          mkdir -p fastlane/metadata/android/ko-KR/changelogs
+          echo "$NOTES" > fastlane/metadata/android/ko-KR/changelogs/${CODE}.txt
         env:
           KEYSTORE_FILE: ../todolist_keystore.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
