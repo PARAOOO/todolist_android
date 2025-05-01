@@ -21,12 +21,12 @@ jobs:
       - name: Get PR details
         id: pr_details
         run: |
-#          PR_TITLE="${{ github.event.pull_request.title }}"
+          # PR_TITLE="${{ github.event.pull_request.title }}"
           cat <<EOF > pr_body.txt
           ${{ github.event.pull_request.body }}
           EOF
           PR_BODY=$(cat pr_body.txt)
-#          echo "PR Title: $PR_TITLE"
+          # echo "PR Title: $PR_TITLE"
           echo "PR Body: $PR_BODY"
             
           RELEASE_NOTES=$(echo "$PR_BODY" | grep -oP '(?<=## 패치 노트)[\s\S]*?(?=___|##|$)' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
