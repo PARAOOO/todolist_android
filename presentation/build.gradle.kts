@@ -19,6 +19,12 @@ tasks.register("printVersionCode") {
         println(android.defaultConfig.versionCode)
     }
 }
+tasks.register("printVersionName") {
+    group = "versioning"
+    doLast {
+        println(android.defaultConfig.versionName)
+    }
+}
 
 android {
     namespace = "com.paraooo.todolist"
