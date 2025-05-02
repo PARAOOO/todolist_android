@@ -37,7 +37,7 @@ platform :android do
         )
 
         slack(
-            message: "✅TODOLIST 배포가 정상적으로 성공했습니다.",
+            message: "✅ TODOLIST 배포가 정상적으로 성공했습니다.\nversion name: #{ENV["VERSION_NAME"]}\nPull Request URL: #{ENV["PULL_REQUEST_URL"]}",
             success: true,
             slack_url: ENV["AUTO_DEPLOY_SLACK_WEBHOOK_URL"]
         )
@@ -45,7 +45,7 @@ platform :android do
 
     error do |lane, exception|
         slack(
-            message: "❌TODOLIST 배포 실패: #{exception.message}",
+            message: "❌ TODOLIST 배포 실패: #{exception.message}\nversion name: #{ENV["VERSION_NAME"]}\nPull Request URL: #{ENV["PULL_REQUEST_URL"]}",
             success: false,
             slack_url: ENV["AUTO_DEPLOY_SLACK_WEBHOOK_URL"]
         )

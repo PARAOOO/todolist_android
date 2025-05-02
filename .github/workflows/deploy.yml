@@ -34,18 +34,30 @@ jobs:
           echo "Release Notes: '$RELEASE_NOTES'"
           echo "::set-output name=release_notes::$RELEASE_NOTES"
 
+      - name: Set PR HTML URL
+        id: set_pr_html_url
+        run: |
+          PR_URL=${{ github.event.pull_request.html_url }}
+          echo "Release Notes: '$PR_URL'"
+          echo "::set-output name=pr_url::$PR_URL"
+
       - name: Generate versionCode and write changelog
+        id: generate_version
         run: |
           # 1) versionCode 추출
-          CODE=$(./gradlew -q printVersionCode)
-          echo "VersionCode: $CODE"
+          VERSION_CODE=$(./gradlew -q printVersionCode)
+          VERSION_NAME=$(./gradlew -q printVersionName)
+          echo "VersionCode: VERSION_CODE"
+          echo "VersionName: VERSION_NAME"
+          
+          echo "::set-output name=version_name::$VERSION_NAME"
       
-          # 2) PR Body에서 릴리즈 노트 가져오기 (이미 pr_details 스텝이 있다면 ${{ steps.pr_details.outputs.release_notes }} 사용)
+          # 2) PR Body에서 릴리즈 노트 가져오기
           NOTES="${{ steps.pr_details.outputs.release_notes }}"
       
           # 3) changelog 파일 생성
           mkdir -p fastlane/metadata/android/ko-KR/changelogs
-          echo "$NOTES" > fastlane/metadata/android/ko-KR/changelogs/${CODE}.txt
+          echo "$NOTES" > fastlane/metadata/android/ko-KR/changelogs/${VERSION_CODE}.txt
         env:
           KEYSTORE_FILE: ../todolist_keystore.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -99,3 +111,5 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           RELEASE_NOTES: ${{ steps.pr_details.outputs.release_notes }}
           AUTO_DEPLOY_SLACK_WEBHOOK_URL: ${{ secrets.AUTO_DEPLOY_SLACK_WEBHOOK_URL}}  # GitHub Secrets에 저장한 Slack Webhook URL
+          VERSION_NAME: ${{ steps.generate_version.outputs.version_name }}
+          PULL_REQUEST_URL: ${{ steps.set_pr_html_url.outputs.pr_url }}
