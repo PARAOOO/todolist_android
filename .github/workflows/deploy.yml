@@ -1,12 +1,16 @@
 name: Deploy to Google Play
 
 on:
-  push:
+  pull_request:
+    types:
+      - closed  # PR이 close 될 때만 트리거
     branches:
-      - production  # main 브랜치에 푸시될 때 배포를 트리거
+      - production  # production 브랜치에 푸시될 때 배포를 트리거
 
 jobs:
   deploy:
+    if: ${{ github.event.pull_request.merged == true }} # PR이 머지된 경우에만 실행되도록 조건 추가
+
     runs-on: ubuntu-latest  # GitHub Actions가 실행될 환경
 
     steps:
@@ -14,15 +18,68 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Get PR details
+        id: pr_details
+        run: |  
+          PR_BODY="${{ github.event.pull_request.body }}"
+          echo "$PR_BODY" > pr_body.txt
+      
+          RELEASE_NOTES=$(awk '
+          BEGIN { flag=0 }
+          /^##[ ]*패치[ ]*노트/ { flag=1; next }
+          /^##[ ]+/ || /^___/ { if (flag) exit }
+          flag { print }
+          ' pr_body.txt | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+      
+          echo "Release Notes: '$RELEASE_NOTES'"
+          echo "::set-output name=release_notes::$RELEASE_NOTES"
+
+      - name: Set PR HTML URL
+        id: set_pr_html_url
+        run: |
+          PR_URL=${{ github.event.pull_request.html_url }}
+          echo "$Pull Request URL: '$PR_URL'"
+          echo "::set-output name=pr_url::$PR_URL"
+
+      - name: Generate versionCode and write changelog
+        id: generate_version
+        run: |
+          # 1) versionCode 추출
+          VERSION_CODE=$(./gradlew -q printVersionCode)
+          VERSION_NAME=$(./gradlew -q printVersionName)
+          echo "VersionCode: $VERSION_CODE"
+          echo "VersionName: $VERSION_NAME"
+          
+          echo "::set-output name=version_name::$VERSION_NAME"
+      
+          # 2) PR Body에서 릴리즈 노트 가져오기
+          NOTES="${{ steps.pr_details.outputs.release_notes }}"
+      
+          # 3) changelog 파일 생성
+          mkdir -p fastlane/metadata/android/ko-KR/changelogs
+          echo "$NOTES" > fastlane/metadata/android/ko-KR/changelogs/${VERSION_CODE}.txt
+        env:
+          KEYSTORE_FILE: ../todolist_keystore.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
       # 2. JDK 설정 (필요한 Java 버전 지정)
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
-          java-version: '11'  # 사용하는 Java 버전
+          java-version: '17'  # 사용하는 Java 버전
+          distribution: 'temurin'  # JDK 배포판 (예: 'adoptopenjdk', 'zulu', 'temurin')
+
+      # 2.5 Keystore 디코딩
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > todolist_keystore.jks
+        
 
       # 3. Gradle 의존성 캐시
       - name: Cache Gradle dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/.gradle/caches
           key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
@@ -32,14 +89,27 @@ jobs:
       # 4. Gradle로 AAB 파일 빌드
       - name: Build AAB
         run: ./gradlew clean bundleRelease
+        env:
+          KEYSTORE_FILE: ../todolist_keystore.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
       # 5. Fastlane 설치
-      - name: Set up Fastlane
-        uses: fastlane/actions/setup-fastlane@v2
+      - name: Install Fastlane
+        run: |
+          sudo gem install fastlane -NV
 
       # 6. Fastlane 배포 실행
       - name: Run Fastlane deploy
         run: fastlane deploy
         env:
           GOOGLE_PLAY_JSON_KEY: ${{ secrets.GOOGLE_PLAY_JSON_KEY }}  # GitHub Secrets에 저장한 Google Play JSON 키
-#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}  # GitHub Secrets에 저장한 Slack Webhook URL
+          KEYSTORE_FILE: ../todolist_keystore.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          RELEASE_NOTES: ${{ steps.pr_details.outputs.release_notes }}
+          AUTO_DEPLOY_SLACK_WEBHOOK_URL: ${{ secrets.AUTO_DEPLOY_SLACK_WEBHOOK_URL}}  # GitHub Secrets에 저장한 Slack Webhook URL
+          VERSION_NAME: ${{ steps.generate_version.outputs.version_name }}
+          PULL_REQUEST_URL: ${{ steps.set_pr_html_url.outputs.pr_url }}
