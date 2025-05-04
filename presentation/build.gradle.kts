@@ -103,6 +103,8 @@ dependencies {
     annotationProcessor(libs.androidx.room.compiler)
 
     implementation(libs.androidx.glance.appwidget)
+    implementation(libs.gson)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
