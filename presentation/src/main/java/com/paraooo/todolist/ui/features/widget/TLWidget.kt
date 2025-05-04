@@ -3,27 +3,21 @@ package com.paraooo.todolist.ui.features.widget
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.ImageProvider
 import androidx.glance.appwidget.GlanceAppWidget
-import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.itemsIndexed
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
-import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
@@ -37,11 +31,16 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.paraooo.domain.model.TodoModel
-import com.paraooo.domain.repository.TodoRepository
+import com.paraooo.domain.repository.TodoReadRepository
+import com.paraooo.domain.repository.TodoWriteRepository
 import com.paraooo.domain.util.transferLocalDateToMillis
 import com.paraooo.todolist.R
+import com.paraooo.todolist.ui.features.create.TAG
 import org.koin.core.context.GlobalContext
 import java.time.LocalDate
+
+//1746397477061
+//1746397490093
 
 object TLWidget: GlanceAppWidget() {
 
@@ -49,20 +48,22 @@ object TLWidget: GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
 
+        Log.d(TAG, "provideGlance: glanceID: ${id}")
+
         val todayDate = LocalDate.now()
 
-        val repository: TodoRepository = GlobalContext.get().get()
-        val todoList = repository.getTodoByDate(transferLocalDateToMillis(todayDate))
+        val todoReadRepository: TodoReadRepository = GlobalContext.get().get()
+        val todoList = todoReadRepository.getTodoByDate(transferLocalDateToMillis(todayDate))
         val updatedList = todoList.map { it.copy() }
 
         provideContent {
 
             val prefs = currentState<Preferences>()
-            val forceUpdateKey = longPreferencesKey("lastUpdated")
-            val _lastUpdated = prefs[forceUpdateKey] // 상태 변화 유도용
+            val jsonTodoList = prefs[stringPreferencesKey("todoList")] ?: updatedList.toJson()
+            val todoListState = jsonTodoList.toList()
 
             TLWidgetView(
-                todoList = updatedList,
+                todoList = todoListState
             )
         }
     }
@@ -71,7 +72,11 @@ object TLWidget: GlanceAppWidget() {
 @Composable
 fun TLWidgetView(
     todoList : List<TodoModel>,
+//    forceUpdate : String,
 ) {
+
+
+//    Log.d(TAG, "TLWidgetView: ${forceUpdate}")
 
     Column(
         modifier = GlanceModifier
@@ -92,6 +97,16 @@ fun TLWidgetView(
         Spacer(
             modifier = GlanceModifier.height(18.dp)
         )
+
+//        Text(
+//            text = forceUpdate,
+//            style = TextStyle(
+//                fontSize = 1.sp,
+//                color = ColorProvider(Color(0x00FFFFFF))
+//            ),
+//            modifier = GlanceModifier.height(18.dp)
+//
+//        )
 
         Row(
             modifier = GlanceModifier
