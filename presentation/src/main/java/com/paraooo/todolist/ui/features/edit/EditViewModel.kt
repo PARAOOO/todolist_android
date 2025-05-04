@@ -1,16 +1,14 @@
 package com.paraooo.todolist.ui.features.edit
 
 import android.util.Log
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.paraooo.domain.model.AlarmType
 import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
-import com.paraooo.domain.repository.TodoRepository
+import com.paraooo.domain.repository.TodoReadRepository
+import com.paraooo.domain.repository.TodoWriteRepository
 import com.paraooo.todolist.ui.components.AlarmInputState
 import com.paraooo.todolist.ui.components.AlarmSettingInputState
 import com.paraooo.todolist.ui.components.DateInputState
@@ -26,7 +24,8 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class EditViewModel(
-    private val todoRepository: TodoRepository,
+    private val todoWriteRepository: TodoWriteRepository,
+    private val todoReadRepository: TodoReadRepository,
     private val initialUiState : EditUiState = EditUiState()
 ) : ViewModel() {
 
@@ -139,7 +138,7 @@ class EditViewModel(
     private fun fetchTodo(instanceId: Long) {
         viewModelScope.launch {
             try {
-                val todo = todoRepository.findTodoById(instanceId)
+                val todo = todoReadRepository.findTodoById(instanceId)
                 Log.d(TAG, "fetchTodo: ${todo}")
                 _uiState.value = _uiState.value.copy(
                     todoInputState = _uiState.value.todoInputState.copy(
@@ -186,7 +185,7 @@ class EditViewModel(
 
             when {
                 selectedTodo.value!!.startDate != null -> {
-                    todoRepository.updatePeriodTodo(
+                    todoWriteRepository.updatePeriodTodo(
                         TodoModel(
                             instanceId = instanceId,
                             title = uiState.value.todoInputState.todoNameInputState.content,
@@ -217,7 +216,7 @@ class EditViewModel(
                     )
                 }
                 selectedTodo.value!!.dayOfWeeks != null -> {
-                   todoRepository.updateDayOfWeekTodo(
+                   todoWriteRepository.updateDayOfWeekTodo(
                        TodoModel(
                            instanceId = instanceId,
                            title = uiState.value.todoInputState.todoNameInputState.content,
@@ -246,7 +245,7 @@ class EditViewModel(
                    )
                 }
                 else -> {
-                    todoRepository.updateTodo(
+                    todoWriteRepository.updateTodo(
                         TodoModel(
                             instanceId = instanceId,
                             title = uiState.value.todoInputState.todoNameInputState.content,

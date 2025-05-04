@@ -17,7 +17,6 @@ import com.paraooo.data.platform.alarm.AlarmScheduler
 import com.paraooo.data.platform.alarm.IntentProvider
 import com.paraooo.data.platform.alarm.NotificationHelper
 import com.paraooo.data.platform.handler.AlarmHandler
-import com.paraooo.data.repository.TodoRepositoryImpl
 import com.paraooo.domain.model.AlarmType
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.util.transferLocalDateToMillis
