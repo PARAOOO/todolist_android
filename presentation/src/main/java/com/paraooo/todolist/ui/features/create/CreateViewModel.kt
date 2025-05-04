@@ -1,19 +1,15 @@
 package com.paraooo.todolist.ui.features.create
 
-import android.content.Context
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.paraooo.data.platform.alarm.AlarmScheduler
 import com.paraooo.domain.model.AlarmType
 import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
-import com.paraooo.domain.repository.TodoRepository
+import com.paraooo.domain.repository.TodoWriteRepository
 import com.paraooo.todolist.ui.components.AlarmInputState
 import com.paraooo.todolist.ui.components.AlarmSettingInputState
 import com.paraooo.todolist.ui.components.DateInputState
 import com.paraooo.todolist.ui.components.TimeInputState
-import com.paraooo.todolist.ui.features.home.HomeUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,11 +17,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import java.time.DayOfWeek
 import java.time.LocalDate
 
 class CreateViewModel(
-    private val todoRepository: TodoRepository,
+    private val todoWriteRepository: TodoWriteRepository,
     private val initialUiState : CreateUiState = CreateUiState()
 ) : ViewModel() {
 
@@ -59,7 +54,7 @@ class CreateViewModel(
 
                     when(_uiState.value.todoInputState.dateInputState) {
                         is DateInputState.Date -> {
-                            todoRepository.postTodo(
+                            todoWriteRepository.postTodo(
                                 TodoModel(
                                     instanceId = 0,
                                     title = _uiState.value.todoInputState.todoNameInputState.content,
@@ -79,7 +74,7 @@ class CreateViewModel(
                             )
                         }
                         is DateInputState.Period -> {
-                            todoRepository.postPeriodTodo(
+                            todoWriteRepository.postPeriodTodo(
                                 TodoModel(
                                     instanceId = 0,
                                     title = _uiState.value.todoInputState.todoNameInputState.content,
@@ -104,7 +99,7 @@ class CreateViewModel(
                         }
 
                         is DateInputState.DayOfWeek -> {
-                            todoRepository.postDayOfWeekTodo(
+                            todoWriteRepository.postDayOfWeekTodo(
                                 TodoModel(
                                     instanceId = 0,
                                     title = _uiState.value.todoInputState.todoNameInputState.content,

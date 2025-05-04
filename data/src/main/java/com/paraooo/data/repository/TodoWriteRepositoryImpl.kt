@@ -1,6 +1,5 @@
 package com.paraooo.data.repository
 
-import android.util.Log
 import com.paraooo.data.datasource.TodoDayOfWeekLocalDataSource
 import com.paraooo.data.datasource.TodoInstanceLocalDataSource
 import com.paraooo.data.datasource.TodoPeriodLocalDataSource
@@ -11,57 +10,53 @@ import com.paraooo.data.dto.TodoPeriodDto
 import com.paraooo.data.dto.TodoTemplateDto
 import com.paraooo.data.dto.TodoTypeDto
 import com.paraooo.data.mapper.toDto
-import com.paraooo.data.mapper.toModel
 import com.paraooo.data.platform.alarm.AlarmScheduler
 import com.paraooo.data.platform.alarm.todoToMillis
 import com.paraooo.domain.model.AlarmType
-import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
-import com.paraooo.domain.repository.TodoRepository
+import com.paraooo.domain.repository.TodoWriteRepository
 import com.paraooo.domain.repository.WidgetUpdater
 import com.paraooo.domain.util.transferLocalDateToMillis
 import com.paraooo.domain.util.transferMillis2LocalDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.UUID
 
 const val TAG = "PARAOOO"
 
-class TodoRepositoryImpl(
+class TodoWriteRepositoryImpl(
     private val todoTemplateLocalDataSource : TodoTemplateLocalDataSource,
     private val todoInstanceLocalDataSource : TodoInstanceLocalDataSource,
     private val todoPeriodLocalDataSource : TodoPeriodLocalDataSource,
     private val todoDayOfWeekLocalDataSource : TodoDayOfWeekLocalDataSource,
     private val alarmScheduler: AlarmScheduler,
     private val widgetUpdater: WidgetUpdater
-) : TodoRepository {
+) : TodoWriteRepository {
 
-    override suspend fun getTodoByDate(date: Long): List<TodoModel> {
-
-        val todos = todoTemplateLocalDataSource.getTodosByDate(date)
-        val dayOfWeekTemplates = todoDayOfWeekLocalDataSource.getDayOfWeekTodoTemplatesByDate(date)
-
-        val templateIds = todos.map { it.templateId }.toSet()
-        val filteredDayOfWeekTemplates = dayOfWeekTemplates.filterNot { templateIds.contains(it.id) }
-
-        for (template in filteredDayOfWeekTemplates) {
-            todoInstanceLocalDataSource.insertTodoInstance(
-                TodoInstanceDto(
-                    templateId = template.id,
-                    date = date
-                )
-            )
-        }
-
-        val newInstances = todoTemplateLocalDataSource.getTodosByDate(date)
-
-        return newInstances
-            .sortedWith(compareBy({ it.hour ?: Int.MAX_VALUE }, { it.minute ?: Int.MAX_VALUE }))
-            .map { it.toModel() }
-    }
+//    override suspend fun getTodoByDate(date: Long): List<TodoModel> {
+//
+//        val todos = todoTemplateLocalDataSource.getTodosByDate(date)
+//        val dayOfWeekTemplates = todoDayOfWeekLocalDataSource.getDayOfWeekTodoTemplatesByDate(date)
+//
+//        val templateIds = todos.map { it.templateId }.toSet()
+//        val filteredDayOfWeekTemplates = dayOfWeekTemplates.filterNot { templateIds.contains(it.id) }
+//
+//        for (template in filteredDayOfWeekTemplates) {
+//            todoInstanceLocalDataSource.insertTodoInstance(
+//                TodoInstanceDto(
+//                    templateId = template.id,
+//                    date = date
+//                )
+//            )
+//        }
+//
+//        val newInstances = todoTemplateLocalDataSource.getTodosByDate(date)
+//
+//        return newInstances
+//            .sortedWith(compareBy({ it.hour ?: Int.MAX_VALUE }, { it.minute ?: Int.MAX_VALUE }))
+//            .map { it.toModel() }
+//    }
 
     override suspend fun postTodo(todo: TodoModel) {
 
@@ -154,31 +149,31 @@ class TodoRepositoryImpl(
         widgetUpdater.updateWidget()
     }
 
-    override suspend fun findTodoById(instanceId: Long): TodoModel {
-        val instance = todoInstanceLocalDataSource.getTodoInstanceById(instanceId)
-        val template = todoTemplateLocalDataSource.getTodoTemplateById(instance!!.templateId)
-        val period = todoPeriodLocalDataSource.getTodoPeriodByTemplateId(instance.templateId)
-        val dayOfWeek = todoDayOfWeekLocalDataSource.getDayOfWeekByTemplateId(instance.templateId).takeIf { it.isNotEmpty() }
-
-        return TodoModel(
-            instanceId = instance.id,
-            title = template!!.title,
-            description = template.description,
-            date = transferMillis2LocalDate(instance.date),
-            time = if (template.hour != null && template.minute != null) {
-                Time(template.hour, template.minute)
-            } else {
-                null
-            },
-            alarmType = template.alarmType.toModel(),
-            progressAngle = instance.progressAngle,
-            startDate = period?.startDate?.let { transferMillis2LocalDate(it) },
-            endDate = period?.endDate?.let { transferMillis2LocalDate(it) },
-            dayOfWeeks = dayOfWeek?.map { it.dayOfWeek },
-            isAlarmHasVibration = template.isAlarmHasVibration,
-            isAlarmHasSound = template.isAlarmHasSound
-        )
-    }
+//    override suspend fun findTodoById(instanceId: Long): TodoModel {
+//        val instance = todoInstanceLocalDataSource.getTodoInstanceById(instanceId)
+//        val template = todoTemplateLocalDataSource.getTodoTemplateById(instance!!.templateId)
+//        val period = todoPeriodLocalDataSource.getTodoPeriodByTemplateId(instance.templateId)
+//        val dayOfWeek = todoDayOfWeekLocalDataSource.getDayOfWeekByTemplateId(instance.templateId).takeIf { it.isNotEmpty() }
+//
+//        return TodoModel(
+//            instanceId = instance.id,
+//            title = template!!.title,
+//            description = template.description,
+//            date = transferMillis2LocalDate(instance.date),
+//            time = if (template.hour != null && template.minute != null) {
+//                Time(template.hour, template.minute)
+//            } else {
+//                null
+//            },
+//            alarmType = template.alarmType.toModel(),
+//            progressAngle = instance.progressAngle,
+//            startDate = period?.startDate?.let { transferMillis2LocalDate(it) },
+//            endDate = period?.endDate?.let { transferMillis2LocalDate(it) },
+//            dayOfWeeks = dayOfWeek?.map { it.dayOfWeek },
+//            isAlarmHasVibration = template.isAlarmHasVibration,
+//            isAlarmHasSound = template.isAlarmHasSound
+//        )
+//    }
 
     override suspend fun postPeriodTodo(todo: TodoModel, startDate: LocalDate, endDate: LocalDate) {
 

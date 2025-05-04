@@ -3,9 +3,9 @@ package com.paraooo.domain.repository
 import com.paraooo.domain.model.TodoModel
 import java.time.LocalDate
 
-interface TodoRepository {
+interface TodoWriteRepository {
 
-    suspend fun getTodoByDate(date : Long) : List<TodoModel>
+//    suspend fun getTodoByDate(date : Long) : List<TodoModel>
 
     suspend fun postTodo(todo : TodoModel)
 
@@ -15,7 +15,7 @@ interface TodoRepository {
 
     suspend fun updateTodo(todo : TodoModel)
 
-    suspend fun findTodoById(instanceId : Long) : TodoModel
+//    suspend fun findTodoById(instanceId : Long) : TodoModel
 
     suspend fun postPeriodTodo(
         todo : TodoModel,

@@ -3,10 +3,9 @@ package com.paraooo.todolist
 import android.util.Log
 import com.paraooo.domain.model.AlarmType
 import com.paraooo.domain.model.TodoModel
-import com.paraooo.domain.repository.TodoRepository
+import com.paraooo.domain.repository.TodoWriteRepository
 import com.paraooo.todolist.ui.features.alarm.AlarmUiEvent
 import com.paraooo.todolist.ui.features.alarm.AlarmViewModel
-import com.paraooo.todolist.ui.features.create.CreateViewModel
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -29,7 +28,7 @@ import java.time.LocalDate
 class AlarmViewModelUnitTest {
 
     private lateinit var viewModel: AlarmViewModel
-    private lateinit var todoRepository: TodoRepository
+    private lateinit var todoWriteRepository: TodoWriteRepository
 
     private val sampleTodoModel = TodoModel(
         instanceId = 1L,
@@ -48,8 +47,8 @@ class AlarmViewModelUnitTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        todoRepository = mockk()
-        viewModel = AlarmViewModel(todoRepository)
+        todoWriteRepository = mockk()
+        viewModel = AlarmViewModel(todoWriteRepository)
 
         mockkStatic(Log::class)
         every { Log.d(any(), any()) } returns 0
@@ -67,11 +66,11 @@ class AlarmViewModelUnitTest {
             instanceId = instanceId, title = "Test Todo"
         )
 
-        coEvery { todoRepository.findTodoById(any()) } returns todo
+        coEvery { todoWriteRepository.findTodoById(any()) } returns todo
         viewModel.onEvent(AlarmUiEvent.onInit(instanceId))
         advanceUntilIdle()
 
-        coVerify { todoRepository.findTodoById(instanceId) }
+        coVerify { todoWriteRepository.findTodoById(instanceId) }
         assertEquals(viewModel.uiState.value.todoName, todo.title)
     }
 

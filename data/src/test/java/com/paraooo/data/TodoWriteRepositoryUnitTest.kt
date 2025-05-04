@@ -11,11 +11,10 @@ import com.paraooo.data.dto.TodoInstanceDto
 import com.paraooo.data.dto.TodoPeriodDto
 import com.paraooo.data.dto.TodoTemplateDto
 import com.paraooo.data.dto.TodoTypeDto
-import com.paraooo.data.local.entity.TodoTemplate
 import com.paraooo.data.mapper.toDto
 import com.paraooo.data.mapper.toModel
 import com.paraooo.data.platform.alarm.AlarmScheduler
-import com.paraooo.data.repository.TodoRepositoryImpl
+import com.paraooo.data.repository.TodoWriteRepositoryImpl
 import com.paraooo.domain.model.AlarmType
 import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
@@ -27,8 +26,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import io.mockk.mockkStatic
-import io.mockk.unmockkStatic
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -43,7 +40,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class TodoRepositoryUnitTest {
+class TodoWriteRepositoryUnitTest {
 
     private val todoTemplateLocalDataSource = mockk<TodoTemplateLocalDataSource>()
     private val todoInstanceLocalDataSource = mockk<TodoInstanceLocalDataSource>()
@@ -108,7 +105,7 @@ class TodoRepositoryUnitTest {
         dayOfWeeks = listOf(1, 2)
     )
 
-    private lateinit var repository: TodoRepositoryImpl
+    private lateinit var repository: TodoWriteRepositoryImpl
 
     private val testDispatcher = StandardTestDispatcher()
 
@@ -116,7 +113,7 @@ class TodoRepositoryUnitTest {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
 
-        repository = TodoRepositoryImpl(
+        repository = TodoWriteRepositoryImpl(
             todoTemplateLocalDataSource,
             todoInstanceLocalDataSource,
             todoPeriodLocalDataSource,
