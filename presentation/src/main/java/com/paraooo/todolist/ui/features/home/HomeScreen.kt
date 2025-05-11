@@ -1,9 +1,9 @@
 package com.paraooo.todolist.ui.features.home
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -69,6 +69,10 @@ fun HomeScreen(
     val context = LocalContext.current
 
     val uiState by viewModel.uiState.collectAsState()
+    
+    LaunchedEffect(uiState) {
+        Log.d(TAG, "HomeScreen: ${uiState}")
+    }
 
     var selectedDateString by remember { mutableStateOf(getDateWithDot(uiState.selectedDateState.date)) }
 
@@ -196,6 +200,7 @@ fun HomeScreen(
                 }
 
                 else -> {
+                    Log.d(TAG, "TodoVerticalList - else: ${uiState.todoListState.todoList}")
                     TodoVerticalList(
                         uiState.todoListState.todoList,
                         onIsSwipedChanged = { todo : TodoModel, isSwiped: Boolean ->

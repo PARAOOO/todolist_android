@@ -10,7 +10,10 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
+import androidx.glance.Image
 import androidx.glance.ImageProvider
+import androidx.glance.action.actionStartActivity
+import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.itemsIndexed
@@ -25,22 +28,24 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
+import androidx.glance.layout.size
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
+import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.repository.TodoReadRepository
 import com.paraooo.domain.repository.TodoWriteRepository
 import com.paraooo.domain.util.transferLocalDateToMillis
+import com.paraooo.todolist.MainActivity
 import com.paraooo.todolist.R
 import com.paraooo.todolist.ui.features.create.TAG
+import com.paraooo.todolist.ui.util.getDateWithDot
+import kotlinx.coroutines.flow.first
 import org.koin.core.context.GlobalContext
 import java.time.LocalDate
-
-//1746397477061
-//1746397490093
 
 object TLWidget: GlanceAppWidget() {
 
@@ -54,7 +59,7 @@ object TLWidget: GlanceAppWidget() {
 
         val todoReadRepository: TodoReadRepository = GlobalContext.get().get()
         val todoList = todoReadRepository.getTodoByDate(transferLocalDateToMillis(todayDate))
-        val updatedList = todoList.map { it.copy() }
+        val updatedList = todoList.first()
 
         provideContent {
 
@@ -72,11 +77,7 @@ object TLWidget: GlanceAppWidget() {
 @Composable
 fun TLWidgetView(
     todoList : List<TodoModel>,
-//    forceUpdate : String,
 ) {
-
-
-//    Log.d(TAG, "TLWidgetView: ${forceUpdate}")
 
     Column(
         modifier = GlanceModifier
@@ -84,29 +85,33 @@ fun TLWidgetView(
             .background(Color.White)
             .padding(12.dp)
     ) {
-        Text(
-            text = "Today's Todos",
-            style = TextStyle(
-                fontSize = 20.sp,
-                color = ColorProvider(Color(0xFF545454)),
-                fontWeight = FontWeight.Bold
-            ),
-            modifier = GlanceModifier.padding(start = 4.dp, top = 4.dp)
-        )
+        Row(
+            modifier = GlanceModifier.fillMaxWidth().padding(start = 4.dp).padding(bottom = 4.dp),
+            verticalAlignment = Alignment.Vertical.CenterVertically
+        ){
+            Text(
+                text = "Today's Todos",
+                style = TextStyle(
+                    fontSize = 20.sp,
+                    color = ColorProvider(Color(0xFF545454)),
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Start
+                ),
+                modifier = GlanceModifier.defaultWeight()
+            )
+
+            Image(
+                provider = ImageProvider(R.drawable.ic_arrow_back_thin),
+                contentDescription = null,
+                modifier = GlanceModifier.defaultWeight().size(17.dp, 24.dp).padding(4.dp).clickable(
+                    actionStartActivity(MainActivity::class.java)
+                )
+            )
+        }
 
         Spacer(
             modifier = GlanceModifier.height(18.dp)
         )
-
-//        Text(
-//            text = forceUpdate,
-//            style = TextStyle(
-//                fontSize = 1.sp,
-//                color = ColorProvider(Color(0x00FFFFFF))
-//            ),
-//            modifier = GlanceModifier.height(18.dp)
-//
-//        )
 
         Row(
             modifier = GlanceModifier
@@ -117,7 +122,7 @@ fun TLWidgetView(
             horizontalAlignment = Alignment.Horizontal.CenterHorizontally
         ) {
             Text(
-                text = "2024. 1. 15",
+                text = getDateWithDot(LocalDate.now()),
                 style = TextStyle(
                     fontSize = 12.sp,
                     color = ColorProvider(Color(0xFF7F7F7F)),
@@ -133,9 +138,6 @@ fun TLWidgetView(
 
         LazyColumn{
             itemsIndexed(todoList) { index, todo ->
-
-//                val checked = prefs[booleanPreferencesKey("todo_$index")] ?: false
-
                 WidgetTodoCard(
                     index,
                     todo = todo
