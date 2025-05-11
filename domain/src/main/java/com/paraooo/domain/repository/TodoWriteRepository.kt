@@ -5,8 +5,6 @@ import java.time.LocalDate
 
 interface TodoWriteRepository {
 
-//    suspend fun getTodoByDate(date : Long) : List<TodoModel>
-
     suspend fun postTodo(todo : TodoModel)
 
     suspend fun updateTodoProgress(instanceId: Long, progress : Float)
@@ -14,8 +12,6 @@ interface TodoWriteRepository {
     suspend fun deleteTodoById(instanceId: Long)
 
     suspend fun updateTodo(todo : TodoModel)
-
-//    suspend fun findTodoById(instanceId : Long) : TodoModel
 
     suspend fun postPeriodTodo(
         todo : TodoModel,

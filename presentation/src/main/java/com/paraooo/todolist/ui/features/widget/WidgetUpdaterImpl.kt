@@ -15,6 +15,7 @@ import com.paraooo.domain.util.transferLocalDateToMillis
 import com.paraooo.todolist.ui.features.create.TAG
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -35,28 +36,10 @@ class WidgetUpdaterImpl(
 
     override suspend fun updateWidget() {
 
-
-//        Log.d(TAG, "updateWidget: ")
-//        val intent = Intent("android.appwidget.action.APPWIDGET_UPDATE")
-//        context.sendBroadcast(intent)
-
-//
-//        TLWidget.updateAll(context)
-//
-//        val glanceIds = GlanceAppWidgetManager(context).getGlanceIds(TLWidget::class.java)
-//        Log.d(TAG, "Glance IDs: ${glanceIds}")
-//
-//        GlanceAppWidgetManager(context)
-//            .getGlanceIds(TLWidget.javaClass)
-//            .forEach {
-//                Log.d(TAG, "updateWidget: ${it}")
-//                TLWidget.update(context, it)
-//            }
-
         CoroutineScope(Dispatchers.IO).launch {
 
             val todayLocalDate = LocalDate.now()
-            val todoList = todoReadRepository.getTodoByDate(transferLocalDateToMillis(todayLocalDate))
+            val todoList = todoReadRepository.getTodoByDate(transferLocalDateToMillis(todayLocalDate)).first()
             val jsonTodoList = todoList.toJson()
 
             try {

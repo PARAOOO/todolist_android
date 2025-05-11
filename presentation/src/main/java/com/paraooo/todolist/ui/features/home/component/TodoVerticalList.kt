@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
@@ -61,10 +62,11 @@ fun TodoVerticalList(
     ){
         when(todoList){
 
-            // todoList가 empty일 때 -> "오늘의 Todo가 없습니다!"
             emptyList<TodoModel>() -> {
                 Column(
-                    modifier = Modifier.fillMaxSize().padding(bottom = 150.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = 150.dp),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -93,7 +95,7 @@ fun TodoVerticalList(
                     verticalArrangement = Arrangement.spacedBy(5.dp),
                 ) {
                     items(todoList) { todo: TodoModel ->
-                        key(todo.instanceId) {
+                        key(todo.instanceId, todo.progressAngle) {
                             SwipeableCard(
                                 backgroundContent = {
                                     Box(
@@ -169,150 +171,3 @@ fun TodoVerticalListSkeleton() {
         }
     }
 }
-
-@Preview
-@Composable
-fun PreviewTodoVerticalList() {
-
-//    val sampleTodoList = getSampleTodoList()
-//
-//    TodoVerticalList(
-//        sampleTodoList,
-//        {s, b -> },
-//        {s, f -> }
-//    )
-}
-
-//fun getSampleTodoList() : List<TodoModel>{
-//    val sampleTodoList = listOf(
-//        TodoModel(
-//            id = "1",
-//            title = "치과 갔다오기",
-//            time = "PM 1:30",
-//            description = "가서 임플란트 하고 오기 / 다음 예약일 정하기",
-//            progressAngle = 0F,
-//        ),
-//        TodoModel(
-//            id = "2",
-//            title = "다이소에서 돌돌이 사기",
-//            description = "대구 수성구 용학로 223 / 102동 406호\n전자 영수증 발급하기",
-//            progressAngle = 360F
-//        ),
-//        TodoModel(
-//            id = "3",
-//            title = "회사 TodoList UI 작성",
-//            description = "김대리님 서류 파일 확인 후 => UI 작성하기",
-//            progressAngle = 120F
-//        ),
-//        TodoModel(
-//            id = "2",
-//            title = "다이소에서 돌돌이 사기",
-//            description = "대구 수성구 용학로 223 / 102동 406호\n전자 영수증 발급하기",
-//            progressAngle = 360F
-//        ),
-//        TodoModel(
-//            id = "3",
-//            title = "회사 TodoList UI 작성",
-//            description = "김대리님 서류 파일 확인 후 => UI 작성하기",
-//            progressAngle = 120F
-//        ),
-//        TodoModel(
-//            id = "2",
-//            title = "다이소에서 돌돌이 사기",
-//            description = "대구 수성구 용학로 223 / 102동 406호\n전자 영수증 발급하기",
-//            progressAngle = 360F
-//        ),
-//        TodoModel(
-//            id = "3",
-//            title = "회사 TodoList UI 작성",
-//            description = "김대리님 서류 파일 확인 후 => UI 작성하기",
-//            progressAngle = 120F
-//        ),
-//        TodoModel(
-//            id = "2",
-//            title = "다이소에서 돌돌이 사기",
-//            description = "대구 수성구 용학로 223 / 102동 406호\n전자 영수증 발급하기",
-//            progressAngle = 360F
-//        ),
-//        TodoModel(
-//            id = "3",
-//            title = "회사 TodoList UI 작성",
-//            description = "김대리님 서류 파일 확인 후 => UI 작성하기",
-//            progressAngle = 120F
-//        ),
-//        TodoModel(
-//            id = "2",
-//            title = "다이소에서 돌돌이 사기",
-//            description = "대구 수성구 용학로 223 / 102동 406호\n전자 영수증 발급하기",
-//            progressAngle = 360F
-//        ),
-//        TodoModel(
-//            id = "3",
-//            title = "회사 TodoList UI 작성",
-//            description = "김대리님 서류 파일 확인 후 => UI 작성하기",
-//            progressAngle = 120F
-//        ),
-//        TodoModel(
-//            id = "2",
-//            title = "다이소에서 돌돌이 사기",
-//            description = "대구 수성구 용학로 223 / 102동 406호\n전자 영수증 발급하기",
-//            progressAngle = 360F
-//        ),
-//        TodoModel(
-//            id = "3",
-//            title = "회사 TodoList UI 작성",
-//            description = "김대리님 서류 파일 확인 후 => UI 작성하기",
-//            progressAngle = 120F
-//        ),
-//        TodoModel(
-//            id = "2",
-//            title = "다이소에서 돌돌이 사기",
-//            description = "대구 수성구 용학로 223 / 102동 406호\n전자 영수증 발급하기",
-//            progressAngle = 360F
-//        ),
-//        TodoModel(
-//            id = "3",
-//            title = "회사 TodoList UI 작성",
-//            description = "김대리님 서류 파일 확인 후 => UI 작성하기",
-//            progressAngle = 120F
-//        ),
-//        TodoModel(
-//            id = "2",
-//            title = "다이소에서 돌돌이 사기",
-//            description = "대구 수성구 용학로 223 / 102동 406호\n전자 영수증 발급하기",
-//            progressAngle = 360F
-//        ),
-//        TodoModel(
-//            id = "3",
-//            title = "회사 TodoList UI 작성",
-//            description = "김대리님 서류 파일 확인 후 => UI 작성하기",
-//            progressAngle = 120F
-//        ),
-//        TodoModel(
-//            id = "2",
-//            title = "다이소에서 돌돌이 사기",
-//            description = "대구 수성구 용학로 223 / 102동 406호\n전자 영수증 발급하기",
-//            progressAngle = 360F
-//        ),
-//        TodoModel(
-//            id = "3",
-//            title = "회사 TodoList UI 작성",
-//            description = "김대리님 서류 파일 확인 후 => UI 작성하기",
-//            progressAngle = 120F
-//        ),
-//        TodoModel(
-//            id = "2",
-//            title = "다이소에서 돌돌이 사기",
-//            description = "대구 수성구 용학로 223 / 102동 406호\n전자 영수증 발급하기",
-//            progressAngle = 360F
-//        ),
-//        TodoModel(
-//            id = "3",
-//            title = "회사 TodoList UI 작성",
-//            description = "김대리님 서류 파일 확인 후 => UI 작성하기",
-//            progressAngle = 120F
-//        )
-//    )
-//
-//    return sampleTodoList
-//}
