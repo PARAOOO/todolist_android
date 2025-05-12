@@ -1,5 +1,6 @@
 package com.paraooo.data
 
+import android.util.Log
 import com.paraooo.data.datasource.TodoDayOfWeekLocalDataSource
 import com.paraooo.data.datasource.TodoInstanceLocalDataSource
 import com.paraooo.data.datasource.TodoPeriodLocalDataSource
@@ -14,10 +15,13 @@ import com.paraooo.data.dto.TodoTypeDto
 import com.paraooo.data.mapper.toDto
 import com.paraooo.data.mapper.toModel
 import com.paraooo.data.platform.alarm.AlarmScheduler
+import com.paraooo.data.repository.TodoReadRepositoryImpl
 import com.paraooo.data.repository.TodoWriteRepositoryImpl
 import com.paraooo.domain.model.AlarmType
 import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
+import com.paraooo.domain.repository.TodoReadRepository
+import com.paraooo.domain.repository.WidgetUpdater
 import com.paraooo.domain.util.transferLocalDateToMillis
 import com.paraooo.domain.util.transferMillis2LocalDate
 import io.mockk.Runs
@@ -26,9 +30,12 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -47,6 +54,7 @@ class TodoWriteRepositoryUnitTest {
     private val todoPeriodLocalDataSource = mockk<TodoPeriodLocalDataSource>()
     private val todoDayOfWeekLocalDataSource = mockk<TodoDayOfWeekLocalDataSource>()
     private val alarmScheduler = mockk<AlarmScheduler>(relaxed = true) // alarm 호출 무시
+    private val widgetUpdater = mockk<WidgetUpdater>(relaxed = true)
 
     private val sampleTodoModel = TodoModel(
         instanceId = 1L,
@@ -105,7 +113,8 @@ class TodoWriteRepositoryUnitTest {
         dayOfWeeks = listOf(1, 2)
     )
 
-    private lateinit var repository: TodoWriteRepositoryImpl
+    private lateinit var todoWriteRepository: TodoWriteRepositoryImpl
+    private lateinit var todoReadRepository: TodoReadRepositoryImpl
 
     private val testDispatcher = StandardTestDispatcher()
 
@@ -113,12 +122,23 @@ class TodoWriteRepositoryUnitTest {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
 
-        repository = TodoWriteRepositoryImpl(
+        mockkStatic(Log::class)
+        every { Log.d(any(), any()) } returns 0
+
+        todoWriteRepository = TodoWriteRepositoryImpl(
             todoTemplateLocalDataSource,
             todoInstanceLocalDataSource,
             todoPeriodLocalDataSource,
             todoDayOfWeekLocalDataSource,
-            alarmScheduler
+            alarmScheduler,
+            widgetUpdater
+        )
+
+        todoReadRepository = TodoReadRepositoryImpl(
+            todoTemplateLocalDataSource,
+            todoInstanceLocalDataSource,
+            todoPeriodLocalDataSource,
+            todoDayOfWeekLocalDataSource
         )
     }
 
@@ -177,11 +197,15 @@ class TodoWriteRepositoryUnitTest {
             existingInstances,
             updatedInstances
         )
+        coEvery { todoTemplateLocalDataSource.observeTodosByDate(date) } returns flowOf(
+            existingInstances,
+            updatedInstances
+        )
         coEvery { todoDayOfWeekLocalDataSource.getDayOfWeekTodoTemplatesByDate(date) } returns dayOfWeekTemplates
         coEvery { todoInstanceLocalDataSource.insertTodoInstance(any()) } just Runs
 
         // Then
-        val result = repository.getTodoByDate(date)
+        val result = todoReadRepository.getTodoByDate(date).first()
 
         coVerify(exactly = 1) {
             todoInstanceLocalDataSource.insertTodoInstance(
@@ -211,7 +235,7 @@ class TodoWriteRepositoryUnitTest {
         coEvery { todoInstanceLocalDataSource.insertTodoInstance(any()) } just Runs
         every { alarmScheduler.schedule(any(), any(), any()) } just Runs
 
-        repository.postTodo(todo)
+        todoWriteRepository.postTodo(todo)
 
         coVerify { todoTemplateLocalDataSource.insertTodoTemplate(any()) }
         coVerify { todoInstanceLocalDataSource.insertTodoInstance(any()) }
@@ -231,7 +255,7 @@ class TodoWriteRepositoryUnitTest {
         coEvery { todoInstanceLocalDataSource.insertTodoInstance(any()) } just Runs
         every { alarmScheduler.schedule(any(), any(), any()) } just Runs
 
-        repository.postTodo(todo)
+        todoWriteRepository.postTodo(todo)
 
         coVerify { todoTemplateLocalDataSource.insertTodoTemplate(any()) }
         coVerify { todoInstanceLocalDataSource.insertTodoInstance(any()) }
@@ -246,7 +270,7 @@ class TodoWriteRepositoryUnitTest {
 
         coEvery { todoInstanceLocalDataSource.updateTodoProgress(instanceId, progress) } just Runs
 
-        repository.updateTodoProgress(instanceId, progress)
+        todoWriteRepository.updateTodoProgress(instanceId, progress)
 
         coVerify { todoInstanceLocalDataSource.updateTodoProgress(instanceId, progress) }
     }
@@ -263,7 +287,7 @@ class TodoWriteRepositoryUnitTest {
         coEvery { todoInstanceLocalDataSource.getTodoInstanceById(instanceId) } returns deletedInstance
         coEvery { todoTemplateLocalDataSource.deleteTodoTemplate(deletedInstance.templateId) } just Runs
 
-        repository.deleteTodoById(instanceId)
+        todoWriteRepository.deleteTodoById(instanceId)
 
         coVerify { todoInstanceLocalDataSource.getTodoInstanceById(instanceId) }
         coVerify { todoTemplateLocalDataSource.deleteTodoTemplate(deletedInstance.templateId) }
@@ -287,7 +311,7 @@ class TodoWriteRepositoryUnitTest {
         coEvery { todoInstanceLocalDataSource.updateTodoInstance(any()) } just Runs
         coEvery { alarmScheduler.schedule(any(), any(), any()) } just Runs
 
-        repository.updateTodo(todoModel)
+        todoWriteRepository.updateTodo(todoModel)
 
         coVerify { todoInstanceLocalDataSource.getTodoInstanceById(todoModel.instanceId) }
         coVerify { todoTemplateLocalDataSource.updateTodoTemplate(any()) }
@@ -311,7 +335,7 @@ class TodoWriteRepositoryUnitTest {
         coEvery { todoInstanceLocalDataSource.updateTodoInstance(any()) } just Runs
         coEvery { alarmScheduler.reschedule(any(), any(), any()) } just Runs
 
-        repository.updateTodo(todoModel)
+        todoWriteRepository.updateTodo(todoModel)
 
         coVerify { todoInstanceLocalDataSource.getTodoInstanceById(todoModel.instanceId) }
         coVerify { todoTemplateLocalDataSource.updateTodoTemplate(any()) }
@@ -343,7 +367,7 @@ class TodoWriteRepositoryUnitTest {
         coEvery { todoPeriodLocalDataSource.getTodoPeriodByTemplateId(templateId) } returns todoPeriod
         coEvery { todoDayOfWeekLocalDataSource.getDayOfWeekByTemplateId(templateId) } returns todoDayOfWeeks
 
-        val result = repository.findTodoById(instanceId)
+        val result = todoReadRepository.findTodoById(instanceId)
 
         coVerify { todoInstanceLocalDataSource.getTodoInstanceById(instanceId) }
         coVerify { todoTemplateLocalDataSource.getTodoTemplateById(templateId) }
@@ -384,7 +408,7 @@ class TodoWriteRepositoryUnitTest {
         coEvery { todoInstanceLocalDataSource.insertTodoInstances(any()) } just Runs
         coEvery { todoPeriodLocalDataSource.insertTodoPeriod(any()) } just Runs
 
-        repository.postPeriodTodo(todoModel, startDate, endDate)
+        todoWriteRepository.postPeriodTodo(todoModel, startDate, endDate)
 
         coVerify { todoTemplateLocalDataSource.insertTodoTemplate(any()) }
         coVerify { todoInstanceLocalDataSource.insertTodoInstances(any()) }
@@ -411,7 +435,7 @@ class TodoWriteRepositoryUnitTest {
         coEvery { todoInstanceLocalDataSource.insertTodoInstances(any()) } just Runs
         coEvery { todoPeriodLocalDataSource.insertTodoPeriod(any()) } just Runs
 
-        repository.postPeriodTodo(todoModel, startDate, endDate)
+        todoWriteRepository.postPeriodTodo(todoModel, startDate, endDate)
 
         coVerify { todoTemplateLocalDataSource.insertTodoTemplate(any()) }
         coVerify { todoInstanceLocalDataSource.insertTodoInstances(any()) }
@@ -458,7 +482,7 @@ class TodoWriteRepositoryUnitTest {
         coEvery { alarmScheduler.cancel(templateId) } just Runs
         coEvery { alarmScheduler.schedule(any(), any(), any()) } just Runs
 
-        repository.updatePeriodTodo(todoModel)
+        todoWriteRepository.updatePeriodTodo(todoModel)
 
         coVerify { todoInstanceLocalDataSource.getTodoInstanceById(instanceId) }
         coVerify { todoTemplateLocalDataSource.updateTodoTemplate(any()) }
@@ -510,7 +534,7 @@ class TodoWriteRepositoryUnitTest {
         coEvery { alarmScheduler.cancel(templateId) } just Runs
         coEvery { alarmScheduler.schedule(any(), any(), any()) } just Runs
 
-        repository.updatePeriodTodo(todoModel)
+        todoWriteRepository.updatePeriodTodo(todoModel)
 
         coVerify { todoInstanceLocalDataSource.getTodoInstanceById(instanceId) }
         coVerify { todoTemplateLocalDataSource.updateTodoTemplate(any()) }
@@ -545,7 +569,7 @@ class TodoWriteRepositoryUnitTest {
         coEvery { todoDayOfWeekLocalDataSource.insertTodoDayOfWeek(any()) } just Runs
         coEvery { alarmScheduler.schedule(any(), any(), any()) } just Runs
 
-        repository.postDayOfWeekTodo(todoModel, dayOfWeek)
+        todoWriteRepository.postDayOfWeekTodo(todoModel, dayOfWeek)
 
         coVerify(exactly = 1) {
             todoTemplateLocalDataSource.insertTodoTemplate(any())
@@ -590,7 +614,7 @@ class TodoWriteRepositoryUnitTest {
         coEvery { todoDayOfWeekLocalDataSource.insertTodoDayOfWeek(any()) } just Runs
         coEvery { alarmScheduler.schedule(any(), any(), any()) } just Runs
 
-        repository.postDayOfWeekTodo(todoModel, dayOfWeek)
+        todoWriteRepository.postDayOfWeekTodo(todoModel, dayOfWeek)
 
         coVerify(exactly = 1) {
             todoTemplateLocalDataSource.insertTodoTemplate(any())
@@ -644,7 +668,7 @@ class TodoWriteRepositoryUnitTest {
         coEvery { alarmScheduler.cancel(templateId) } just Runs
         coEvery { alarmScheduler.schedule(any(), any(), any()) } just Runs
 
-        repository.updateDayOfWeekTodo(todoModel)
+        todoWriteRepository.updateDayOfWeekTodo(todoModel)
 
         coVerify(exactly = 1) {
             todoTemplateLocalDataSource.updateTodoTemplate(match {
