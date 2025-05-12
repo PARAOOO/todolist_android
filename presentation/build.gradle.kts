@@ -38,8 +38,8 @@ android {
         applicationId = "com.paraooo.todolist"
         minSdk = 26
         targetSdk = 35
-        versionCode = 9
-        versionName = "1.4.3"
+        versionCode = 10
+        versionName = "1.5.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -101,6 +101,10 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     annotationProcessor(libs.androidx.room.compiler)
+
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.gson)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

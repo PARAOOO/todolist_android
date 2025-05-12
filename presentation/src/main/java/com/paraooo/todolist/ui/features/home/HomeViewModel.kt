@@ -5,20 +5,23 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.paraooo.domain.model.TodoModel
-import com.paraooo.domain.repository.TodoRepository
+import com.paraooo.domain.repository.TodoReadRepository
+import com.paraooo.domain.repository.TodoWriteRepository
 import com.paraooo.domain.util.transferLocalDateToMillis
-import com.paraooo.todolist.ui.features.create.CreateUiEffect
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class HomeViewModel(
-    private val todoRepository: TodoRepository,
+    private val todoWriteRepository: TodoWriteRepository,
+    private val todoReadRepository: TodoReadRepository,
     private val initialUiState : HomeUiState = HomeUiState()
 ) : ViewModel() {
 
@@ -27,6 +30,8 @@ class HomeViewModel(
 
     private val _effectChannel = Channel<HomeUiEffect>()
     val effectFlow = _effectChannel.receiveAsFlow()
+
+    private var todoCollectJob: Job? = null
 
     var selectedTodo = mutableStateOf<TodoModel?>(null)
 
@@ -40,14 +45,23 @@ class HomeViewModel(
             )
 
             try {
-                val todoList = todoRepository.getTodoByDate(transferLocalDateToMillis(date))
-                _uiState.value = _uiState.value.copy(
-                    todoListState = _uiState.value.todoListState.copy(
-                        todoList = todoList,
-                        isLoading = false,
-                        error = ""
-                    )
-                )
+                todoCollectJob?.cancel()
+
+                todoCollectJob = viewModelScope.launch {
+                    todoReadRepository.getTodoByDate(transferLocalDateToMillis(date)).collect { todoList ->
+
+                        _uiState.update { currentState ->
+                            currentState.copy(
+                                todoListState = currentState.todoListState.copy(
+                                    todoList = todoList,
+                                    isLoading = false,
+                                    error = ""
+                                )
+                            )
+                        }
+                    }
+                }
+
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     todoListState = _uiState.value.todoListState.copy(
@@ -99,14 +113,14 @@ class HomeViewModel(
                             }
                         )
                     )
-                    todoRepository.updateTodoProgress(event.todo.instanceId, event.progress)
+                    todoWriteRepository.updateTodoProgress(event.todo.instanceId, event.progress)
                 }
             }
 
             is HomeUiEvent.onTodoDeleteClicked -> {
                 viewModelScope.launch{
 
-                    todoRepository.deleteTodoById(event.todo.instanceId)
+                    todoWriteRepository.deleteTodoById(event.todo.instanceId)
 
                     _effectChannel.send(HomeUiEffect.onDeleteTodoSuccess)
 

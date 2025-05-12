@@ -11,6 +11,8 @@ import com.paraooo.data.local.entity.TodoEntity
 import com.paraooo.data.local.entity.TodoTemplate
 import com.paraooo.data.mapper.toDto
 import com.paraooo.data.mapper.toEntity
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 //import com.paraooo.data.local.entity.TodoEntity
 //import com.paraooo.data.mapper.toDto
@@ -43,6 +45,11 @@ class TodoTemplateLocalDataSource(
     suspend fun getTodosByDate(selectedDate: Long): List<TodoDto> {
         return todoTemplateDao.getTodosByDate(selectedDate).map { it.toDto() }
     }
+
+    suspend fun observeTodosByDate(selectedDate: Long): Flow<List<TodoDto>> {
+        return todoTemplateDao.observeTodosByDate(selectedDate).map { it.map { it.toDto() } }
+    }
+
 
     suspend fun getAlarmTodos(todayMillis: Long): List<TodoDto> {
         return todoTemplateDao.getAlarmTodos(todayMillis).map { it.toDto() }

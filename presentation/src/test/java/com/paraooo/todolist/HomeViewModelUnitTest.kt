@@ -3,7 +3,8 @@ package com.paraooo.todolist
 import android.util.Log
 import com.paraooo.domain.model.AlarmType
 import com.paraooo.domain.model.TodoModel
-import com.paraooo.domain.repository.TodoRepository
+import com.paraooo.domain.repository.TodoReadRepository
+import com.paraooo.domain.repository.TodoWriteRepository
 import com.paraooo.todolist.ui.features.home.HomeUiEffect
 import com.paraooo.todolist.ui.features.home.HomeUiEvent
 import com.paraooo.todolist.ui.features.home.HomeUiState
@@ -21,6 +22,7 @@ import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -35,7 +37,8 @@ import java.time.LocalDate
 class HomeViewModelUnitTest {
 
     private lateinit var viewModel: HomeViewModel
-    private lateinit var todoRepository: TodoRepository
+    private lateinit var todoWriteRepository: TodoWriteRepository
+    private lateinit var todoReadRepository: TodoReadRepository
 
     private val sampleTodoModel = TodoModel(
         instanceId = 1L,
@@ -54,8 +57,9 @@ class HomeViewModelUnitTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        todoRepository = mockk()
-        viewModel = HomeViewModel(todoRepository)
+        todoWriteRepository = mockk()
+        todoReadRepository = mockk()
+        viewModel = HomeViewModel(todoWriteRepository, todoReadRepository)
 
         mockkStatic(Log::class)
         every { Log.d(any(), any()) } returns 0
@@ -73,7 +77,7 @@ class HomeViewModelUnitTest {
             sampleTodoModel.copy(title = "Test Todo 1"),
             sampleTodoModel.copy(title = "Test Todo 2"),
         )
-        coEvery { todoRepository.getTodoByDate(any()) } returns todoList
+        coEvery { todoReadRepository.getTodoByDate(any()) } returns flowOf(todoList)
 
         viewModel.onEvent(HomeUiEvent.onDateChanged(date))
         advanceUntilIdle()
@@ -91,7 +95,7 @@ class HomeViewModelUnitTest {
             sampleTodoModel.copy(instanceId = 1L, title = "Test Todo 1", isSwiped = false),
             sampleTodoModel.copy(instanceId = 2L, title = "Test Todo 2"),
         )
-        val customViewModel = HomeViewModel(todoRepository, HomeUiState(
+        val customViewModel = HomeViewModel(todoWriteRepository, todoReadRepository, HomeUiState(
             todoListState = TodoListState(false, todoList, "")
         ))
         val todo = sampleTodoModel.copy(instanceId = 1L, title = "Test Todo 1")
@@ -109,20 +113,20 @@ class HomeViewModelUnitTest {
             sampleTodoModel.copy(instanceId = 1L, title = "Test Todo 1", progressAngle = 0F),
             sampleTodoModel.copy(instanceId = 2L, title = "Test Todo 2"),
         )
-        val customViewModel = HomeViewModel(todoRepository, HomeUiState(
+        val customViewModel = HomeViewModel(todoWriteRepository, todoReadRepository, HomeUiState(
             todoListState = TodoListState(false, todoList, "")
         ))
 
         val todo = sampleTodoModel.copy(instanceId = 1L, title = "Test Todo 1")
         val progress = 90F
 
-        coEvery { todoRepository.updateTodoProgress(any(), any()) } just runs
+        coEvery { todoWriteRepository.updateTodoProgress(any(), any()) } just runs
 
         customViewModel.onEvent(HomeUiEvent.onTodoProgressChanged(todo, progress))
         advanceUntilIdle()
 
         assertEquals(progress, customViewModel.uiState.value.todoListState.todoList.find { it.instanceId == todo.instanceId }?.progressAngle)
-        coVerify { todoRepository.updateTodoProgress(todo.instanceId, progress) }
+        coVerify { todoWriteRepository.updateTodoProgress(todo.instanceId, progress) }
     }
 
     @Test
@@ -132,8 +136,8 @@ class HomeViewModelUnitTest {
             sampleTodoModel.copy(instanceId = 2L, title = "Test Todo 2"),
         )
 
-        coEvery { todoRepository.deleteTodoById(any()) } just Runs
-        coEvery { todoRepository.getTodoByDate(any()) } returns todoList
+        coEvery { todoWriteRepository.deleteTodoById(any()) } just Runs
+        coEvery { todoReadRepository.getTodoByDate(any()) } returns flowOf(todoList)
 
         viewModel.onEvent(HomeUiEvent.onTodoDeleteClicked(
             sampleTodoModel.copy(instanceId = instanceId, title = "Test Todo 1")
@@ -143,7 +147,7 @@ class HomeViewModelUnitTest {
 
         assertEquals(HomeUiEffect.onDeleteTodoSuccess, effect)
         assertEquals(todoList, viewModel.uiState.value.todoListState.todoList)
-        coVerify { todoRepository.deleteTodoById(instanceId) }
+        coVerify { todoWriteRepository.deleteTodoById(instanceId) }
     }
 
     @Test
@@ -152,7 +156,7 @@ class HomeViewModelUnitTest {
             sampleTodoModel.copy(instanceId = 1L, title = "Test Todo 1", isToggleOpened = false),
             sampleTodoModel.copy(instanceId = 2L, title = "Test Todo 2"),
         )
-        val customViewModel = HomeViewModel(todoRepository, HomeUiState(
+        val customViewModel = HomeViewModel(todoWriteRepository, todoReadRepository, HomeUiState(
             todoListState = TodoListState(false, todoList, "")
         ))
         val todo = sampleTodoModel.copy(instanceId = 1L, title = "Test Todo 1")

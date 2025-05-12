@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Update
 import com.paraooo.data.local.entity.TodoEntity
 import com.paraooo.data.local.entity.TodoTemplate
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TodoTemplateDao {
@@ -47,6 +48,29 @@ interface TodoTemplateDao {
         """
     )
     suspend fun getTodosByDate(selectedDate: Long): List<TodoEntity>
+
+    @Query(
+        """
+        SELECT 
+            ti.id AS instanceId, 
+            tt.id AS templateId,
+            tt.title AS title,
+            tt.description AS description,
+            ti.date AS date,
+            tt.hour AS hour,
+            tt.minute AS minute,
+            ti.progressAngle AS progressAngle,
+            tt.alarmType AS alarmType,
+            tt.isAlarmHasSound AS isAlarmHasSound,
+            tt.isAlarmHasVibration AS isAlarmHasVibration
+        FROM todo_instance AS ti
+        INNER JOIN todo_template AS tt ON ti.templateId = tt.id
+        WHERE ti.date = :selectedDate
+        ORDER BY tt.hour ASC, tt.minute ASC
+        """
+    )
+    fun observeTodosByDate(selectedDate: Long): Flow<List<TodoEntity>>
+
 
     @Query("""
     SELECT 

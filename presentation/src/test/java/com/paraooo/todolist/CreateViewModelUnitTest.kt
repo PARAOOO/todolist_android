@@ -3,7 +3,7 @@ package com.paraooo.todolist
 import android.util.Log
 import com.paraooo.domain.model.AlarmType
 import com.paraooo.domain.model.TodoModel
-import com.paraooo.domain.repository.TodoRepository
+import com.paraooo.domain.repository.TodoWriteRepository
 import com.paraooo.todolist.ui.components.AlarmInputState
 import com.paraooo.todolist.ui.components.AlarmSettingInputState
 import com.paraooo.todolist.ui.components.DateInputState
@@ -40,7 +40,7 @@ import java.time.LocalDate
 class CreateViewModelUnitTest {
 
     private lateinit var viewModel: CreateViewModel
-    private lateinit var todoRepository: TodoRepository
+    private lateinit var todoWriteRepository: TodoWriteRepository
 
     private val sampleTodoModel = TodoModel(
         instanceId = 1L,
@@ -59,8 +59,8 @@ class CreateViewModelUnitTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        todoRepository = mockk()
-        viewModel = CreateViewModel(todoRepository)
+        todoWriteRepository = mockk()
+        viewModel = CreateViewModel(todoWriteRepository)
 
         mockkStatic(Log::class)
         every { Log.d(any(), any()) } returns 0
@@ -74,13 +74,13 @@ class CreateViewModelUnitTest {
     @Test
     fun `onCreateClicked should postTodo when dateInputState is Date`() = runTest {
         val todoName = "Test Todo"
-        val customViewModel = CreateViewModel(todoRepository, CreateUiState(
+        val customViewModel = CreateViewModel(todoWriteRepository, CreateUiState(
             todoInputState = TodoInputState(
                 dateInputState = DateInputState.Date(LocalDate.now()),
                 todoNameInputState = TodoNameInputState(todoName)
             ),
         ))
-        coEvery { todoRepository.postTodo(any()) } just Runs
+        coEvery { todoWriteRepository.postTodo(any()) } just Runs
 
         customViewModel.onEvent(CreateUiEvent.onCreateClicked)
 
@@ -88,19 +88,19 @@ class CreateViewModelUnitTest {
         advanceUntilIdle()
 
         assertEquals(CreateUiEffect.onPostTodoSuccess(todoName), effect)
-        coVerify(exactly = 1) { todoRepository.postTodo(any()) }
+        coVerify(exactly = 1) { todoWriteRepository.postTodo(any()) }
     }
 
     @Test
     fun `onCreateClicked should postPeriodTodo when dateInputState is Period`() = runTest {
         val todoName = "Test Todo"
-        val customViewModel = CreateViewModel(todoRepository, CreateUiState(
+        val customViewModel = CreateViewModel(todoWriteRepository, CreateUiState(
             todoInputState = TodoInputState(
                 dateInputState = DateInputState.Period(LocalDate.now(), LocalDate.now()),
                 todoNameInputState = TodoNameInputState(todoName)
             ),
         ))
-        coEvery { todoRepository.postPeriodTodo(any(), any(), any()) } just Runs
+        coEvery { todoWriteRepository.postPeriodTodo(any(), any(), any()) } just Runs
 
         customViewModel.onEvent(CreateUiEvent.onCreateClicked)
 
@@ -108,19 +108,19 @@ class CreateViewModelUnitTest {
         advanceUntilIdle()
 
         assertEquals(CreateUiEffect.onPostTodoSuccess(todoName), effect)
-        coVerify(exactly = 1) { todoRepository.postPeriodTodo(any(), any(), any()) }
+        coVerify(exactly = 1) { todoWriteRepository.postPeriodTodo(any(), any(), any()) }
     }
 
     @Test
     fun `onCreateClicked should postDayOfWeekTodo when dateInputState is DayOfWeek`() = runTest {
         val todoName = "Test Todo"
-        val customViewModel = CreateViewModel(todoRepository, CreateUiState(
+        val customViewModel = CreateViewModel(todoWriteRepository, CreateUiState(
             todoInputState = TodoInputState(
                 dateInputState = DateInputState.DayOfWeek(listOf(1)),
                 todoNameInputState = TodoNameInputState(todoName)
             ),
         ))
-        coEvery { todoRepository.postDayOfWeekTodo(any(), any()) } just Runs
+        coEvery { todoWriteRepository.postDayOfWeekTodo(any(), any()) } just Runs
 
         customViewModel.onEvent(CreateUiEvent.onCreateClicked)
 
@@ -128,7 +128,7 @@ class CreateViewModelUnitTest {
         advanceUntilIdle()
 
         assertEquals(CreateUiEffect.onPostTodoSuccess(todoName), effect)
-        coVerify(exactly = 1) { todoRepository.postDayOfWeekTodo(any(), any()) }
+        coVerify(exactly = 1) { todoWriteRepository.postDayOfWeekTodo(any(), any()) }
     }
 
     @Test

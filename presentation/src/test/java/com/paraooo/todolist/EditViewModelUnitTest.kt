@@ -3,17 +3,14 @@ package com.paraooo.todolist
 import android.util.Log
 import com.paraooo.domain.model.AlarmType
 import com.paraooo.domain.model.TodoModel
-import com.paraooo.domain.repository.TodoRepository
+import com.paraooo.domain.repository.TodoReadRepository
+import com.paraooo.domain.repository.TodoWriteRepository
 import com.paraooo.todolist.ui.components.AlarmInputState
 import com.paraooo.todolist.ui.components.AlarmSettingInputState
 import com.paraooo.todolist.ui.components.DateInputState
 import com.paraooo.todolist.ui.components.TimeInputState
 import com.paraooo.todolist.ui.components.TodoInputState
 import com.paraooo.todolist.ui.components.TodoNameInputState
-import com.paraooo.todolist.ui.features.create.CreateUiEffect
-import com.paraooo.todolist.ui.features.create.CreateUiEvent
-import com.paraooo.todolist.ui.features.create.CreateUiState
-import com.paraooo.todolist.ui.features.create.CreateViewModel
 import com.paraooo.todolist.ui.features.edit.EditUiEffect
 import com.paraooo.todolist.ui.features.edit.EditUiEvent
 import com.paraooo.todolist.ui.features.edit.EditUiState
@@ -43,7 +40,8 @@ import java.time.LocalDate
 @OptIn(ExperimentalCoroutinesApi::class)
 class EditViewModelUnitTest {
     private lateinit var viewModel: EditViewModel
-    private lateinit var todoRepository: TodoRepository
+    private lateinit var todoWriteRepository: TodoWriteRepository
+    private lateinit var todoReadRepository: TodoReadRepository
 
     private val sampleTodoModel = TodoModel(
         instanceId = 1L,
@@ -62,8 +60,8 @@ class EditViewModelUnitTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        todoRepository = mockk()
-        viewModel = EditViewModel(todoRepository)
+        todoWriteRepository = mockk()
+        viewModel = EditViewModel(todoWriteRepository, todoReadRepository)
 
         mockkStatic(Log::class)
         every { Log.d(any(), any()) } returns 0
@@ -78,7 +76,7 @@ class EditViewModelUnitTest {
     fun `onInit should fetch todo and update UI state`() = runTest{
         val instanceId = 1L
         val todo = sampleTodoModel.copy(title = "Test Todo")
-        coEvery { todoRepository.findTodoById(instanceId) } returns todo
+        coEvery { todoReadRepository.findTodoById(instanceId) } returns todo
 
         viewModel.onEvent(EditUiEvent.onInit(instanceId))
         advanceUntilIdle()
@@ -91,13 +89,13 @@ class EditViewModelUnitTest {
     fun `onEditClicked should updateTodo when dateInputState is Date`() = runTest {
         val todoName = "Test Todo"
         val instanceId = 1L
-        val customViewModel = EditViewModel(todoRepository, EditUiState(
+        val customViewModel = EditViewModel(todoWriteRepository, todoReadRepository, EditUiState(
             todoInputState = TodoInputState(
                 dateInputState = DateInputState.Date(LocalDate.now()),
                 todoNameInputState = TodoNameInputState(todoName)
             ),
         ))
-        coEvery { todoRepository.updateTodo(any()) } just Runs
+        coEvery { todoWriteRepository.updateTodo(any()) } just Runs
 
         customViewModel.selectedTodo.value = sampleTodoModel.copy(
             instanceId = instanceId, title = todoName
@@ -108,7 +106,7 @@ class EditViewModelUnitTest {
         advanceUntilIdle()
 
         assertEquals(EditUiEffect.onUpdateTodoSuccess(todoName), effect)
-        coVerify(exactly = 1) { todoRepository.updateTodo(any()) }
+        coVerify(exactly = 1) { todoWriteRepository.updateTodo(any()) }
     }
 
     @Test
@@ -117,13 +115,13 @@ class EditViewModelUnitTest {
         val todo = sampleTodoModel.copy(
             instanceId = 1L, title = "Test Todo", startDate = LocalDate.now(), endDate = LocalDate.now()
         )
-        val customViewModel = EditViewModel(todoRepository, EditUiState(
+        val customViewModel = EditViewModel(todoWriteRepository, todoReadRepository, EditUiState(
             todoInputState = TodoInputState(
                 dateInputState = DateInputState.Period(todo.startDate!!, todo.endDate!!),
                 todoNameInputState = TodoNameInputState(todo.title)
             ),
         ))
-        coEvery { todoRepository.updatePeriodTodo(any()) } just Runs
+        coEvery { todoWriteRepository.updatePeriodTodo(any()) } just Runs
 
         customViewModel.selectedTodo.value = todo
         customViewModel.onEvent(EditUiEvent.onEditClicked(todo.instanceId))
@@ -132,7 +130,7 @@ class EditViewModelUnitTest {
         advanceUntilIdle()
 
         assertEquals(EditUiEffect.onUpdateTodoSuccess(todo.title), effect)
-        coVerify(exactly = 1) { todoRepository.updatePeriodTodo(any()) }
+        coVerify(exactly = 1) { todoWriteRepository.updatePeriodTodo(any()) }
     }
 
     @Test
@@ -140,13 +138,13 @@ class EditViewModelUnitTest {
         val todo = sampleTodoModel.copy(
             instanceId = 1L, title = "Test Todo", dayOfWeeks = listOf(1)
         )
-        val customViewModel = EditViewModel(todoRepository, EditUiState(
+        val customViewModel = EditViewModel(todoWriteRepository, todoReadRepository, EditUiState(
             todoInputState = TodoInputState(
                 dateInputState = DateInputState.DayOfWeek(todo.dayOfWeeks!!),
                 todoNameInputState = TodoNameInputState(todo.title)
             ),
         ))
-        coEvery { todoRepository.updateDayOfWeekTodo(any()) } just Runs
+        coEvery { todoWriteRepository.updateDayOfWeekTodo(any()) } just Runs
 
         customViewModel.selectedTodo.value = todo
         customViewModel.onEvent(EditUiEvent.onEditClicked(todo.instanceId))
@@ -155,7 +153,7 @@ class EditViewModelUnitTest {
         advanceUntilIdle()
 
         assertEquals(EditUiEffect.onUpdateTodoSuccess(todo.title), effect)
-        coVerify(exactly = 1) { todoRepository.updateDayOfWeekTodo(any()) }
+        coVerify(exactly = 1) { todoWriteRepository.updateDayOfWeekTodo(any()) }
     }
 
     @Test

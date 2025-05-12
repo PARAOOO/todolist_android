@@ -38,7 +38,7 @@ jobs:
         id: set_pr_html_url
         run: |
           PR_URL=${{ github.event.pull_request.html_url }}
-          echo "Release Notes: '$PR_URL'"
+          echo "$Pull Request URL: '$PR_URL'"
           echo "::set-output name=pr_url::$PR_URL"
 
       - name: Generate versionCode and write changelog
@@ -47,8 +47,8 @@ jobs:
           # 1) versionCode 추출
           VERSION_CODE=$(./gradlew -q printVersionCode)
           VERSION_NAME=$(./gradlew -q printVersionName)
-          echo "VersionCode: VERSION_CODE"
-          echo "VersionName: VERSION_NAME"
+          echo "VersionCode: $VERSION_CODE"
+          echo "VersionName: $VERSION_NAME"
           
           echo "::set-output name=version_name::$VERSION_NAME"
       

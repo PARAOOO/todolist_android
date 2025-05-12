@@ -14,12 +14,16 @@ import com.paraooo.data.platform.alarm.IntentProvider
 import com.paraooo.data.platform.alarm.NotificationHelper
 import com.paraooo.data.platform.handler.AlarmHandler
 import com.paraooo.data.platform.handler.AlarmRestoreHandler
-import com.paraooo.data.repository.TodoRepositoryImpl
-import com.paraooo.domain.repository.TodoRepository
+import com.paraooo.data.repository.TodoReadRepositoryImpl
+import com.paraooo.data.repository.TodoWriteRepositoryImpl
+import com.paraooo.domain.repository.TodoReadRepository
+import com.paraooo.domain.repository.TodoWriteRepository
+import com.paraooo.domain.repository.WidgetUpdater
 import com.paraooo.todolist.ui.features.alarm.AlarmViewModel
 import com.paraooo.todolist.ui.features.create.CreateViewModel
 import com.paraooo.todolist.ui.features.edit.EditViewModel
 import com.paraooo.todolist.ui.features.home.HomeViewModel
+import com.paraooo.todolist.ui.features.widget.WidgetUpdaterImpl
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -57,13 +61,14 @@ val dataSourceModule = module {
 }
 
 val repositoryModule = module {
-    single<TodoRepository> {TodoRepositoryImpl(get(), get(), get(), get(), get())}
+    single<TodoWriteRepository> {TodoWriteRepositoryImpl(get(), get(), get(), get(), get(), get())}
+    single<TodoReadRepository> {TodoReadRepositoryImpl(get(), get(), get(), get())}
 }
 
 val viewModelModule = module {
-    viewModel { HomeViewModel(get()) }
+    viewModel { HomeViewModel(get(), get()) }
     viewModel { CreateViewModel(get()) }
-    viewModel { EditViewModel(get())}
+    viewModel { EditViewModel(get(), get())}
     viewModel { AlarmViewModel(get()) }
 }
 
@@ -73,9 +78,14 @@ val notificationModule = module {
 }
 
 val handlerModule = module {
-    single { AlarmHandler(get(), get(), get(), get(), get(), get(), get()) }
+    single  { AlarmHandler(get(), get(), get(), get(), get(), get(), get()) }
     single { AlarmRestoreHandler(get(), get(), get(), get()) }
 }
 
+
+val updaterModule = module {
+    single<WidgetUpdater> { WidgetUpdaterImpl(androidContext(),get()) }
+}
+
 // DI 모듈 리스트
-val appModules = listOf(handlerModule, notificationModule, databaseModule, alarmSchedulerModule, dataSourceModule, repositoryModule, viewModelModule)
+val appModules = listOf(handlerModule, notificationModule, databaseModule, alarmSchedulerModule, dataSourceModule, repositoryModule, updaterModule, viewModelModule)
