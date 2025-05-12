@@ -1,14 +1,2 @@
-[pr_reviewer]
-enabled = false
-
-[pr_code_suggester]
-enabled = false
-
-[pr_description_generator]
-enabled = false
-
-[general]
-description_type = "disabled"
-
-[commands]
-enabled = true
+[pr_description]
+publish_description_as_comment = true
