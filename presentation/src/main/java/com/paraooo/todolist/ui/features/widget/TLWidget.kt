@@ -3,6 +3,7 @@ package com.paraooo.todolist.ui.features.widget
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -12,15 +13,18 @@ import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
+import androidx.glance.LocalSize
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.itemsIndexed
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
+import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
@@ -46,14 +50,16 @@ import com.paraooo.todolist.ui.util.getDateWithDot
 import kotlinx.coroutines.flow.first
 import org.koin.core.context.GlobalContext
 import java.time.LocalDate
+import kotlin.math.log
 
 object TLWidget: GlanceAppWidget() {
 
     override val stateDefinition = PreferencesGlanceStateDefinition
 
+    override val sizeMode = SizeMode.Exact
+
     override suspend fun provideGlance(context: Context, id: GlanceId) {
 
-        Log.d(TAG, "provideGlance: glanceID: ${id}")
 
         val todayDate = LocalDate.now()
 
@@ -136,12 +142,48 @@ fun TLWidgetView(
             modifier = GlanceModifier.height(4.dp)
         )
 
-        LazyColumn{
-            itemsIndexed(todoList) { index, todo ->
-                WidgetTodoCard(
-                    index,
-                    todo = todo
-                )
+        when(todoList.isEmpty()){
+
+            true -> {
+                Box(
+                    modifier = GlanceModifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ){
+                    Column(
+                        horizontalAlignment = Alignment.Horizontal.CenterHorizontally
+                    ) {
+                        Image(
+                            provider = ImageProvider(R.drawable.ic_logo_unchecked),
+                            contentDescription = null,
+                            modifier = GlanceModifier.size(70.dp, 70.dp)
+                        )
+
+                        Spacer(
+                            modifier = GlanceModifier.height(10.dp)
+                        )
+
+                        Text(
+                            text = "오늘의 Todo가 없습니다!",
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                color = ColorProvider(Color(0xFFA6A6A6)),
+                                fontWeight = FontWeight.Medium,
+                                textAlign = TextAlign.Center
+                            )
+                        )
+                    }
+                }
+            }
+
+            else -> {
+                LazyColumn {
+                    itemsIndexed(todoList) { index, todo ->
+                        WidgetTodoCard(
+                            index,
+                            todo = todo
+                        )
+                    }
+                }
             }
         }
     }
