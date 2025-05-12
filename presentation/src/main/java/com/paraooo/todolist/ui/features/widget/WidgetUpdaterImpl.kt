@@ -36,28 +36,25 @@ class WidgetUpdaterImpl(
 
     override suspend fun updateWidget() {
 
-        CoroutineScope(Dispatchers.IO).launch {
+        val todayLocalDate = LocalDate.now()
+        val todoList = todoReadRepository.getTodoByDate(transferLocalDateToMillis(todayLocalDate)).first()
+        val jsonTodoList = todoList.toJson()
 
-            val todayLocalDate = LocalDate.now()
-            val todoList = todoReadRepository.getTodoByDate(transferLocalDateToMillis(todayLocalDate)).first()
-            val jsonTodoList = todoList.toJson()
+        try {
+            val glanceIds = GlanceAppWidgetManager(context)
+                .getGlanceIds(TLWidget::class.java)
 
-            try {
-                val glanceIds = GlanceAppWidgetManager(context)
-                    .getGlanceIds(TLWidget::class.java)
-
-                Log.d(TAG, "onReceive: id: ${glanceIds}")
-                glanceIds.forEach {
-                    updateAppWidgetState(context, PreferencesGlanceStateDefinition, it) { prefs ->
-                        prefs.toMutablePreferences().apply {
-                            this[stringPreferencesKey("todoList")] = jsonTodoList
-                        }
+            Log.d(TAG, "onReceive: id: ${glanceIds}")
+            glanceIds.forEach {
+                updateAppWidgetState(context, PreferencesGlanceStateDefinition, it) { prefs ->
+                    prefs.toMutablePreferences().apply {
+                        this[stringPreferencesKey("todoList")] = jsonTodoList
                     }
-                    TLWidget.update(context, it)
                 }
-            } catch (e: Exception) {
-                Log.d(TAG, "onReceive: onError ${e}")
+                TLWidget.update(context, it)
             }
+        } catch (e: Exception) {
+            Log.d(TAG, "onReceive: onError ${e}")
         }
     }
 }
