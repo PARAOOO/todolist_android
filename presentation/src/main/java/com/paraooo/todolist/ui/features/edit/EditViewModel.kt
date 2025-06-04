@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -42,11 +43,13 @@ class EditViewModel(
         val isTimeValid = _uiState.value.todoInputState.timeInputState != TimeInputState.NoTime
         val isTodoNameEmpty = _uiState.value.todoInputState.todoNameInputState.content.isEmpty()
 
-        _uiState.value = _uiState.value.copy(
-            editButtonState = _uiState.value.editButtonState.copy(
-                isEnabled = ((!isAlarmValid && !isTimeValid) || isTimeValid) && !isTodoNameEmpty
+        _uiState.update { state ->
+            state.copy(
+                editButtonState = _uiState.value.editButtonState.copy(
+                    isEnabled = ((!isAlarmValid && !isTimeValid) || isTimeValid) && !isTodoNameEmpty
+                )
             )
-        )
+        }
     }
 
     fun onEvent(event : EditUiEvent) {
@@ -56,32 +59,38 @@ class EditViewModel(
             }
 
             is EditUiEvent.onTodoNameInputChanged -> {
-                _uiState.value = _uiState.value.copy(
-                    todoInputState = _uiState.value.todoInputState.copy(
-                        todoNameInputState = _uiState.value.todoInputState.todoNameInputState.copy(
-                            content = event.text,
+                _uiState.update { state ->
+                    state.copy(
+                        todoInputState = state.todoInputState.copy(
+                            todoNameInputState = state.todoInputState.todoNameInputState.copy(
+                                content = event.text,
+                            )
                         )
                     )
-                )
+                }
                 updateCreateButtonEnabled()
             }
 
             is EditUiEvent.onDateInputChanged -> {
-                _uiState.value = _uiState.value.copy(
-                    todoInputState = _uiState.value.todoInputState.copy(
-                        dateInputState = DateInputState.Date(event.date)
+                _uiState.update { state ->
+                    state.copy(
+                        todoInputState = state.todoInputState.copy(
+                            dateInputState = DateInputState.Date(event.date)
+                        )
                     )
-                )
+                }
             }
 
             is EditUiEvent.onDescriptionInputChanged -> {
-                _uiState.value = _uiState.value.copy(
-                    todoInputState = _uiState.value.todoInputState.copy(
-                        descriptionInputState = _uiState.value.todoInputState.descriptionInputState.copy(
-                            content = event.text
+                _uiState.update { state ->
+                    state.copy(
+                        todoInputState = state.todoInputState.copy(
+                            descriptionInputState = state.todoInputState.descriptionInputState.copy(
+                                content = event.text
+                            )
                         )
                     )
-                )
+                }
             }
 
             is EditUiEvent.onEditClicked -> {
@@ -89,48 +98,58 @@ class EditViewModel(
             }
 
             is EditUiEvent.onTimeInputChanged -> {
-                _uiState.value = _uiState.value.copy(
-                    todoInputState = _uiState.value.todoInputState.copy(
-                        timeInputState = event.timeInputState
+                _uiState.update { state ->
+                    state.copy(
+                        todoInputState = state.todoInputState.copy(
+                            timeInputState = event.timeInputState
+                        )
                     )
-                )
+                }
                 updateCreateButtonEnabled()
             }
 
             is EditUiEvent.onPeriodInputChanged -> {
-                _uiState.value = _uiState.value.copy(
-                    todoInputState = _uiState.value.todoInputState.copy(
-                        dateInputState = DateInputState.Period(event.startDate, event.endDate)
+                _uiState.update { state ->
+                    state.copy(
+                        todoInputState = state.todoInputState.copy(
+                            dateInputState = DateInputState.Period(event.startDate, event.endDate)
+                        )
                     )
-                )
+                }
             }
 
             is EditUiEvent.onDayOfWeekInputChanged -> {
-                _uiState.value = _uiState.value.copy(
-                    todoInputState = _uiState.value.todoInputState.copy(
-                        dateInputState = DateInputState.DayOfWeek(event.daysOfWeek.map { it.value })
+                _uiState.update { state ->
+                    state.copy(
+                        todoInputState = state.todoInputState.copy(
+                            dateInputState = DateInputState.DayOfWeek(event.daysOfWeek.map { it.value })
+                        )
                     )
-                )
+                }
             }
 
             is EditUiEvent.onAlarmInputChanged -> {
-                _uiState.value = _uiState.value.copy(
-                    todoInputState = _uiState.value.todoInputState.copy(
-                        alarmInputState = AlarmInputState(event.alarm)
+                _uiState.update { state ->
+                    state.copy(
+                        todoInputState = state.todoInputState.copy(
+                            alarmInputState = AlarmInputState(event.alarm)
+                        )
                     )
-                )
+                }
                 updateCreateButtonEnabled()
             }
 
             is EditUiEvent.onAlarmSettingInputChanged -> {
-                _uiState.value = _uiState.value.copy(
-                    todoInputState = _uiState.value.todoInputState.copy(
-                        alarmSettingInputState = AlarmSettingInputState(
-                            vibration = event.vibration,
-                            sound = event.sound
+                _uiState.update { state ->
+                    state.copy(
+                        todoInputState = state.todoInputState.copy(
+                            alarmSettingInputState = AlarmSettingInputState(
+                                vibration = event.vibration,
+                                sound = event.sound
+                            )
                         )
                     )
-                )
+                }
             }
         }
     }
@@ -140,32 +159,34 @@ class EditViewModel(
             try {
                 val todo = todoReadRepository.findTodoById(instanceId)
                 Log.d(TAG, "fetchTodo: ${todo}")
-                _uiState.value = _uiState.value.copy(
-                    todoInputState = _uiState.value.todoInputState.copy(
-                        todoNameInputState = _uiState.value.todoInputState.todoNameInputState.copy(
-                            content = todo.title
-                        ),
-                        descriptionInputState = _uiState.value.todoInputState.descriptionInputState.copy(
-                            content = todo.description ?: ""
-                        ),
-                        dateInputState = when {
-                            todo.startDate != null -> DateInputState.Period(todo.startDate!!, todo.endDate!!)
-                            (todo.dayOfWeeks != null ) -> DateInputState.DayOfWeek(todo.dayOfWeeks!!)
-                            else -> DateInputState.Date(todo.date)
-                        },
-                        timeInputState = when (todo.time) {
-                            null -> TimeInputState.NoTime
-                            else -> TimeInputState.Time(todo.time!!.hour, todo.time!!.minute)
-                        },
-                        alarmInputState = _uiState.value.todoInputState.alarmInputState.copy(
-                            alarmType = todo.alarmType
-                        ),
-                        alarmSettingInputState = _uiState.value.todoInputState.alarmSettingInputState.copy(
-                            sound = todo.isAlarmHasSound,
-                            vibration = todo.isAlarmHasVibration
+                _uiState.update { state ->
+                    state.copy(
+                        todoInputState = _uiState.value.todoInputState.copy(
+                            todoNameInputState = _uiState.value.todoInputState.todoNameInputState.copy(
+                                content = todo.title
+                            ),
+                            descriptionInputState = _uiState.value.todoInputState.descriptionInputState.copy(
+                                content = todo.description ?: ""
+                            ),
+                            dateInputState = when {
+                                todo.startDate != null -> DateInputState.Period(todo.startDate!!, todo.endDate!!)
+                                (todo.dayOfWeeks != null ) -> DateInputState.DayOfWeek(todo.dayOfWeeks!!)
+                                else -> DateInputState.Date(todo.date)
+                            },
+                            timeInputState = when (todo.time) {
+                                null -> TimeInputState.NoTime
+                                else -> TimeInputState.Time(todo.time!!.hour, todo.time!!.minute)
+                            },
+                            alarmInputState = _uiState.value.todoInputState.alarmInputState.copy(
+                                alarmType = todo.alarmType
+                            ),
+                            alarmSettingInputState = _uiState.value.todoInputState.alarmSettingInputState.copy(
+                                sound = todo.isAlarmHasSound,
+                                vibration = todo.isAlarmHasVibration
+                            )
                         )
                     )
-                )
+                }
                 selectedTodo.value = todo
                 onEvent(EditUiEvent.onTodoNameInputChanged(todo.title))
             } catch(e : Exception) {
@@ -176,110 +197,72 @@ class EditViewModel(
 
     fun updateTodo(instanceId : Long) {
 
-        viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = _uiState.value.copy(
-                editButtonState = _uiState.value.editButtonState.copy(
-                    isEnabled = false
+        val baseTodoModel = TodoModel(
+            instanceId = instanceId,
+            title = uiState.value.todoInputState.todoNameInputState.content,
+            description = uiState.value.todoInputState.descriptionInputState.content,
+            date = when (uiState.value.todoInputState.dateInputState) {
+                is DateInputState.Date -> (uiState.value.todoInputState.dateInputState as DateInputState.Date).date
+                is DateInputState.Period -> LocalDate.now()
+                is DateInputState.DayOfWeek -> LocalDate.now()
+            },
+            time = when (_uiState.value.todoInputState.timeInputState) {
+                is TimeInputState.NoTime -> null
+                is TimeInputState.Time -> Time(
+                    (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).hour,
+                    (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
                 )
-            )
+            },
+            alarmType = _uiState.value.todoInputState.alarmInputState.alarmType,
+            isAlarmHasVibration = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.vibration else false,
+            isAlarmHasSound = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.sound else false,
+            progressAngle = when (selectedTodo.value) {
+                null -> 0f
+                else -> selectedTodo.value!!.progressAngle
+            }
+        )
+
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.update { state ->
+                state.copy(
+                    editButtonState = state.editButtonState.copy(
+                        isEnabled = false
+                    )
+                )
+            }
 
             when {
                 selectedTodo.value!!.startDate != null -> {
                     todoWriteRepository.updatePeriodTodo(
-                        TodoModel(
-                            instanceId = instanceId,
-                            title = uiState.value.todoInputState.todoNameInputState.content,
-                            description = uiState.value.todoInputState.descriptionInputState.content,
-                            date = when (uiState.value.todoInputState.dateInputState) {
-                                is DateInputState.Date -> (uiState.value.todoInputState.dateInputState as DateInputState.Date).date
-                                is DateInputState.Period -> LocalDate.now()
-                                is DateInputState.DayOfWeek -> LocalDate.now()
-                            },
-                            time = when (_uiState.value.todoInputState.timeInputState) {
-                                is TimeInputState.NoTime -> null
-                                is TimeInputState.Time -> Time(
-                                    (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).hour,
-                                    (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
-                                )
-                            },
-                            alarmType = _uiState.value.todoInputState.alarmInputState.alarmType,
-
-                            isAlarmHasVibration = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.vibration else false,
-                            isAlarmHasSound = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.sound else false,
-                            progressAngle = when (selectedTodo.value) {
-                                null -> 0f
-                                else -> selectedTodo.value!!.progressAngle
-                            },
+                        baseTodoModel.copy(
                             startDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate,
                             endDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).endDate
                         )
                     )
                 }
                 selectedTodo.value!!.dayOfWeeks != null -> {
-                   todoWriteRepository.updateDayOfWeekTodo(
-                       TodoModel(
-                           instanceId = instanceId,
-                           title = uiState.value.todoInputState.todoNameInputState.content,
-                           description = uiState.value.todoInputState.descriptionInputState.content,
-                           date = when (uiState.value.todoInputState.dateInputState) {
-                               is DateInputState.Date -> (uiState.value.todoInputState.dateInputState as DateInputState.Date).date
-                               is DateInputState.Period -> LocalDate.now()
-                               is DateInputState.DayOfWeek -> LocalDate.now()
-                           },
-                           time = when (_uiState.value.todoInputState.timeInputState) {
-                               is TimeInputState.NoTime -> null
-                               is TimeInputState.Time -> Time(
-                                   (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).hour,
-                                   (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
-                               )
-                           },
-                           alarmType = _uiState.value.todoInputState.alarmInputState.alarmType,
-                           isAlarmHasVibration = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.vibration else false,
-                           isAlarmHasSound = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.sound else false,
-                           progressAngle = when (selectedTodo.value) {
-                               null -> 0f
-                               else -> selectedTodo.value!!.progressAngle
-                           },
-                           dayOfWeeks = (_uiState.value.todoInputState.dateInputState as DateInputState.DayOfWeek).dayOfWeek
-                       )
-                   )
+                    todoWriteRepository.updateDayOfWeekTodo(
+                        baseTodoModel.copy(
+                            dayOfWeeks = (_uiState.value.todoInputState.dateInputState as DateInputState.DayOfWeek).dayOfWeek
+                        )
+                    )
                 }
                 else -> {
                     todoWriteRepository.updateTodo(
-                        TodoModel(
-                            instanceId = instanceId,
-                            title = uiState.value.todoInputState.todoNameInputState.content,
-                            description = uiState.value.todoInputState.descriptionInputState.content,
-                            date = when (uiState.value.todoInputState.dateInputState) {
-                                is DateInputState.Date -> (uiState.value.todoInputState.dateInputState as DateInputState.Date).date
-                                is DateInputState.Period -> LocalDate.now()
-                                is DateInputState.DayOfWeek -> LocalDate.now()
-                            },
-                            time = when (_uiState.value.todoInputState.timeInputState) {
-                                is TimeInputState.NoTime -> null
-                                is TimeInputState.Time -> Time(
-                                    (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).hour,
-                                    (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
-                                )
-                            },
-                            alarmType = _uiState.value.todoInputState.alarmInputState.alarmType,
-                            isAlarmHasVibration = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.vibration else false,
-                            isAlarmHasSound = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.sound else false,
-                            progressAngle = when (selectedTodo.value) {
-                                null -> 0f
-                                else -> selectedTodo.value!!.progressAngle
-                            }
-                        )
+                        baseTodoModel.copy()
                     )
                 }
             }
 
             _effectChannel.send(EditUiEffect.onUpdateTodoSuccess(todoTitle = _uiState.value.todoInputState.todoNameInputState.content))
-            _uiState.value = _uiState.value.copy(
-                editButtonState = _uiState.value.editButtonState.copy(
-                    isEnabled = true
+
+            _uiState.update { state ->
+                state.copy(
+                    editButtonState = state.editButtonState.copy(
+                        isEnabled = true
+                    )
                 )
-            )
+            }
         }
     }
 }
