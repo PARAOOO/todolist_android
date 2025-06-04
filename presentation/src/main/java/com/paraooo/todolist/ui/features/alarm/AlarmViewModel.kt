@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class AlarmViewModel(
@@ -24,12 +25,14 @@ class AlarmViewModel(
                 viewModelScope.launch(Dispatchers.IO) {
                     val todoTemplate = todoReadRepository.findTodoById(event.instanceId)
 
-                    _uiState.value = _uiState.value.copy(
-                        instanceId = todoTemplate.instanceId,
-                        todoName = todoTemplate.title,
-                        vibration = todoTemplate.isAlarmHasVibration,
-                        sound = todoTemplate.isAlarmHasSound
-                    )
+                    _uiState.update { state ->
+                        state.copy(
+                            instanceId = todoTemplate.instanceId,
+                            todoName = todoTemplate.title,
+                            vibration = todoTemplate.isAlarmHasVibration,
+                            sound = todoTemplate.isAlarmHasSound
+                        )
+                    }
                 }
             }
         }

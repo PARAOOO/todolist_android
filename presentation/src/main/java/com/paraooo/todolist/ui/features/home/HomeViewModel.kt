@@ -38,11 +38,13 @@ class HomeViewModel(
     private fun fetchTodoList(date: LocalDate) {
         viewModelScope.launch {
 
-            _uiState.value = _uiState.value.copy(
-                todoListState = _uiState.value.todoListState.copy(
-                    isLoading = true
+            _uiState.update { state ->
+                state.copy(
+                    todoListState = state.todoListState.copy(
+                        isLoading = true
+                    )
                 )
-            )
+            }
 
             try {
                 todoCollectJob?.cancel()
@@ -63,12 +65,14 @@ class HomeViewModel(
                 }
 
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    todoListState = _uiState.value.todoListState.copy(
-                        isLoading = false,
-                        error = "${e.message}"
+                _uiState.update { state ->
+                    state.copy(
+                        todoListState = state.todoListState.copy(
+                            isLoading = false,
+                            error = "${e.message}"
+                        )
                     )
-                )
+                }
             }
         }
     }
@@ -76,43 +80,45 @@ class HomeViewModel(
     fun onEvent(event: HomeUiEvent) {
         when (event) {
             is HomeUiEvent.onDateChanged -> {
-                _uiState.value = _uiState.value.copy(
-                    selectedDateState = _uiState.value.selectedDateState.copy(
-                        date = event.date
+                _uiState.update { state ->
+                    state.copy(
+                        selectedDateState = state.selectedDateState.copy(
+                            date = event.date
+                        )
                     )
-                )
+                }
                 fetchTodoList(event.date)
             }
             is HomeUiEvent.onIsSwipedChanged -> {
-
-                Log.d(TAG, "HomeUiEvent.onIsSwipedChanged : eventTodoId : ${event.todo.instanceId}")
-                Log.d(TAG, "HomeUiEvent.onIsSwipedChanged : todoList : ${_uiState.value.todoListState.todoList} ")
-
-                _uiState.value = _uiState.value.copy(
-                    todoListState = _uiState.value.todoListState.copy(
-                        todoList = _uiState.value.todoListState.todoList.map { todo ->
-                            if (todo.instanceId == event.todo.instanceId) {
-                                todo.copy(isSwiped = event.isSwiped) // isSwiped 값 변경
-                            } else {
-                                todo
-                            }
-                        }
-                    )
-                )
-            }
-            is HomeUiEvent.onTodoProgressChanged -> {
-                viewModelScope.launch{
-                    _uiState.value = _uiState.value.copy(
-                        todoListState = _uiState.value.todoListState.copy(
-                            todoList = _uiState.value.todoListState.todoList.map { todo ->
+                _uiState.update { state ->
+                    state.copy(
+                        todoListState = state.todoListState.copy(
+                            todoList = state.todoListState.todoList.map { todo ->
                                 if (todo.instanceId == event.todo.instanceId) {
-                                    todo.copy(progressAngle = event.progress)
+                                    todo.copy(isSwiped = event.isSwiped) // isSwiped 값 변경
                                 } else {
                                     todo
                                 }
                             }
                         )
                     )
+                }
+            }
+            is HomeUiEvent.onTodoProgressChanged -> {
+                viewModelScope.launch{
+                    _uiState.update { state ->
+                        state.copy(
+                            todoListState = state.todoListState.copy(
+                                todoList = state.todoListState.todoList.map { todo ->
+                                    if (todo.instanceId == event.todo.instanceId) {
+                                        todo.copy(progressAngle = event.progress)
+                                    } else {
+                                        todo
+                                    }
+                                }
+                            )
+                        )
+                    }
                     todoWriteRepository.updateTodoProgress(event.todo.instanceId, event.progress)
                 }
             }
@@ -129,19 +135,19 @@ class HomeViewModel(
             }
 
             is HomeUiEvent.onIsToggleOpenedChanged -> {
-                Log.d(TAG, "onEvent: ${uiState.value.todoListState.todoList}")
-                Log.d(TAG, "onEvent: HomeUiEvent.onIsToggleOpenedChanged : ${event}")
-                _uiState.value = _uiState.value.copy(
-                    todoListState = _uiState.value.todoListState.copy(
-                        todoList = _uiState.value.todoListState.todoList.map { todo ->
-                            if (todo.instanceId == event.todo.instanceId) {
-                                todo.copy(isToggleOpened = event.isToggleOpened)
-                            } else {
-                                todo
+                _uiState.update { state ->
+                    state.copy(
+                        todoListState = state.todoListState.copy(
+                            todoList = state.todoListState.todoList.map { todo ->
+                                if (todo.instanceId == event.todo.instanceId) {
+                                    todo.copy(isToggleOpened = event.isToggleOpened)
+                                } else {
+                                    todo
+                                }
                             }
-                        }
+                        )
                     )
-                )
+                }
                 Log.d(TAG, "onEvent: ${uiState.value.todoListState.todoList}")
             }
         }
