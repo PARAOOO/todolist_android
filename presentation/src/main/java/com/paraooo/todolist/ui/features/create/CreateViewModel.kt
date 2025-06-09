@@ -38,7 +38,7 @@ class CreateViewModel(
 
         _uiState.update { state ->
             state.copy(
-                createButtonState = _uiState.value.createButtonState.copy(
+                createButtonState = state.createButtonState.copy(
                     isEnabled = ((!isAlarmValid && !isTimeValid) || isTimeValid) && !isTodoNameEmpty
                 )
             )
@@ -68,7 +68,7 @@ class CreateViewModel(
 
                 _uiState.update { state ->
                     state.copy(
-                        createButtonState = _uiState.value.createButtonState.copy(
+                        createButtonState = state.createButtonState.copy(
                             isEnabled = false
                         )
                     )
@@ -103,7 +103,7 @@ class CreateViewModel(
                     _effectChannel.send(CreateUiEffect.onPostTodoSuccess(todoTitle = _uiState.value.todoInputState.todoNameInputState.content))
                     _uiState.update { state ->
                         state.copy(
-                            createButtonState = _uiState.value.createButtonState.copy(
+                            createButtonState = state.createButtonState.copy(
                                 isEnabled = true
                             )
                         )
@@ -113,7 +113,7 @@ class CreateViewModel(
             is CreateUiEvent.onDateInputChanged -> {
                 _uiState.update { state ->
                     state.copy(
-                        todoInputState = _uiState.value.todoInputState.copy(
+                        todoInputState = state.todoInputState.copy(
                             dateInputState = DateInputState.Date(event.date)
                         )
                     )
@@ -122,7 +122,7 @@ class CreateViewModel(
             is CreateUiEvent.onDescriptionInputChanged -> {
                 _uiState.update { state ->
                     state.copy(
-                        todoInputState = _uiState.value.todoInputState.copy(
+                        todoInputState = state.todoInputState.copy(
                             descriptionInputState = _uiState.value.todoInputState.descriptionInputState.copy(
                                 content = event.text
                             )
@@ -133,7 +133,7 @@ class CreateViewModel(
             is CreateUiEvent.onTimeInputChanged -> {
                 _uiState.update { state ->
                     state.copy(
-                        todoInputState = _uiState.value.todoInputState.copy(
+                        todoInputState = state.todoInputState.copy(
                             timeInputState = event.timeInputState
                         )
                     )
@@ -144,8 +144,8 @@ class CreateViewModel(
 
                 _uiState.update { state ->
                     state.copy(
-                        todoInputState = _uiState.value.todoInputState.copy(
-                            todoNameInputState = _uiState.value.todoInputState.todoNameInputState.copy(
+                        todoInputState = state.todoInputState.copy(
+                            todoNameInputState = state.todoInputState.todoNameInputState.copy(
                                 content = event.text,
                             )
                         )
