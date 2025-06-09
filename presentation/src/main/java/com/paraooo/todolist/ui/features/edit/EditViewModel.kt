@@ -45,7 +45,7 @@ class EditViewModel(
 
         _uiState.update { state ->
             state.copy(
-                editButtonState = _uiState.value.editButtonState.copy(
+                editButtonState = state.editButtonState.copy(
                     isEnabled = ((!isAlarmValid && !isTimeValid) || isTimeValid) && !isTodoNameEmpty
                 )
             )
@@ -161,11 +161,11 @@ class EditViewModel(
                 Log.d(TAG, "fetchTodo: ${todo}")
                 _uiState.update { state ->
                     state.copy(
-                        todoInputState = _uiState.value.todoInputState.copy(
-                            todoNameInputState = _uiState.value.todoInputState.todoNameInputState.copy(
+                        todoInputState = state.todoInputState.copy(
+                            todoNameInputState = state.todoInputState.todoNameInputState.copy(
                                 content = todo.title
                             ),
-                            descriptionInputState = _uiState.value.todoInputState.descriptionInputState.copy(
+                            descriptionInputState = state.todoInputState.descriptionInputState.copy(
                                 content = todo.description ?: ""
                             ),
                             dateInputState = when {
@@ -177,10 +177,10 @@ class EditViewModel(
                                 null -> TimeInputState.NoTime
                                 else -> TimeInputState.Time(todo.time!!.hour, todo.time!!.minute)
                             },
-                            alarmInputState = _uiState.value.todoInputState.alarmInputState.copy(
+                            alarmInputState = state.todoInputState.alarmInputState.copy(
                                 alarmType = todo.alarmType
                             ),
-                            alarmSettingInputState = _uiState.value.todoInputState.alarmSettingInputState.copy(
+                            alarmSettingInputState = state.todoInputState.alarmSettingInputState.copy(
                                 sound = todo.isAlarmHasSound,
                                 vibration = todo.isAlarmHasVibration
                             )
