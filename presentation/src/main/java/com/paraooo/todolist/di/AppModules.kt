@@ -18,12 +18,10 @@ import com.paraooo.data.repository.TodoReadRepositoryImpl
 import com.paraooo.data.repository.TodoWriteRepositoryImpl
 import com.paraooo.domain.repository.TodoReadRepository
 import com.paraooo.domain.repository.TodoWriteRepository
-import com.paraooo.domain.repository.WidgetUpdater
 import com.paraooo.todolist.ui.features.alarm.AlarmViewModel
 import com.paraooo.todolist.ui.features.create.CreateViewModel
 import com.paraooo.todolist.ui.features.edit.EditViewModel
 import com.paraooo.todolist.ui.features.home.HomeViewModel
-import com.paraooo.todolist.ui.features.widget.WidgetUpdaterImpl
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -61,7 +59,7 @@ val dataSourceModule = module {
 }
 
 val repositoryModule = module {
-    single<TodoWriteRepository> {TodoWriteRepositoryImpl(get(), get(), get(), get(), get(), get())}
+    single<TodoWriteRepository> {TodoWriteRepositoryImpl(get(), get(), get(), get(), get())}
     single<TodoReadRepository> {TodoReadRepositoryImpl(get(), get(), get(), get())}
 }
 
@@ -83,9 +81,5 @@ val handlerModule = module {
 }
 
 
-val updaterModule = module {
-    single<WidgetUpdater> { WidgetUpdaterImpl(androidContext(),get()) }
-}
-
 // DI 모듈 리스트
-val appModules = listOf(handlerModule, notificationModule, databaseModule, alarmSchedulerModule, dataSourceModule, repositoryModule, updaterModule, viewModelModule)
+val appModules = listOf(handlerModule, notificationModule, databaseModule, alarmSchedulerModule, dataSourceModule, repositoryModule, viewModelModule)

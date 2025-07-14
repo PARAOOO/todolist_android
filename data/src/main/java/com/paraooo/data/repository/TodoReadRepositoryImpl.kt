@@ -11,7 +11,6 @@ import com.paraooo.data.platform.alarm.AlarmScheduler
 import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.repository.TodoReadRepository
-import com.paraooo.domain.repository.WidgetUpdater
 import com.paraooo.domain.util.transferMillis2LocalDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

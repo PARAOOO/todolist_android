@@ -21,7 +21,6 @@ import com.paraooo.domain.model.AlarmType
 import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.repository.TodoReadRepository
-import com.paraooo.domain.repository.WidgetUpdater
 import com.paraooo.domain.util.transferLocalDateToMillis
 import com.paraooo.domain.util.transferMillis2LocalDate
 import io.mockk.Runs

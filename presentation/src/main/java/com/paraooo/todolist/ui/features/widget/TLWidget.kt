@@ -4,6 +4,8 @@ import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -60,18 +62,15 @@ object TLWidget: GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
 
-
         val todayDate = LocalDate.now()
 
         val todoReadRepository: TodoReadRepository = GlobalContext.get().get()
-        val todoList = todoReadRepository.getTodoByDate(transferLocalDateToMillis(todayDate))
-        val updatedList = todoList.first()
+
+        val todoListFlow = todoReadRepository.getTodoByDate(transferLocalDateToMillis(todayDate))
 
         provideContent {
 
-            val prefs = currentState<Preferences>()
-            val jsonTodoList = prefs[stringPreferencesKey("todoList")] ?: updatedList.toJson()
-            val todoListState = jsonTodoList.toList()
+            val todoListState by todoListFlow.collectAsState(initial = emptyList())
 
             TLWidgetView(
                 todoList = todoListState
