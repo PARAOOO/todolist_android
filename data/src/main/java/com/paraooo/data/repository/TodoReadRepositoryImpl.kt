@@ -7,7 +7,6 @@ import com.paraooo.data.datasource.TodoPeriodLocalDataSource
 import com.paraooo.data.datasource.TodoTemplateLocalDataSource
 import com.paraooo.data.dto.TodoInstanceDto
 import com.paraooo.data.mapper.toModel
-import com.paraooo.data.platform.alarm.AlarmScheduler
 import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.repository.TodoReadRepository
@@ -51,28 +50,6 @@ class TodoReadRepositoryImpl(
                     .sortedWith(compareBy({ it.hour ?: Int.MAX_VALUE }, { it.minute ?: Int.MAX_VALUE }))
                     .map { it.toModel() })
             }
-
-//        val todos = todoTemplateLocalDataSource.getTodosByDate(date)
-//        val dayOfWeekTemplates = todoDayOfWeekLocalDataSource.getDayOfWeekTodoTemplatesByDate(date)
-//
-//        val templateIds = todos.map { it.templateId }.toSet()
-//        val filteredDayOfWeekTemplates = dayOfWeekTemplates.filterNot { templateIds.contains(it.id) }
-//
-//        for (template in filteredDayOfWeekTemplates) {
-//            todoInstanceLocalDataSource.insertTodoInstance(
-//                TodoInstanceDto(
-//                    templateId = template.id,
-//                    date = date
-//                )
-//            )
-//        }
-//
-//        val newInstances = todoTemplateLocalDataSource.observeTodosByDate(date)
-//
-//        return newInstances.map { list ->
-//            list.sortedWith(compareBy({ it.hour ?: Int.MAX_VALUE }, { it.minute ?: Int.MAX_VALUE }))
-//                .map { it.toModel() }
-//        }
     }
 
     override suspend fun findTodoById(instanceId: Long): TodoModel {

@@ -10,11 +10,12 @@ import com.paraooo.data.dto.TodoPeriodDto
 import com.paraooo.data.dto.TodoTemplateDto
 import com.paraooo.data.dto.TodoTypeDto
 import com.paraooo.data.mapper.toDto
-import com.paraooo.data.platform.alarm.AlarmScheduler
 import com.paraooo.data.platform.alarm.todoToMillis
 import com.paraooo.domain.model.AlarmType
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.repository.TodoWriteRepository
+import com.paraooo.domain.repository.WidgetUpdater
+import com.paraooo.domain.util.AlarmScheduler
 import com.paraooo.domain.util.transferLocalDateToMillis
 import com.paraooo.domain.util.transferMillis2LocalDate
 import kotlinx.coroutines.Dispatchers
@@ -30,6 +31,7 @@ class TodoWriteRepositoryImpl(
     private val todoPeriodLocalDataSource : TodoPeriodLocalDataSource,
     private val todoDayOfWeekLocalDataSource : TodoDayOfWeekLocalDataSource,
     private val alarmScheduler: AlarmScheduler,
+    private val widgetUpdater: WidgetUpdater
 ) : TodoWriteRepository {
 
     override suspend fun postTodo(todo: TodoModel) {
@@ -63,11 +65,13 @@ class TodoWriteRepositoryImpl(
             }
         }
 
+        widgetUpdater.updateWidget()
     }
 
     override suspend fun updateTodoProgress(instanceId: Long, progress: Float) {
         todoInstanceLocalDataSource.updateTodoProgress(instanceId, progress)
 
+        widgetUpdater.updateWidget()
     }
 
     override suspend fun deleteTodoById(instanceId: Long) {
@@ -77,6 +81,7 @@ class TodoWriteRepositoryImpl(
 
         alarmScheduler.cancel(templateId = instanceTodo.templateId)
 
+        widgetUpdater.updateWidget()
     }
 
     override suspend fun updateTodo(todo: TodoModel) {
@@ -116,6 +121,8 @@ class TodoWriteRepositoryImpl(
         } else {
             alarmScheduler.cancel(instanceTodo.templateId)
         }
+
+        widgetUpdater.updateWidget()
     }
 
     override suspend fun postPeriodTodo(todo: TodoModel, startDate: LocalDate, endDate: LocalDate) {
@@ -178,6 +185,8 @@ class TodoWriteRepositoryImpl(
                 }
             }
         }
+
+        widgetUpdater.updateWidget()
     }
 
     override suspend fun updatePeriodTodo(todo: TodoModel) {
@@ -250,6 +259,8 @@ class TodoWriteRepositoryImpl(
                 }
             }
         }
+
+        widgetUpdater.updateWidget()
     }
 
     override suspend fun postDayOfWeekTodo(todo: TodoModel, dayOfWeek: List<Int>) {
@@ -298,6 +309,8 @@ class TodoWriteRepositoryImpl(
                 templateId = templateId
             )
         }
+
+        widgetUpdater.updateWidget()
     }
 
     override suspend fun updateDayOfWeekTodo(todo: TodoModel) {
@@ -364,5 +377,7 @@ class TodoWriteRepositoryImpl(
                 templateId = templateId
             )
         }
+
+        widgetUpdater.updateWidget()
     }
 }
