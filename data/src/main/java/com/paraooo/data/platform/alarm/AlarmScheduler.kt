@@ -10,6 +10,7 @@ import android.provider.Settings
 import android.util.Log
 import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
+import com.paraooo.domain.util.AlarmScheduler
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -35,11 +36,11 @@ fun todoToMillis(date : LocalDate, time : Time) : Long {
     return millis
 }
 
-class AlarmScheduler(
+class AlarmSchedulerImpl(
     private val context: Context
-) {
+) : AlarmScheduler{
 
-    fun schedule(date: LocalDate, time: Time, templateId : Long) {
+    override fun schedule(date: LocalDate, time: Time, templateId : Long) {
 
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra("templateId", templateId)
@@ -62,12 +63,12 @@ class AlarmScheduler(
         )
     }
 
-    fun reschedule(date: LocalDate, time: Time, templateId: Long) {
+    override fun reschedule(date: LocalDate, time: Time, templateId: Long) {
         cancel(templateId) // 먼저 취소
         schedule(date, time, templateId) // 다시 등록
     }
 
-    fun cancel(templateId: Long) {
+    override fun cancel(templateId: Long) {
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra("templateId", templateId)
         }

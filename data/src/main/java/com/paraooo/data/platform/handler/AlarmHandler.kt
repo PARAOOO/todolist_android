@@ -9,10 +9,10 @@ import com.paraooo.data.datasource.TodoPeriodLocalDataSource
 import com.paraooo.data.datasource.TodoTemplateLocalDataSource
 import com.paraooo.data.dto.AlarmTypeDto
 import com.paraooo.data.dto.TodoTypeDto
-import com.paraooo.data.platform.alarm.AlarmScheduler
 import com.paraooo.data.platform.alarm.IntentProvider
 import com.paraooo.data.platform.alarm.NotificationHelper
 import com.paraooo.domain.model.Time
+import com.paraooo.domain.util.AlarmScheduler
 import com.paraooo.domain.util.transferLocalDateToMillis
 import com.paraooo.domain.util.transferMillis2LocalDate
 import java.time.LocalDate

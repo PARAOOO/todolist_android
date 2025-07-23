@@ -7,8 +7,10 @@ import androidx.lifecycle.viewModelScope
 import com.paraooo.domain.model.AlarmType
 import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
-import com.paraooo.domain.repository.TodoReadRepository
-import com.paraooo.domain.repository.TodoWriteRepository
+import com.paraooo.domain.usecase.FindTodoByIdUseCase
+import com.paraooo.domain.usecase.UpdateTodoUseCase
+import com.paraooo.domain.usecase.UpdatePeriodTodoUseCase
+import com.paraooo.domain.usecase.UpdateDayOfWeekTodoUseCase
 import com.paraooo.todolist.ui.components.AlarmInputState
 import com.paraooo.todolist.ui.components.AlarmSettingInputState
 import com.paraooo.todolist.ui.components.DateInputState
@@ -25,8 +27,10 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class EditViewModel(
-    private val todoWriteRepository: TodoWriteRepository,
-    private val todoReadRepository: TodoReadRepository,
+    private val findTodoByIdUseCase: FindTodoByIdUseCase,
+    private val updateTodoUseCase: UpdateTodoUseCase,
+    private val updatePeriodTodoUseCase: UpdatePeriodTodoUseCase,
+    private val updateDayOfWeekTodoUseCase: UpdateDayOfWeekTodoUseCase,
     private val initialUiState : EditUiState = EditUiState()
 ) : ViewModel() {
 
@@ -157,38 +161,47 @@ class EditViewModel(
     private fun fetchTodo(instanceId: Long) {
         viewModelScope.launch {
             try {
-                val todo = todoReadRepository.findTodoById(instanceId)
+                val todo = findTodoByIdUseCase(instanceId)
                 Log.d(TAG, "fetchTodo: ${todo}")
-                _uiState.update { state ->
-                    state.copy(
-                        todoInputState = state.todoInputState.copy(
-                            todoNameInputState = state.todoInputState.todoNameInputState.copy(
-                                content = todo.title
-                            ),
-                            descriptionInputState = state.todoInputState.descriptionInputState.copy(
-                                content = todo.description ?: ""
-                            ),
-                            dateInputState = when {
-                                todo.startDate != null -> DateInputState.Period(todo.startDate!!, todo.endDate!!)
-                                (todo.dayOfWeeks != null ) -> DateInputState.DayOfWeek(todo.dayOfWeeks!!)
-                                else -> DateInputState.Date(todo.date)
-                            },
-                            timeInputState = when (todo.time) {
-                                null -> TimeInputState.NoTime
-                                else -> TimeInputState.Time(todo.time!!.hour, todo.time!!.minute)
-                            },
-                            alarmInputState = state.todoInputState.alarmInputState.copy(
-                                alarmType = todo.alarmType
-                            ),
-                            alarmSettingInputState = state.todoInputState.alarmSettingInputState.copy(
-                                sound = todo.isAlarmHasSound,
-                                vibration = todo.isAlarmHasVibration
+                if (todo != null) {
+                    _uiState.update { state ->
+                        state.copy(
+                            todoInputState = state.todoInputState.copy(
+                                todoNameInputState = state.todoInputState.todoNameInputState.copy(
+                                    content = todo.title
+                                ),
+                                descriptionInputState = state.todoInputState.descriptionInputState.copy(
+                                    content = todo.description ?: ""
+                                ),
+                                dateInputState = when {
+                                    todo.startDate != null -> DateInputState.Period(
+                                        todo.startDate!!,
+                                        todo.endDate!!
+                                    )
+
+                                    todo.dayOfWeeks != null -> DateInputState.DayOfWeek(todo.dayOfWeeks!!)
+                                    else -> DateInputState.Date(todo.date)
+                                },
+                                timeInputState = when (todo.time) {
+                                    null -> TimeInputState.NoTime
+                                    else -> TimeInputState.Time(
+                                        todo.time!!.hour,
+                                        todo.time!!.minute
+                                    )
+                                },
+                                alarmInputState = state.todoInputState.alarmInputState.copy(
+                                    alarmType = todo.alarmType
+                                ),
+                                alarmSettingInputState = state.todoInputState.alarmSettingInputState.copy(
+                                    sound = todo.isAlarmHasSound,
+                                    vibration = todo.isAlarmHasVibration
+                                )
                             )
                         )
-                    )
+                    }
+                    selectedTodo.value = todo
+                    onEvent(EditUiEvent.onTodoNameInputChanged(todo.title))
                 }
-                selectedTodo.value = todo
-                onEvent(EditUiEvent.onTodoNameInputChanged(todo.title))
             } catch(e : Exception) {
                 Log.d(TAG, "fetchTodo: ${e}")
             }
@@ -233,22 +246,24 @@ class EditViewModel(
 
             when {
                 selectedTodo.value!!.startDate != null -> {
-                    todoWriteRepository.updatePeriodTodo(
+                    updatePeriodTodoUseCase(
                         baseTodoModel.copy(
                             startDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate,
                             endDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).endDate
-                        )
+                        ),
+                        startDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate,
+                        endDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).endDate
                     )
                 }
                 selectedTodo.value!!.dayOfWeeks != null -> {
-                    todoWriteRepository.updateDayOfWeekTodo(
+                    updateDayOfWeekTodoUseCase(
                         baseTodoModel.copy(
                             dayOfWeeks = (_uiState.value.todoInputState.dateInputState as DateInputState.DayOfWeek).dayOfWeek
                         )
                     )
                 }
                 else -> {
-                    todoWriteRepository.updateTodo(
+                    updateTodoUseCase(
                         baseTodoModel.copy()
                     )
                 }

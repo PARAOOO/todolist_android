@@ -6,7 +6,7 @@ import androidx.glance.GlanceId
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
-import com.paraooo.domain.repository.TodoWriteRepository
+import com.paraooo.domain.usecase.UpdateTodoProgressUseCase
 import org.koin.core.context.GlobalContext
 
 object TodoKey {
@@ -25,7 +25,7 @@ class TodoClickAction : ActionCallback {
 
         val updatedProgressAngle = if(todoProgressAngle >= 360F) 0F else 360F
 
-        val todoWriteRepo: TodoWriteRepository = GlobalContext.get().get()
-        todoWriteRepo.updateTodoProgress(todoId, updatedProgressAngle)
+        val updateProgressUseCase: UpdateTodoProgressUseCase = GlobalContext.get().get()
+        updateProgressUseCase(todoId, updatedProgressAngle)
     }
 }

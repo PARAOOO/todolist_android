@@ -5,8 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.paraooo.domain.model.TodoModel
-import com.paraooo.domain.repository.TodoReadRepository
-import com.paraooo.domain.repository.TodoWriteRepository
+import com.paraooo.domain.usecase.DeleteTodoUseCase
+import com.paraooo.domain.usecase.GetTodoByDateUseCase
+import com.paraooo.domain.usecase.UpdateTodoProgressUseCase
 import com.paraooo.domain.util.transferLocalDateToMillis
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -20,8 +21,9 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class HomeViewModel(
-    private val todoWriteRepository: TodoWriteRepository,
-    private val todoReadRepository: TodoReadRepository,
+    private val getTodoByDateUseCase: GetTodoByDateUseCase,
+    private val updateTodoProgressUseCase: UpdateTodoProgressUseCase,
+    private val deleteTodoUseCase: DeleteTodoUseCase,
     private val initialUiState : HomeUiState = HomeUiState()
 ) : ViewModel() {
 
@@ -50,7 +52,7 @@ class HomeViewModel(
                 todoCollectJob?.cancel()
 
                 todoCollectJob = viewModelScope.launch {
-                    todoReadRepository.getTodoByDate(transferLocalDateToMillis(date)).collect { todoList ->
+                    getTodoByDateUseCase(transferLocalDateToMillis(date)).collect { todoList ->
 
                         _uiState.update { currentState ->
                             currentState.copy(
@@ -119,14 +121,14 @@ class HomeViewModel(
                             )
                         )
                     }
-                    todoWriteRepository.updateTodoProgress(event.todo.instanceId, event.progress)
+                    updateTodoProgressUseCase(event.todo.instanceId, event.progress)
                 }
             }
 
             is HomeUiEvent.onTodoDeleteClicked -> {
                 viewModelScope.launch{
 
-                    todoWriteRepository.deleteTodoById(event.todo.instanceId)
+                    deleteTodoUseCase(event.todo.instanceId)
 
                     _effectChannel.send(HomeUiEffect.onDeleteTodoSuccess)
 
@@ -148,7 +150,7 @@ class HomeViewModel(
                         )
                     )
                 }
-                Log.d(TAG, "onEvent: ${uiState.value.todoListState.todoList}")
+                Log.d("HomeViewModel", "onEvent: ${uiState.value.todoListState.todoList}")
             }
         }
     }
