@@ -4,42 +4,18 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import android.os.Build
-import android.provider.Settings
 import android.util.Log
 import com.paraooo.domain.model.Time
-import com.paraooo.domain.model.TodoModel
-import java.time.Instant
+import com.paraooo.domain.repository.AlarmScheduler
+import com.paraooo.domain.util.todoToMillis
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
 
-fun todoToMillis(date : LocalDate, time : Time) : Long {
-    val millis = LocalDateTime.of(
-        date.year,
-        date.month,
-        date.dayOfMonth,
-        time.hour,
-        time.minute
-    ).atZone(ZoneId.systemDefault())  // 현지 시간 기준
-        .toInstant()
-        .toEpochMilli()
 
-    val transferredTime: LocalDateTime = millis.let {
-        Instant.ofEpochMilli(it)
-            .atZone(ZoneId.systemDefault())
-            .toLocalDateTime()
-    }
-
-    return millis
-}
-
-class AlarmScheduler(
+class AlarmSchedulerImpl(
     private val context: Context
-) {
+) : AlarmScheduler {
 
-    fun schedule(date: LocalDate, time: Time, templateId : Long) {
+    override fun schedule(date: LocalDate, time: Time, templateId : Long) {
 
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra("templateId", templateId)
@@ -62,12 +38,12 @@ class AlarmScheduler(
         )
     }
 
-    fun reschedule(date: LocalDate, time: Time, templateId: Long) {
+    override fun reschedule(date: LocalDate, time: Time, templateId: Long) {
         cancel(templateId) // 먼저 취소
         schedule(date, time, templateId) // 다시 등록
     }
 
-    fun cancel(templateId: Long) {
+    override fun cancel(templateId: Long) {
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra("templateId", templateId)
         }

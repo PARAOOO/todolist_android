@@ -1,4 +1,4 @@
-package com.paraooo.data.local.dao
+package com.paraooo.local.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -6,11 +6,11 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.paraooo.data.local.entity.TodoPeriod
-import com.paraooo.data.local.entity.TodoPeriodWithTime
+import com.paraooo.local.entity.TodoPeriod
+import com.paraooo.local.entity.TodoPeriodWithTime
 
 @Dao
-interface TodoPeriodDao {
+internal interface TodoPeriodDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTodoPeriod(todoPeriod: TodoPeriod)
 

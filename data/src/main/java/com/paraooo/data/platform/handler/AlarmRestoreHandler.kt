@@ -1,12 +1,12 @@
 package com.paraooo.data.platform.handler
 
 import androidx.work.ListenableWorker.Result
-import com.paraooo.data.datasource.TodoDayOfWeekLocalDataSource
-import com.paraooo.data.datasource.TodoPeriodLocalDataSource
-import com.paraooo.data.datasource.TodoTemplateLocalDataSource
-import com.paraooo.data.platform.alarm.AlarmScheduler
-import com.paraooo.data.platform.alarm.todoToMillis
+import com.paraooo.local.datasource.TodoDayOfWeekLocalDataSource
+import com.paraooo.local.datasource.TodoPeriodLocalDataSource
+import com.paraooo.local.datasource.TodoTemplateLocalDataSource
+import com.paraooo.data.platform.alarm.AlarmSchedulerImpl
 import com.paraooo.domain.model.Time
+import com.paraooo.domain.util.todoToMillis
 import com.paraooo.domain.util.transferLocalDateToMillis
 import com.paraooo.domain.util.transferMillis2LocalDate
 import java.time.LocalDate
@@ -15,7 +15,7 @@ import java.time.LocalTime
 import java.time.ZoneId
 
 class AlarmRestoreHandler(
-    private val alarmScheduler: AlarmScheduler,
+    private val alarmScheduler: AlarmSchedulerImpl,
     private val todoTemplateLocalDataSource: TodoTemplateLocalDataSource,
     private val todoPeriodLocalDataSource: TodoPeriodLocalDataSource,
     private val todoDayOfWeekLocalDataSource: TodoDayOfWeekLocalDataSource
@@ -47,7 +47,7 @@ class AlarmRestoreHandler(
             if(alarmMillis > todayDateTimeMillis){
                 alarmScheduler.schedule(
                     date = transferMillis2LocalDate(alarmTodo.date),
-                    time = Time(alarmTodo.hour, alarmTodo.minute),
+                    time = Time(alarmTodo.hour!!, alarmTodo.minute!!),
                     templateId = alarmTodo.templateId
                 )
             }
@@ -66,14 +66,14 @@ class AlarmRestoreHandler(
             val alarmTime = LocalTime.of(alarmPeriodTodo.hour!!, alarmPeriodTodo.minute!!)
 
             val startDate = transferMillis2LocalDate(alarmPeriodTodo.startDate)
-            val startDateTime = startDate.atTime(alarmPeriodTodo.hour, alarmPeriodTodo.minute)
+            val startDateTime = startDate.atTime(alarmPeriodTodo.hour!!, alarmPeriodTodo.minute!!)
             val endDate = transferMillis2LocalDate(alarmPeriodTodo.endDate)
-            val endDateTime = endDate.atTime(alarmPeriodTodo.hour, alarmPeriodTodo.minute)
+            val endDateTime = endDate.atTime(alarmPeriodTodo.hour!!, alarmPeriodTodo.minute!!)
 
             if(startDateTime >= todayDateTime){
                 alarmScheduler.schedule(
                     date = startDate,
-                    time = Time(alarmPeriodTodo.hour, alarmPeriodTodo.minute),
+                    time = Time(alarmPeriodTodo.hour!!, alarmPeriodTodo.minute!!),
                     templateId = alarmPeriodTodo.templateId,
                 )
             } else if(todayDateTime in startDateTime..endDateTime) {
@@ -84,7 +84,7 @@ class AlarmRestoreHandler(
 
                 alarmScheduler.schedule(
                     date = alarmDate,
-                    time = Time(alarmPeriodTodo.hour, alarmPeriodTodo.minute),
+                    time = Time(alarmPeriodTodo.hour!!, alarmPeriodTodo.minute!!),
                     templateId = alarmPeriodTodo.templateId,
                 )
             }
@@ -109,7 +109,7 @@ class AlarmRestoreHandler(
 
             alarmScheduler.schedule(
                 date = alarmDate,
-                time = Time(alarmDayOfWeekTodo.hour, alarmDayOfWeekTodo.minute),
+                time = Time(alarmDayOfWeekTodo.hour!!, alarmDayOfWeekTodo.minute!!),
                 templateId = alarmDayOfWeekTodo.templateId
             )
         }

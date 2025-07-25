@@ -3,22 +3,22 @@ package com.paraooo.data.platform.handler
 import android.content.Context
 import android.content.Intent
 import androidx.work.ListenableWorker.Result
-import com.paraooo.data.datasource.TodoDayOfWeekLocalDataSource
-import com.paraooo.data.datasource.TodoInstanceLocalDataSource
-import com.paraooo.data.datasource.TodoPeriodLocalDataSource
-import com.paraooo.data.datasource.TodoTemplateLocalDataSource
-import com.paraooo.data.dto.AlarmTypeDto
-import com.paraooo.data.dto.TodoTypeDto
-import com.paraooo.data.platform.alarm.AlarmScheduler
+import com.paraooo.local.datasource.TodoDayOfWeekLocalDataSource
+import com.paraooo.local.datasource.TodoInstanceLocalDataSource
+import com.paraooo.local.datasource.TodoPeriodLocalDataSource
+import com.paraooo.local.datasource.TodoTemplateLocalDataSource
+import com.paraooo.data.platform.alarm.AlarmSchedulerImpl
 import com.paraooo.data.platform.alarm.IntentProvider
 import com.paraooo.data.platform.alarm.NotificationHelper
 import com.paraooo.domain.model.Time
 import com.paraooo.domain.util.transferLocalDateToMillis
 import com.paraooo.domain.util.transferMillis2LocalDate
+import com.paraooo.local.entity.AlarmTypeEntity
+import com.paraooo.local.entity.TodoTypeEntity
 import java.time.LocalDate
 
 class AlarmHandler(
-    private val alarmScheduler: AlarmScheduler,
+    private val alarmScheduler: AlarmSchedulerImpl,
     private val notificationHelper: NotificationHelper,
     private val todoTemplateLocalDataSource: TodoTemplateLocalDataSource,
     private val todoInstanceLocalDataSource: TodoInstanceLocalDataSource,
@@ -42,10 +42,10 @@ class AlarmHandler(
         }
 
         when(todoTemplate.type) {
-            TodoTypeDto.GENERAL -> {
+            TodoTypeEntity.GENERAL -> {
 
             }
-            TodoTypeDto.PERIOD -> {
+            TodoTypeEntity.PERIOD -> {
                 if(period!!.endDate > todayMillis) {
                     val tomorrowLocalDate = todayLocalDate.plusDays(1)
                     alarmScheduler.schedule(
@@ -55,7 +55,7 @@ class AlarmHandler(
                     )
                 }
             }
-            TodoTypeDto.DAY_OF_WEEK -> {
+            TodoTypeEntity.DAY_OF_WEEK -> {
                 val availableDays = dayOfWeek!!.first().dayOfWeeks
 
                 val nextAlarmDate = (1..7)
@@ -72,9 +72,9 @@ class AlarmHandler(
 
         if (todayInstance != null && todayInstance.progressAngle < 360F){
             when(todoTemplate.alarmType) {
-                AlarmTypeDto.OFF -> {}
-                AlarmTypeDto.NOTIFY -> notificationHelper.showNotification(context, todayInstance, todoTemplate)
-                AlarmTypeDto.POPUP -> {
+                AlarmTypeEntity.OFF -> {}
+                AlarmTypeEntity.NOTIFY -> notificationHelper.showNotification(context, todayInstance, todoTemplate)
+                AlarmTypeEntity.POPUP -> {
                     val intent = intentProvider.getPopupIntent(context)
                     intent.putExtra("instanceId", todayInstance.id)  // 여기서 데이터를 전달
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

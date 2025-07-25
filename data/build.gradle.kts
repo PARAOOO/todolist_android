@@ -40,14 +40,9 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.work.runtime.ktx)
 
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    kapt(libs.androidx.room.compiler)
-
     implementation(project.dependencies.platform(libs.koin.bom))
     implementation(libs.koin.core)
-
-    implementation(libs.gson)
+    implementation(libs.koin.android)
 
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
@@ -57,5 +52,6 @@ dependencies {
 
 
     implementation(project(":domain"))
+    implementation(project(":local"))
 
 }
