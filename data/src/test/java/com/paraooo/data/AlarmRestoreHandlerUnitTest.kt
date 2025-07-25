@@ -1,11 +1,9 @@
 package com.paraooo.data
 
-import android.content.Context
 import androidx.work.ListenableWorker
-import com.paraooo.data.datasource.TodoDayOfWeekLocalDataSource
-import com.paraooo.data.datasource.TodoInstanceLocalDataSource
-import com.paraooo.data.datasource.TodoPeriodLocalDataSource
-import com.paraooo.data.datasource.TodoTemplateLocalDataSource
+import com.paraooo.local.datasourceimpl.TodoDayOfWeekLocalDataSourceImpl
+import com.paraooo.local.datasourceimpl.TodoPeriodLocalDataSourceImpl
+import com.paraooo.local.datasourceimpl.TodoTemplateLocalDataSourceImpl
 import com.paraooo.data.dto.AlarmTypeDto
 import com.paraooo.data.dto.TodoDayOfWeekDto
 import com.paraooo.data.dto.TodoDayOfWeekWithTimeDto
@@ -15,10 +13,9 @@ import com.paraooo.data.dto.TodoPeriodDto
 import com.paraooo.data.dto.TodoPeriodWithTimeDto
 import com.paraooo.data.dto.TodoTemplateDto
 import com.paraooo.data.dto.TodoTypeDto
-import com.paraooo.data.platform.alarm.AlarmScheduler
+import com.paraooo.data.platform.alarm.AlarmSchedulerImpl
 import com.paraooo.data.platform.handler.AlarmRestoreHandler
 import com.paraooo.domain.model.AlarmType
-import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.util.transferLocalDateToMillis
 import com.paraooo.domain.util.transferMillis2LocalDate
@@ -36,15 +33,14 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import java.time.LocalDate
-import java.time.LocalTime
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AlarmRestoreHandlerUnitTest {
 
-    private val todoTemplateLocalDataSource = mockk<TodoTemplateLocalDataSource>()
-    private val todoPeriodLocalDataSource = mockk<TodoPeriodLocalDataSource>()
-    private val todoDayOfWeekLocalDataSource = mockk<TodoDayOfWeekLocalDataSource>()
-    private val alarmScheduler = mockk<AlarmScheduler>(relaxed = true) // alarm 호출 무시
+    private val todoTemplateLocalDataSourceImpl = mockk<TodoTemplateLocalDataSourceImpl>()
+    private val todoPeriodLocalDataSourceImpl = mockk<TodoPeriodLocalDataSourceImpl>()
+    private val todoDayOfWeekLocalDataSourceImpl = mockk<TodoDayOfWeekLocalDataSourceImpl>()
+    private val alarmScheduler = mockk<AlarmSchedulerImpl>(relaxed = true) // alarm 호출 무시
 
     private val sampleTodoModel = TodoModel(
         instanceId = 1L,
@@ -128,9 +124,9 @@ class AlarmRestoreHandlerUnitTest {
 
         alarmRestoreHandler = AlarmRestoreHandler(
             alarmScheduler,
-            todoTemplateLocalDataSource,
-            todoPeriodLocalDataSource,
-            todoDayOfWeekLocalDataSource,
+            todoTemplateLocalDataSourceImpl,
+            todoPeriodLocalDataSourceImpl,
+            todoDayOfWeekLocalDataSourceImpl,
         )
 
     }
@@ -168,9 +164,9 @@ class AlarmRestoreHandlerUnitTest {
             )
         )
 
-        coEvery { todoTemplateLocalDataSource.getAlarmTodos(any()) } returns alarmTodos
-        coEvery { todoPeriodLocalDataSource.getAlarmPeriodTodos(any()) } returns alarmPeriodTodos
-        coEvery { todoDayOfWeekLocalDataSource.getAlarmDayOfWeekTodos() } returns alarmDayOfWeekTodos
+        coEvery { todoTemplateLocalDataSourceImpl.getAlarmTodos(any()) } returns alarmTodos
+        coEvery { todoPeriodLocalDataSourceImpl.getAlarmPeriodTodos(any()) } returns alarmPeriodTodos
+        coEvery { todoDayOfWeekLocalDataSourceImpl.getAlarmDayOfWeekTodos() } returns alarmDayOfWeekTodos
 
         val result = alarmRestoreHandler.handleAlarm()
 
