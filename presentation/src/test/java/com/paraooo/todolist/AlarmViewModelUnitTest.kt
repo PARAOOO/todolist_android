@@ -3,8 +3,6 @@ package com.paraooo.todolist
 import android.util.Log
 import com.paraooo.domain.model.AlarmType
 import com.paraooo.domain.model.TodoModel
-import com.paraooo.domain.repository.TodoReadRepository
-import com.paraooo.domain.repository.TodoWriteRepository
 import com.paraooo.todolist.ui.features.alarm.AlarmUiEvent
 import com.paraooo.todolist.ui.features.alarm.AlarmViewModel
 import io.mockk.coEvery

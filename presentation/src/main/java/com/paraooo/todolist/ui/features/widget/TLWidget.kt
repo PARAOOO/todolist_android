@@ -1,21 +1,16 @@
 package com.paraooo.todolist.ui.features.widget
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
-import androidx.glance.LocalSize
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
@@ -24,7 +19,6 @@ import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.itemsIndexed
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
-import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
@@ -42,17 +36,13 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.paraooo.domain.model.TodoModel
-import com.paraooo.domain.repository.TodoReadRepository
-import com.paraooo.domain.repository.TodoWriteRepository
+import com.paraooo.domain.usecase.todo.GetTodoByDateUseCase
 import com.paraooo.domain.util.transferLocalDateToMillis
 import com.paraooo.todolist.MainActivity
 import com.paraooo.todolist.R
-import com.paraooo.todolist.ui.features.create.TAG
 import com.paraooo.todolist.ui.util.getDateWithDot
-import kotlinx.coroutines.flow.first
 import org.koin.core.context.GlobalContext
 import java.time.LocalDate
-import kotlin.math.log
 
 object TLWidget: GlanceAppWidget() {
 
@@ -64,9 +54,10 @@ object TLWidget: GlanceAppWidget() {
 
         val todayDate = LocalDate.now()
 
-        val todoReadRepository: TodoReadRepository = GlobalContext.get().get()
+//        val todoReadRepository: TodoReadRepository = GlobalContext.get().get()
+        val getTodoByDateUseCase: GetTodoByDateUseCase = GlobalContext.get().get()
 
-        val todoListFlow = todoReadRepository.getTodoByDate(transferLocalDateToMillis(todayDate))
+        val todoListFlow = getTodoByDateUseCase(transferLocalDateToMillis(todayDate))
 
         provideContent {
 

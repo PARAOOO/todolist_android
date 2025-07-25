@@ -7,8 +7,10 @@ import androidx.lifecycle.viewModelScope
 import com.paraooo.domain.model.AlarmType
 import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
-import com.paraooo.domain.repository.TodoReadRepository
-import com.paraooo.domain.repository.TodoWriteRepository
+import com.paraooo.domain.usecase.todo.FindTodoByIdUseCase
+import com.paraooo.domain.usecase.dayofweek.UpdateDayOfWeekTodoUseCase
+import com.paraooo.domain.usecase.period.UpdatePeriodTodoUseCase
+import com.paraooo.domain.usecase.todo.UpdateTodoUseCase
 import com.paraooo.todolist.ui.components.AlarmInputState
 import com.paraooo.todolist.ui.components.AlarmSettingInputState
 import com.paraooo.todolist.ui.components.DateInputState
@@ -25,8 +27,10 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class EditViewModel(
-    private val todoWriteRepository: TodoWriteRepository,
-    private val todoReadRepository: TodoReadRepository,
+    private val findTodoByIdUseCase: FindTodoByIdUseCase,
+    private val updateTodoUseCase: UpdateTodoUseCase,
+    private val updatePeriodTodoUseCase: UpdatePeriodTodoUseCase,
+    private val updateDayOfWeekTodoUseCase: UpdateDayOfWeekTodoUseCase,
     private val initialUiState : EditUiState = EditUiState()
 ) : ViewModel() {
 
@@ -157,7 +161,7 @@ class EditViewModel(
     private fun fetchTodo(instanceId: Long) {
         viewModelScope.launch {
             try {
-                val todo = todoReadRepository.findTodoById(instanceId)
+                val todo = findTodoByIdUseCase(instanceId)
                 Log.d(TAG, "fetchTodo: ${todo}")
                 _uiState.update { state ->
                     state.copy(
@@ -199,6 +203,7 @@ class EditViewModel(
 
         val baseTodoModel = TodoModel(
             instanceId = instanceId,
+            templateId = 0,
             title = uiState.value.todoInputState.todoNameInputState.content,
             description = uiState.value.todoInputState.descriptionInputState.content,
             date = when (uiState.value.todoInputState.dateInputState) {
@@ -233,7 +238,7 @@ class EditViewModel(
 
             when {
                 selectedTodo.value!!.startDate != null -> {
-                    todoWriteRepository.updatePeriodTodo(
+                    updatePeriodTodoUseCase(
                         baseTodoModel.copy(
                             startDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate,
                             endDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).endDate
@@ -241,14 +246,14 @@ class EditViewModel(
                     )
                 }
                 selectedTodo.value!!.dayOfWeeks != null -> {
-                    todoWriteRepository.updateDayOfWeekTodo(
+                    updateDayOfWeekTodoUseCase(
                         baseTodoModel.copy(
                             dayOfWeeks = (_uiState.value.todoInputState.dateInputState as DateInputState.DayOfWeek).dayOfWeek
                         )
                     )
                 }
                 else -> {
-                    todoWriteRepository.updateTodo(
+                    updateTodoUseCase(
                         baseTodoModel.copy()
                     )
                 }
