@@ -1,10 +1,10 @@
-package com.paraooo.data.local.util
+package com.paraooo.local.util
 
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-class TodoConverters {
+internal class TodoConverters {
 
     private val gson = Gson()
 

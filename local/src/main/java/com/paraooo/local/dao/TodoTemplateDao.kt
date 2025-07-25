@@ -1,16 +1,16 @@
-package com.paraooo.data.local.dao
+package com.paraooo.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.paraooo.data.local.entity.TodoEntity
-import com.paraooo.data.local.entity.TodoTemplate
+import com.paraooo.local.entity.TodoEntity
+import com.paraooo.local.entity.TodoTemplate
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface TodoTemplateDao {
+internal interface TodoTemplateDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTodoTemplate(todoTemplate: TodoTemplate): Long

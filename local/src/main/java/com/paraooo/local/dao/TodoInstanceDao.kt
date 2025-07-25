@@ -1,4 +1,4 @@
-package com.paraooo.data.local.dao
+package com.paraooo.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -6,10 +6,10 @@ import androidx.room.OnConflictStrategy
 import androidx.room.OnConflictStrategy.Companion.REPLACE
 import androidx.room.Query
 import androidx.room.Update
-import com.paraooo.data.local.entity.TodoInstance
+import com.paraooo.local.entity.TodoInstance
 
 @Dao
-interface TodoInstanceDao {
+internal interface TodoInstanceDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTodoInstance(todoInstance: TodoInstance): Long

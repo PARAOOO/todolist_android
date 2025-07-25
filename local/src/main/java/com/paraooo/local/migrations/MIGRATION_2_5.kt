@@ -1,9 +1,9 @@
-package com.paraooo.data.local.migrations
+package com.paraooo.local.migrations
 
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-val MIGRATION_2_5 = object : Migration(2, 5) {
+internal val MIGRATION_2_5 = object : Migration(2, 5) {
     override fun migrate(db: SupportSQLiteDatabase) {
         // 1. 새로운 테이블 생성
         db.execSQL("""

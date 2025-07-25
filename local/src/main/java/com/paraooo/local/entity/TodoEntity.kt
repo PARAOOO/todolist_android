@@ -1,4 +1,4 @@
-package com.paraooo.data.local.entity
+package com.paraooo.local.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -14,8 +14,8 @@ data class TodoTemplate(
     val description: String,
     val hour: Int?, // null이면 시간 미지정,
     val minute: Int?,
-    @ColumnInfo(index = true) val type: TodoType, // GENERAL, PERIOD, DAY_OF_WEEK,
-    val alarmType : AlarmType, // OFF, NOTIFY, POPUP
+    @ColumnInfo(index = true) val type: TodoTypeEntity, // GENERAL, PERIOD, DAY_OF_WEEK,
+    val alarmType : AlarmTypeEntity, // OFF, NOTIFY, POPUP
     val isAlarmHasVibration : Boolean,
     val isAlarmHasSound : Boolean
 )
@@ -70,7 +70,7 @@ data class TodoEntity(
     val hour: Int?,
     val minute: Int?,
     val progressAngle: Float,
-    val alarmType: AlarmType,
+    val alarmType: AlarmTypeEntity,
     val startDate: Long? = null,
     val endDate: Long? = null,
     val dayOfWeeks: List<Int>? = null,
@@ -93,11 +93,11 @@ data class TodoDayOfWeekWithTime(
     val dayOfWeeks : List<Int>
 )
 
-enum class TodoType {
+enum class TodoTypeEntity {
     GENERAL, PERIOD, DAY_OF_WEEK
 }
 
-enum class AlarmType {
+enum class AlarmTypeEntity {
     OFF, NOTIFY, POPUP
 }
 
