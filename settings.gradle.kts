@@ -23,3 +23,4 @@ rootProject.name = "TodoList"
 include(":presentation")
 include(":data")
 include(":domain")
+include(":local")

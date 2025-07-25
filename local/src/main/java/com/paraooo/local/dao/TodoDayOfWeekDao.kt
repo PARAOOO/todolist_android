@@ -1,4 +1,4 @@
-package com.paraooo.data.local.dao
+package com.paraooo.local.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -6,12 +6,12 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.paraooo.data.local.entity.TodoDayOfWeek
-import com.paraooo.data.local.entity.TodoDayOfWeekWithTime
-import com.paraooo.data.local.entity.TodoTemplate
+import com.paraooo.local.entity.TodoDayOfWeek
+import com.paraooo.local.entity.TodoDayOfWeekWithTime
+import com.paraooo.local.entity.TodoTemplate
 
 @Dao
-interface TodoDayOfWeekDao {
+internal interface TodoDayOfWeekDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTodoDayOfWeek(todoDayOfWeek: TodoDayOfWeek)
