@@ -1,117 +1,144 @@
 package com.paraooo.data.mapper
 
-import com.paraooo.data.dto.AlarmTypeDto
-import com.paraooo.data.dto.TodoDto
-import com.paraooo.data.dto.TodoTypeDto
-import com.paraooo.data.local.entity.AlarmType
-import com.paraooo.data.local.entity.TodoEntity
-import com.paraooo.data.local.entity.TodoType
-//import com.paraooo.data.local.entity.TodoEntity
+import com.paraooo.domain.model.AlarmType
 import com.paraooo.domain.model.Time
+import com.paraooo.domain.model.TodoDayOfWeekModel
+import com.paraooo.domain.model.TodoDayOfWeekWithTimeModel
+import com.paraooo.domain.model.TodoInstanceModel
 import com.paraooo.domain.model.TodoModel
-import com.paraooo.domain.util.transferLocalDateToMillis
+import com.paraooo.domain.model.TodoPeriodModel
+import com.paraooo.domain.model.TodoPeriodWithTimeModel
+import com.paraooo.domain.model.TodoTemplateModel
+import com.paraooo.domain.model.TodoType
 import com.paraooo.domain.util.transferMillis2LocalDate
+import com.paraooo.local.entity.AlarmTypeEntity
+import com.paraooo.local.entity.TodoDayOfWeek
+import com.paraooo.local.entity.TodoDayOfWeekWithTime
+import com.paraooo.local.entity.TodoEntity
+import com.paraooo.local.entity.TodoInstance
+import com.paraooo.local.entity.TodoPeriod
+import com.paraooo.local.entity.TodoPeriodWithTime
+import com.paraooo.local.entity.TodoTemplate
+import com.paraooo.local.entity.TodoTypeEntity
 
-fun TodoDto.toEntity() : TodoEntity {
-    return TodoEntity(
-        instanceId = instanceId,
-        templateId = templateId,
-        title = title,
-        description = description,
-        date = date,
-        hour = hour,
-        minute = minute,
-        progressAngle = progressAngle,
-        alarmType = alarmType.toEntity(),
-        startDate = startDate,
-        endDate = endDate,
-        dayOfWeeks = dayOfWeeks,
-        isAlarmHasVibration = isAlarmHasVibration,
-        isAlarmHasSound = isAlarmHasSound
-    )
-}
-
-fun TodoEntity.toDto() : TodoDto {
-    return TodoDto(
-        instanceId = instanceId,
-        templateId = templateId,
-        title = title,
-        description = description,
-        date = date,
-        hour = hour,
-        minute = minute,
-        progressAngle = progressAngle,
-        alarmType = alarmType.toDto(),
-        startDate = startDate,
-        endDate = endDate,
-        dayOfWeeks = dayOfWeeks,
-        isAlarmHasVibration = isAlarmHasVibration,
-        isAlarmHasSound = isAlarmHasSound
-    )
-}
-
-fun TodoDto.toModel() : TodoModel {
-    return TodoModel(
-        instanceId = instanceId,
-        title = title,
-        description = description,
-        date = transferMillis2LocalDate(date),
-        progressAngle = progressAngle,
-        time = when(hour) {
-            null -> null
-            else -> Time(hour, minute!!)
-        },
-        alarmType = alarmType.toModel(),
-        startDate = startDate?.let { transferMillis2LocalDate(it) },
-        endDate = endDate?.let { transferMillis2LocalDate(it) },
-        dayOfWeeks = dayOfWeeks
-    )
-}
-
-fun TodoType.toDto() : TodoTypeDto {
+internal fun AlarmTypeEntity.toModel() : AlarmType {
     return when(this) {
-        TodoType.GENERAL -> TodoTypeDto.GENERAL
-        TodoType.PERIOD -> TodoTypeDto.PERIOD
-        TodoType.DAY_OF_WEEK -> TodoTypeDto.DAY_OF_WEEK
+        AlarmTypeEntity.OFF -> AlarmType.OFF
+        AlarmTypeEntity.NOTIFY -> AlarmType.NOTIFY
+        AlarmTypeEntity.POPUP -> AlarmType.POPUP
     }
 }
 
-fun TodoTypeDto.toEntity() : TodoType {
+internal fun AlarmType.toEntity() : AlarmTypeEntity {
     return when(this) {
-        TodoTypeDto.GENERAL -> TodoType.GENERAL
-        TodoTypeDto.PERIOD -> TodoType.PERIOD
-        TodoTypeDto.DAY_OF_WEEK -> TodoType.DAY_OF_WEEK
+        AlarmType.OFF -> AlarmTypeEntity.OFF
+        AlarmType.NOTIFY -> AlarmTypeEntity.NOTIFY
+        AlarmType.POPUP -> AlarmTypeEntity.POPUP
     }
 }
 
-fun AlarmType.toDto() : AlarmTypeDto {
-    return when(this) {
-        AlarmType.OFF -> AlarmTypeDto.OFF
-        AlarmType.NOTIFY -> AlarmTypeDto.NOTIFY
-        AlarmType.POPUP -> AlarmTypeDto.POPUP
-    }
-}
 
-fun AlarmTypeDto.toEntity() : AlarmType {
-    return when(this) {
-        AlarmTypeDto.OFF -> AlarmType.OFF
-        AlarmTypeDto.NOTIFY -> AlarmType.NOTIFY
-        AlarmTypeDto.POPUP -> AlarmType.POPUP
-    }
-}
+internal fun TodoEntity.toModel() = TodoModel(
+    instanceId = instanceId,
+    templateId = templateId,
+    title = title,
+    description = description,
+    date = transferMillis2LocalDate(date),
+    progressAngle = progressAngle,
+    time = when(hour) {
+        null -> null
+        else -> Time(hour!!, minute!!)
+    },
+    alarmType = alarmType.toModel(),
+    startDate = startDate?.let { transferMillis2LocalDate(it) },
+    endDate = endDate?.let { transferMillis2LocalDate(it) },
+    dayOfWeeks = dayOfWeeks,
+    isAlarmHasVibration = isAlarmHasVibration,
+    isAlarmHasSound = isAlarmHasSound
+)
 
-fun AlarmTypeDto.toModel() : com.paraooo.domain.model.AlarmType {
-    return when(this) {
-        AlarmTypeDto.OFF -> com.paraooo.domain.model.AlarmType.OFF
-        AlarmTypeDto.NOTIFY -> com.paraooo.domain.model.AlarmType.NOTIFY
-        AlarmTypeDto.POPUP -> com.paraooo.domain.model.AlarmType.POPUP
-    }
-}
+internal fun TodoDayOfWeekModel.toEntity() = TodoDayOfWeek(
+    id = id,
+    templateId = templateId,
+    dayOfWeeks = dayOfWeeks,
+    dayOfWeek = dayOfWeek
+)
 
-fun com.paraooo.domain.model.AlarmType.toDto() : AlarmTypeDto {
-    return when(this) {
-        com.paraooo.domain.model.AlarmType.OFF -> AlarmTypeDto.OFF
-        com.paraooo.domain.model.AlarmType.NOTIFY -> AlarmTypeDto.NOTIFY
-        com.paraooo.domain.model.AlarmType.POPUP -> AlarmTypeDto.POPUP
-    }
-}
+internal fun TodoDayOfWeek.toModel() = TodoDayOfWeekModel(
+    id = id,
+    templateId = templateId,
+    dayOfWeeks = dayOfWeeks,
+    dayOfWeek = dayOfWeek
+)
+internal fun TodoTemplateModel.toEntity() = TodoTemplate(
+    id = id,
+    title = title,
+    description = description,
+    hour = hour,
+    minute = minute,
+    type = when(type) {
+        TodoType.GENERAL -> TodoTypeEntity.GENERAL
+        TodoType.PERIOD -> TodoTypeEntity.PERIOD
+        TodoType.DAY_OF_WEEK -> TodoTypeEntity.DAY_OF_WEEK
+    },
+    alarmType = alarmType.toEntity(),
+    isAlarmHasVibration = isAlarmHasVibration,
+    isAlarmHasSound = isAlarmHasSound
+)
+
+internal fun TodoTemplate.toModel() = TodoTemplateModel(
+    id = id,
+    title = title,
+    description = description,
+    hour = hour,
+    minute = minute,
+    type = when(type) {
+        TodoTypeEntity.GENERAL -> TodoType.GENERAL
+        TodoTypeEntity.PERIOD -> TodoType.PERIOD
+        TodoTypeEntity.DAY_OF_WEEK -> TodoType.DAY_OF_WEEK
+    },
+    alarmType = alarmType.toModel(),
+    isAlarmHasVibration = isAlarmHasVibration,
+    isAlarmHasSound = isAlarmHasSound
+)
+
+internal fun TodoDayOfWeekWithTime.toModel() = TodoDayOfWeekWithTimeModel(
+    templateId = templateId,
+    hour = hour,
+    minute = minute,
+    dayOfWeeks = dayOfWeeks
+)
+
+internal fun TodoInstance.toModel() = TodoInstanceModel(
+    id = id,
+    templateId = templateId,
+    date = date,
+    progressAngle = progressAngle
+)
+
+internal fun TodoInstanceModel.toEntity() = TodoInstance(
+    id = id,
+    templateId = templateId,
+    date = date,
+    progressAngle = progressAngle
+)
+
+internal fun TodoPeriod.toModel() = TodoPeriodModel(
+    templateId = templateId,
+    startDate = startDate,
+    endDate = endDate
+)
+
+internal fun TodoPeriodModel.toEntity() = TodoPeriod(
+    templateId = templateId,
+    startDate = startDate,
+    endDate = endDate
+)
+
+internal fun TodoPeriodWithTime.toModel() = TodoPeriodWithTimeModel(
+    templateId = templateId,
+    hour = hour,
+    minute = minute,
+    startDate = startDate,
+    endDate = endDate
+)
