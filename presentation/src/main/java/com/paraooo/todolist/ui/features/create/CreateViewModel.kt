@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.paraooo.domain.model.AlarmType
 import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
-import com.paraooo.domain.repository.TodoWriteRepository
+import com.paraooo.domain.usecase.dayofweek.PostDayOfWeekUseCase
+import com.paraooo.domain.usecase.period.PostPeriodTodoUseCase
+import com.paraooo.domain.usecase.todo.PostTodoUseCase
 import com.paraooo.todolist.ui.components.AlarmInputState
 import com.paraooo.todolist.ui.components.AlarmSettingInputState
 import com.paraooo.todolist.ui.components.DateInputState
@@ -21,7 +23,9 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class CreateViewModel(
-    private val todoWriteRepository: TodoWriteRepository,
+    private val postTodoUseCase: PostTodoUseCase,
+    private val postPeriodTodoUseCase: PostPeriodTodoUseCase,
+    private val postDayOfWeekUseCase: PostDayOfWeekUseCase,
     private val initialUiState : CreateUiState = CreateUiState()
 ) : ViewModel() {
 
@@ -51,9 +55,10 @@ class CreateViewModel(
 
                 val baseTodoModel = TodoModel(
                     instanceId = 0,
+                    templateId = 0,
                     title = _uiState.value.todoInputState.todoNameInputState.content,
                     description = _uiState.value.todoInputState.descriptionInputState.content,
-                    date = (_uiState.value.todoInputState.dateInputState as DateInputState.Date).date,
+                    date = LocalDate.now(),
                     time = when (_uiState.value.todoInputState.timeInputState) {
                         is TimeInputState.NoTime -> null
                         is TimeInputState.Time -> Time(
@@ -77,12 +82,14 @@ class CreateViewModel(
 
                     when(_uiState.value.todoInputState.dateInputState) {
                         is DateInputState.Date -> {
-                            todoWriteRepository.postTodo(
-                                baseTodoModel.copy()
+                            postTodoUseCase(
+                                baseTodoModel.copy(
+                                    date = (_uiState.value.todoInputState.dateInputState as DateInputState.Date).date
+                                )
                             )
                         }
                         is DateInputState.Period -> {
-                            todoWriteRepository.postPeriodTodo(
+                            postPeriodTodoUseCase(
                                 baseTodoModel.copy(
                                     startDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate,
                                     endDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).endDate
@@ -93,7 +100,7 @@ class CreateViewModel(
                         }
 
                         is DateInputState.DayOfWeek -> {
-                            todoWriteRepository.postDayOfWeekTodo(
+                            postDayOfWeekUseCase(
                                 baseTodoModel.copy(),
                                 dayOfWeek = (_uiState.value.todoInputState.dateInputState as DateInputState.DayOfWeek).dayOfWeek
                             )
