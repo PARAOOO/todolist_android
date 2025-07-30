@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AlarmViewModel(
     private val findTodoByIdUseCase: FindTodoByIdUseCase
@@ -18,11 +19,12 @@ class AlarmViewModel(
     val uiState: StateFlow<AlarmUiState> = _uiState.asStateFlow()
 
     fun onEvent(event : AlarmUiEvent) {
-        when (event) {
-            is AlarmUiEvent.onInit -> {
-
-                viewModelScope.launch(Dispatchers.IO) {
-                    val todoTemplate = findTodoByIdUseCase(event.instanceId)
+        viewModelScope.launch {
+            when (event) {
+                is AlarmUiEvent.onInit -> {
+                    val todoTemplate = withContext(Dispatchers.IO){
+                        findTodoByIdUseCase(event.instanceId)
+                    }
 
                     _uiState.update { state ->
                         state.copy(
@@ -34,6 +36,7 @@ class AlarmViewModel(
                     }
                 }
             }
+
         }
     }
 

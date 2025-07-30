@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
 class CreateViewModel(
@@ -50,60 +51,63 @@ class CreateViewModel(
     }
 
     fun onEvent(event : CreateUiEvent) {
-        when (event) {
-            CreateUiEvent.onCreateClicked -> {
+        viewModelScope.launch {
+            when (event) {
+                CreateUiEvent.onCreateClicked -> {
 
-                val baseTodoModel = TodoModel(
-                    instanceId = 0,
-                    templateId = 0,
-                    title = _uiState.value.todoInputState.todoNameInputState.content,
-                    description = _uiState.value.todoInputState.descriptionInputState.content,
-                    date = LocalDate.now(),
-                    time = when (_uiState.value.todoInputState.timeInputState) {
-                        is TimeInputState.NoTime -> null
-                        is TimeInputState.Time -> Time(
-                            (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).hour,
-                            (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
-                        )
-                    },
-                    alarmType = _uiState.value.todoInputState.alarmInputState.alarmType,
-                    isAlarmHasVibration = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.vibration else false,
-                    isAlarmHasSound = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.sound else false
-                )
-
-                _uiState.update { state ->
-                    state.copy(
-                        createButtonState = state.createButtonState.copy(
-                            isEnabled = false
-                        )
-                    )
-                }
-                viewModelScope.launch(Dispatchers.IO) {
-
-                    when(_uiState.value.todoInputState.dateInputState) {
-                        is DateInputState.Date -> {
-                            postTodoUseCase(
-                                baseTodoModel.copy(
-                                    date = (_uiState.value.todoInputState.dateInputState as DateInputState.Date).date
-                                )
+                    val baseTodoModel = TodoModel(
+                        instanceId = 0,
+                        templateId = 0,
+                        title = _uiState.value.todoInputState.todoNameInputState.content,
+                        description = _uiState.value.todoInputState.descriptionInputState.content,
+                        date = LocalDate.now(),
+                        time = when (_uiState.value.todoInputState.timeInputState) {
+                            is TimeInputState.NoTime -> null
+                            is TimeInputState.Time -> Time(
+                                (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).hour,
+                                (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
                             )
-                        }
-                        is DateInputState.Period -> {
-                            postPeriodTodoUseCase(
-                                baseTodoModel.copy(
+                        },
+                        alarmType = _uiState.value.todoInputState.alarmInputState.alarmType,
+                        isAlarmHasVibration = if (_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.vibration else false,
+                        isAlarmHasSound = if (_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.sound else false
+                    )
+
+                    _uiState.update { state ->
+                        state.copy(
+                            createButtonState = state.createButtonState.copy(
+                                isEnabled = false
+                            )
+                        )
+                    }
+
+                    withContext(Dispatchers.IO){
+                        when (_uiState.value.todoInputState.dateInputState) {
+                            is DateInputState.Date -> {
+                                postTodoUseCase(
+                                    baseTodoModel.copy(
+                                        date = (_uiState.value.todoInputState.dateInputState as DateInputState.Date).date
+                                    )
+                                )
+                            }
+
+                            is DateInputState.Period -> {
+                                postPeriodTodoUseCase(
+                                    baseTodoModel.copy(
+                                        startDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate,
+                                        endDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).endDate
+                                    ),
                                     startDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate,
                                     endDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).endDate
-                                ),
-                                startDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).startDate,
-                                endDate = (_uiState.value.todoInputState.dateInputState as DateInputState.Period).endDate
-                            )
-                        }
+                                )
+                            }
 
-                        is DateInputState.DayOfWeek -> {
-                            postDayOfWeekUseCase(
-                                baseTodoModel.copy(),
-                                dayOfWeek = (_uiState.value.todoInputState.dateInputState as DateInputState.DayOfWeek).dayOfWeek
-                            )
+                            is DateInputState.DayOfWeek -> {
+                                postDayOfWeekUseCase(
+                                    baseTodoModel.copy(),
+                                    dayOfWeek = (_uiState.value.todoInputState.dateInputState as DateInputState.DayOfWeek).dayOfWeek
+                                )
+                            }
                         }
                     }
 
@@ -116,103 +120,110 @@ class CreateViewModel(
                         )
                     }
                 }
-            }
-            is CreateUiEvent.onDateInputChanged -> {
-                _uiState.update { state ->
-                    state.copy(
-                        todoInputState = state.todoInputState.copy(
-                            dateInputState = DateInputState.Date(event.date)
-                        )
-                    )
-                }
-            }
-            is CreateUiEvent.onDescriptionInputChanged -> {
-                _uiState.update { state ->
-                    state.copy(
-                        todoInputState = state.todoInputState.copy(
-                            descriptionInputState = _uiState.value.todoInputState.descriptionInputState.copy(
-                                content = event.text
+
+                is CreateUiEvent.onDateInputChanged -> {
+                    _uiState.update { state ->
+                        state.copy(
+                            todoInputState = state.todoInputState.copy(
+                                dateInputState = DateInputState.Date(event.date)
                             )
                         )
-                    )
+                    }
                 }
-            }
-            is CreateUiEvent.onTimeInputChanged -> {
-                _uiState.update { state ->
-                    state.copy(
-                        todoInputState = state.todoInputState.copy(
-                            timeInputState = event.timeInputState
-                        )
-                    )
-                }
-                updateCreateButtonEnabled()
-            }
-            is CreateUiEvent.onTodoNameInputChanged -> {
 
-                _uiState.update { state ->
-                    state.copy(
-                        todoInputState = state.todoInputState.copy(
-                            todoNameInputState = state.todoInputState.todoNameInputState.copy(
-                                content = event.text,
+                is CreateUiEvent.onDescriptionInputChanged -> {
+                    _uiState.update { state ->
+                        state.copy(
+                            todoInputState = state.todoInputState.copy(
+                                descriptionInputState = _uiState.value.todoInputState.descriptionInputState.copy(
+                                    content = event.text
+                                )
                             )
                         )
-                    )
+                    }
                 }
 
-                updateCreateButtonEnabled()
-            }
-
-            is CreateUiEvent.onSelectedDateChanged -> {
-                _uiState.update { state ->
-                    state.copy(
-                        todoInputState = state.todoInputState.copy(
-                            dateInputState = DateInputState.Date(event.date)
-                        )
-                    )
-                }
-            }
-
-            is CreateUiEvent.onPeriodInputChanged -> {
-                _uiState.update { state ->
-                    state.copy(
-                        todoInputState = state.todoInputState.copy(
-                            dateInputState = DateInputState.Period(event.startDate, event.endDate)
-                        )
-                    )
-                }
-            }
-
-            is CreateUiEvent.onDayOfWeekInputChanged -> {
-                _uiState.update { state ->
-                    state.copy(
-                        todoInputState = state.todoInputState.copy(
-                            dateInputState = DateInputState.DayOfWeek(event.daysOfWeek.map { it.value })
-                        )
-                    )
-                }
-            }
-
-            is CreateUiEvent.onAlarmInputChanged -> {
-                _uiState.update { state ->
-                    state.copy(
-                        todoInputState = state.todoInputState.copy(
-                            alarmInputState = AlarmInputState(event.alarm)
-                        )
-                    )
-                }
-                updateCreateButtonEnabled()
-            }
-
-            is CreateUiEvent.onAlarmSettingInputChanged -> {
-                _uiState.update { state ->
-                    state.copy(
-                        todoInputState = state.todoInputState.copy(
-                            alarmSettingInputState = AlarmSettingInputState(
-                                vibration = event.vibration,
-                                sound = event.sound
+                is CreateUiEvent.onTimeInputChanged -> {
+                    _uiState.update { state ->
+                        state.copy(
+                            todoInputState = state.todoInputState.copy(
+                                timeInputState = event.timeInputState
                             )
                         )
-                    )
+                    }
+                    updateCreateButtonEnabled()
+                }
+
+                is CreateUiEvent.onTodoNameInputChanged -> {
+
+                    _uiState.update { state ->
+                        state.copy(
+                            todoInputState = state.todoInputState.copy(
+                                todoNameInputState = state.todoInputState.todoNameInputState.copy(
+                                    content = event.text,
+                                )
+                            )
+                        )
+                    }
+
+                    updateCreateButtonEnabled()
+                }
+
+                is CreateUiEvent.onSelectedDateChanged -> {
+                    _uiState.update { state ->
+                        state.copy(
+                            todoInputState = state.todoInputState.copy(
+                                dateInputState = DateInputState.Date(event.date)
+                            )
+                        )
+                    }
+                }
+
+                is CreateUiEvent.onPeriodInputChanged -> {
+                    _uiState.update { state ->
+                        state.copy(
+                            todoInputState = state.todoInputState.copy(
+                                dateInputState = DateInputState.Period(
+                                    event.startDate,
+                                    event.endDate
+                                )
+                            )
+                        )
+                    }
+                }
+
+                is CreateUiEvent.onDayOfWeekInputChanged -> {
+                    _uiState.update { state ->
+                        state.copy(
+                            todoInputState = state.todoInputState.copy(
+                                dateInputState = DateInputState.DayOfWeek(event.daysOfWeek.map { it.value })
+                            )
+                        )
+                    }
+                }
+
+                is CreateUiEvent.onAlarmInputChanged -> {
+                    _uiState.update { state ->
+                        state.copy(
+                            todoInputState = state.todoInputState.copy(
+                                alarmInputState = AlarmInputState(event.alarm)
+                            )
+                        )
+                    }
+                    updateCreateButtonEnabled()
+                }
+
+                is CreateUiEvent.onAlarmSettingInputChanged -> {
+                    _uiState.update { state ->
+                        state.copy(
+                            todoInputState = state.todoInputState.copy(
+                                alarmSettingInputState = AlarmSettingInputState(
+                                    vibration = event.vibration,
+                                    sound = event.sound
+                                )
+                            )
+                        )
+                    }
                 }
             }
         }

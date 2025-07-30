@@ -9,14 +9,17 @@ import com.paraooo.domain.usecase.todo.DeleteTodoByIdUseCase
 import com.paraooo.domain.usecase.todo.GetTodoByDateUseCase
 import com.paraooo.domain.usecase.todo.UpdateTodoProgressUseCase
 import com.paraooo.domain.util.transferLocalDateToMillis
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
 class HomeViewModel(
@@ -37,76 +40,75 @@ class HomeViewModel(
     var selectedTodo = mutableStateOf<TodoModel?>(null)
 
     private fun fetchTodoList(date: LocalDate) {
-        viewModelScope.launch {
-
-            _uiState.update { state ->
-                state.copy(
-                    todoListState = state.todoListState.copy(
-                        isLoading = true
-                    )
+        _uiState.update { state ->
+            state.copy(
+                todoListState = state.todoListState.copy(
+                    isLoading = true
                 )
-            }
+            )
+        }
 
-            try {
-                todoCollectJob?.cancel()
+        try {
+            todoCollectJob?.cancel()
 
-                todoCollectJob = viewModelScope.launch {
-                    getTodoByDateUseCase(transferLocalDateToMillis(date)).collect { todoList ->
-
-                        _uiState.update { currentState ->
-                            currentState.copy(
-                                todoListState = currentState.todoListState.copy(
-                                    todoList = todoList,
-                                    isLoading = false,
-                                    error = ""
-                                )
+            todoCollectJob = viewModelScope.launch {
+                getTodoByDateUseCase(transferLocalDateToMillis(date)).flowOn(Dispatchers.IO).collect { todoList ->
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            todoListState = currentState.todoListState.copy(
+                                todoList = todoList,
+                                isLoading = false,
+                                error = ""
                             )
-                        }
+                        )
                     }
                 }
 
-            } catch (e: Exception) {
-                _uiState.update { state ->
-                    state.copy(
-                        todoListState = state.todoListState.copy(
-                            isLoading = false,
-                            error = "${e.message}"
-                        )
+            }
+
+        } catch (e: Exception) {
+            _uiState.update { state ->
+                state.copy(
+                    todoListState = state.todoListState.copy(
+                        isLoading = false,
+                        error = "${e.message}"
                     )
-                }
+                )
             }
         }
     }
 
     fun onEvent(event: HomeUiEvent) {
-        when (event) {
-            is HomeUiEvent.onDateChanged -> {
-                _uiState.update { state ->
-                    state.copy(
-                        selectedDateState = state.selectedDateState.copy(
-                            date = event.date
+        viewModelScope.launch {
+            when (event) {
+                is HomeUiEvent.onDateChanged -> {
+                    _uiState.update { state ->
+                        state.copy(
+                            selectedDateState = state.selectedDateState.copy(
+                                date = event.date
+                            )
                         )
-                    )
+                    }
+                    fetchTodoList(event.date)
                 }
-                fetchTodoList(event.date)
-            }
-            is HomeUiEvent.onIsSwipedChanged -> {
-                _uiState.update { state ->
-                    state.copy(
-                        todoListState = state.todoListState.copy(
-                            todoList = state.todoListState.todoList.map { todo ->
-                                if (todo.instanceId == event.todo.instanceId) {
-                                    todo.copy(isSwiped = event.isSwiped) // isSwiped 값 변경
-                                } else {
-                                    todo
+
+                is HomeUiEvent.onIsSwipedChanged -> {
+                    _uiState.update { state ->
+                        state.copy(
+                            todoListState = state.todoListState.copy(
+                                todoList = state.todoListState.todoList.map { todo ->
+                                    if (todo.instanceId == event.todo.instanceId) {
+                                        todo.copy(isSwiped = event.isSwiped) // isSwiped 값 변경
+                                    } else {
+                                        todo
+                                    }
                                 }
-                            }
+                            )
                         )
-                    )
+                    }
                 }
-            }
-            is HomeUiEvent.onTodoProgressChanged -> {
-                viewModelScope.launch{
+
+                is HomeUiEvent.onTodoProgressChanged -> {
                     _uiState.update { state ->
                         state.copy(
                             todoListState = state.todoListState.copy(
@@ -120,36 +122,39 @@ class HomeViewModel(
                             )
                         )
                     }
-                    updateTodoProgressUseCase(event.todo.instanceId, event.progress)
+                    withContext(Dispatchers.IO) {
+                        updateTodoProgressUseCase(event.todo.instanceId, event.progress)
+                    }
                 }
-            }
 
-            is HomeUiEvent.onTodoDeleteClicked -> {
-                viewModelScope.launch{
+                is HomeUiEvent.onTodoDeleteClicked -> {
 
-                    deleteTodoByIdUseCase(event.todo.instanceId)
-
+                    withContext(Dispatchers.IO) {
+                        deleteTodoByIdUseCase(event.todo.instanceId)
+                    }
                     _effectChannel.send(HomeUiEffect.onDeleteTodoSuccess)
 
                     fetchTodoList(_uiState.value.selectedDateState.date)
-                }
-            }
 
-            is HomeUiEvent.onIsToggleOpenedChanged -> {
-                _uiState.update { state ->
-                    state.copy(
-                        todoListState = state.todoListState.copy(
-                            todoList = state.todoListState.todoList.map { todo ->
-                                if (todo.instanceId == event.todo.instanceId) {
-                                    todo.copy(isToggleOpened = event.isToggleOpened)
-                                } else {
-                                    todo
-                                }
-                            }
-                        )
-                    )
+
                 }
-                Log.d(TAG, "onEvent: ${uiState.value.todoListState.todoList}")
+
+                is HomeUiEvent.onIsToggleOpenedChanged -> {
+                    _uiState.update { state ->
+                        state.copy(
+                            todoListState = state.todoListState.copy(
+                                todoList = state.todoListState.todoList.map { todo ->
+                                    if (todo.instanceId == event.todo.instanceId) {
+                                        todo.copy(isToggleOpened = event.isToggleOpened)
+                                    } else {
+                                        todo
+                                    }
+                                }
+                            )
+                        )
+                    }
+                    Log.d(TAG, "onEvent: ${uiState.value.todoListState.todoList}")
+                }
             }
         }
     }
