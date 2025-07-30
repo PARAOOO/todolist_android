@@ -89,7 +89,7 @@ fun EditScreen(
 
     LaunchedEffect(Unit) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.effectFlow.collectLatest { effect ->
+            viewModel.effectFlow.collect { effect ->
                 when (effect) {
                     is EditUiEffect.onUpdateTodoSuccess -> {
                         Toast.makeText(
@@ -266,8 +266,6 @@ fun EditScreen(
                 )
             }
         }
-
-//        TLSnackbarHost(snackbarHostState)
     }
 }
 
