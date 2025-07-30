@@ -15,6 +15,7 @@ import com.paraooo.todolist.ui.features.create.CreateScreen
 import com.paraooo.todolist.ui.features.edit.EditScreen
 import com.paraooo.todolist.ui.features.home.HomeScreen
 import com.paraooo.todolist.ui.features.privacy_policy.PrivacyPolicyScreen
+import com.paraooo.todolist.ui.features.routine_create.RoutineCreateScreen
 import com.paraooo.todolist.ui.features.setting.SettingScreen
 import com.paraooo.todolist.ui.features.splash.SplashScreen
 import com.paraooo.todolist.ui.util.pxToDp
@@ -71,6 +72,12 @@ fun AppNavGraph(navController: NavHostController) {
             EditScreen(
                 navController = navController,
                 instanceId = instanceId,
+            )
+        }
+
+        composable(Destinations.RoutineCreate.route) {
+            RoutineCreateScreen(
+                navController = navController
             )
         }
 
