@@ -41,6 +41,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.paraooo.domain.model.RootRoutineModel
+import com.paraooo.domain.model.RoutineAlarmType
+import com.paraooo.domain.model.RoutineColorModel
+import com.paraooo.domain.model.RoutineIconModel
 import com.paraooo.todolist.R
 import com.paraooo.todolist.ui.components.DateSelectDialog
 import com.paraooo.todolist.ui.components.TodoInputForm
@@ -53,6 +57,7 @@ import com.paraooo.todolist.ui.components.TLTopbar
 import com.paraooo.todolist.ui.components.TimeInputState
 import com.paraooo.todolist.ui.components.TimePickerDialog
 import com.paraooo.todolist.ui.components.TodoInputFormType
+import com.paraooo.todolist.ui.features.routine_create.component.RootRoutineCard
 import com.paraooo.todolist.ui.util.circleClickable
 import com.paraooo.todolist.ui.util.roundedClickable
 import kotlinx.coroutines.flow.collectLatest
@@ -78,11 +83,23 @@ fun RoutineCreateScreen(
     ) {
         TLTopbar(
             title = "루틴 생성하기",
-            onBackClicked = {}
+            onBackClicked = { navController.popBackStack() }
         )
         
         Spacer(modifier = Modifier.height(28.dp))
 
+        RootRoutineCard(
+            RootRoutineModel(
+                id = 1,
+                name = "아침 운동",
+                startTime = 1696444800000L,
+                color = RoutineColorModel.RED,
+                icon = RoutineIconModel.ICON1,
+                subRoutines = listOf(),
+                dayOfWeek = listOf(1, 2, 3),
+                alarm = RoutineAlarmType.Off
+            )
+        )
 
     }
 }

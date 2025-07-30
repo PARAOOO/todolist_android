@@ -2,6 +2,7 @@ package com.paraooo.todolist.ui.features.home.component
 
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.VectorDrawable
 import android.util.Log
 import androidx.appcompat.content.res.AppCompatResources
@@ -23,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.clipPath
@@ -33,6 +35,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
+import com.paraooo.domain.model.RoutineColorModel
 import com.paraooo.todolist.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -54,13 +59,19 @@ fun CircularProgress(
     sweepAngle : Float,
     backgroundDrawableId : Int,
     foregroundDrawableId : Int,
-    progressSize : Dp
+    progressSize : Dp,
+    color : RoutineColorModel? = null
 ) {
 
     val context = LocalContext.current
-    val drawable = remember(context, foregroundDrawableId) {
-        AppCompatResources.getDrawable(context,foregroundDrawableId)
-    }
+//    val drawable = remember(context, foregroundDrawableId) {
+//        AppCompatResources.getDrawable(context,foregroundDrawableId)
+//    }
+
+    val drawableResource: Drawable = ContextCompat.getDrawable(context, foregroundDrawableId)!!
+    val drawable = DrawableCompat.wrap(drawableResource).mutate()
+    DrawableCompat.setTint(drawable, ContextCompat.getColor(context, Color(color.color)))
+
 
     val coroutineScope = rememberCoroutineScope()
     val bitmap = remember(drawable) {
