@@ -35,6 +35,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.paraooo.todolist.R
@@ -72,7 +76,8 @@ fun EditScreen(
 
     val context = LocalContext.current
 
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     var showTimePicker by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
@@ -80,16 +85,20 @@ fun EditScreen(
     var showPeriodPicker by remember { mutableStateOf(false) }
     var showDayOfWeekPicker by remember { mutableStateOf(false) }
 
-
-
     val selectedTodo by viewModel.selectedTodo
 
     LaunchedEffect(Unit) {
-        viewModel.effectFlow.collectLatest { effect ->
-            when (effect) {
-                is EditUiEffect.onUpdateTodoSuccess -> {
-                    Toast.makeText(context, "\"${effect.todoTitle}\" Todo 수정이 완료되었습니다.", Toast.LENGTH_SHORT).show()
-                    navController.popBackStack()
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.effectFlow.collectLatest { effect ->
+                when (effect) {
+                    is EditUiEffect.onUpdateTodoSuccess -> {
+                        Toast.makeText(
+                            context,
+                            "\"${effect.todoTitle}\" Todo 수정이 완료되었습니다.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        navController.popBackStack()
+                    }
                 }
             }
         }
