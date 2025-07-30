@@ -8,7 +8,9 @@ import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.usecase.todo.DeleteTodoByIdUseCase
 import com.paraooo.domain.usecase.todo.GetTodoByDateUseCase
 import com.paraooo.domain.usecase.todo.UpdateTodoProgressUseCase
+import com.paraooo.domain.util.getDateDiff
 import com.paraooo.domain.util.transferLocalDateToMillis
+import com.paraooo.domain.util.transferMillis2LocalDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -92,6 +94,24 @@ class HomeViewModel(
                     fetchTodoList(event.date)
                 }
 
+                is HomeUiEvent.onDateChangedWithDialog -> {
+
+                    val selectedDate = transferMillis2LocalDate(event.date)
+
+                    _uiState.update { state ->
+                        state.copy(
+                            selectedDateState = state.selectedDateState.copy(
+                                date = selectedDate
+                            )
+                        )
+                    }
+
+                    val selectedPage =
+                        Int.MAX_VALUE / 2 - 3 + getDateDiff(LocalDate.now(), selectedDate)
+
+                    _effectChannel.send(HomeUiEffect.onScrollToPage(selectedPage))
+                }
+
                 is HomeUiEvent.onIsSwipedChanged -> {
                     _uiState.update { state ->
                         state.copy(
@@ -155,6 +175,8 @@ class HomeViewModel(
                     }
                     Log.d(TAG, "onEvent: ${uiState.value.todoListState.todoList}")
                 }
+
+
             }
         }
     }

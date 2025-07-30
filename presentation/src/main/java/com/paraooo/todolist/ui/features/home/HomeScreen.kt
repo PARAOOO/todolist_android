@@ -77,12 +77,9 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
 
-
-    LaunchedEffect(uiState) {
-        Log.d(TAG, "HomeScreen: ${uiState}")
+    var selectedDateString = remember(uiState.selectedDateState.date) {
+        getDateWithDot(uiState.selectedDateState.date)
     }
-
-    var selectedDateString by remember { mutableStateOf(getDateWithDot(uiState.selectedDateState.date)) }
 
     var showDatePicker by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -94,14 +91,16 @@ fun HomeScreen(
 
     var currentPageDebounced by remember { mutableIntStateOf(Int.MAX_VALUE/2 - 3) }
 
-    val coroutineScope = rememberCoroutineScope()
-
     LaunchedEffect(viewModel.effectFlow, lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.effectFlow.collectLatest { effect ->
+            viewModel.effectFlow.collect { effect ->
                 when (effect) {
-                    HomeUiEffect.onDeleteTodoSuccess -> {
+                    is HomeUiEffect.onDeleteTodoSuccess -> {
                         Toast.makeText(context, "Todo가 정상적으로 삭제되었습니다.", Toast.LENGTH_LONG).show()
+                    }
+                    is HomeUiEffect.onScrollToPage -> {
+                        showDatePicker = false
+                        pagerState.animateScrollToPage(effect.page)
                     }
                 }
             }
@@ -171,15 +170,9 @@ fun HomeScreen(
                 showDialog = showDatePicker,
                 onDismiss = { showDatePicker = false },
                 onDateSelected = { date: Long? ->
-                    val selectedDate = transferMillis2LocalDate(date)
-                    viewModel.onEvent(HomeUiEvent.onDateChanged(selectedDate))
-                    selectedDateString = getDateWithDot(selectedDate)
-                    showDatePicker = false
-                    val selectedPage =
-                        Int.MAX_VALUE / 2 - 3 + getDateDiff(LocalDate.now(), selectedDate)
-                    coroutineScope.launch {
-                        pagerState.animateScrollToPage(selectedPage)
-                    }
+
+                    viewModel.onEvent(HomeUiEvent.onDateChangedWithDialog(date))
+
                 }
             )
 
@@ -189,7 +182,6 @@ fun HomeScreen(
                 parentPaddingHorizontal = 12.dp,
                 onDateChange = { date: LocalDate ->
                     viewModel.onEvent(HomeUiEvent.onDateChanged(date))
-                    selectedDateString = getDateWithDot(date)
                 },
                 pagerState = pagerState,
                 currentPageDebounced = currentPageDebounced,
