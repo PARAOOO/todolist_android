@@ -1,5 +1,6 @@
 package com.paraooo.todolist.ui.features.routine_create
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,9 +21,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.paraooo.domain.model.RootRoutineModel
@@ -32,10 +39,12 @@ import com.paraooo.domain.model.SubRoutineModel
 import com.paraooo.todolist.R
 import com.paraooo.todolist.ui.components.TLTopbar
 import com.paraooo.todolist.ui.features.create.CreateUiEvent
+import com.paraooo.todolist.ui.features.edit.EditUiEffect
 import com.paraooo.todolist.ui.features.routine_create.component.RootRoutineDialog
 import com.paraooo.todolist.ui.features.routine_create.component.RoutineList
 import com.paraooo.todolist.ui.features.routine_create.component.SubRoutineCard
 import com.paraooo.todolist.ui.util.roundedClickable
+import org.koin.androidx.compose.koinViewModel
 import java.time.Duration
 import java.time.LocalTime
 
@@ -44,8 +53,22 @@ const val TAG = "PARAOOO"
 
 @Composable
 fun RoutineCreateScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel : RoutineCreateViewModel = koinViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    val context = LocalContext.current
+
+//    LaunchedEffect(Unit) {
+//        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+//            viewModel.effectFlow.collect { effect ->
+//                when (effect) {
+//                }
+//            }
+//        }
+//    }
 
     var rootRoutineDialog by remember { mutableStateOf(false) }
 
@@ -127,8 +150,12 @@ fun RoutineCreateScreen(
     }
 
     RootRoutineDialog(
+        uiState = uiState,
         onDismiss = { rootRoutineDialog = false },
         showDialog = rootRoutineDialog,
+        onRoutineNameChanged = { routineName ->
+            viewModel.onEvent(RoutineCreateUiEvent.onRoutineNameChanged(routineName))
+        }
     )
 }
 

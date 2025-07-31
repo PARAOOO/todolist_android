@@ -42,6 +42,8 @@ import com.paraooo.todolist.ui.components.TLTextField
 import com.paraooo.todolist.ui.components.TLTextRadioButton
 import com.paraooo.todolist.ui.components.TimeInputState
 import com.paraooo.todolist.ui.components.TodoInputFormType
+import com.paraooo.todolist.ui.features.routine_create.RoutineCreateUiEvent
+import com.paraooo.todolist.ui.features.routine_create.RoutineCreateUiState
 import com.paraooo.todolist.ui.theme.PretendardFontFamily
 import com.paraooo.todolist.ui.util.computeTextHeight
 import com.paraooo.todolist.ui.util.dpToPx
@@ -50,8 +52,10 @@ import com.paraooo.todolist.ui.util.roundedClickable
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RootRoutineDialog(
+    uiState: RoutineCreateUiState,
     onDismiss: () -> Unit,
-    showDialog : Boolean
+    showDialog : Boolean,
+    onRoutineNameChanged: (String) -> Unit
 ) {
 
     val alarmList = listOf(
@@ -91,8 +95,8 @@ fun RootRoutineDialog(
                     Spacer(modifier = Modifier.height(30.dp))
 
                     TLTextField(
-                        text = "",
-                        onTextChange = {},
+                        text = uiState.rootRoutineInput.routineName,
+                        onTextChange = onRoutineNameChanged,
                         hintText = "루틴 이름을 입력해주세요",
                         label = "Routine Name"
                     )
