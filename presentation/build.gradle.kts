@@ -110,6 +110,7 @@ dependencies {
     implementation(libs.androidx.glance.appwidget)
     implementation(libs.gson)
 
+    implementation(libs.bottomsheetdialog.compose)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

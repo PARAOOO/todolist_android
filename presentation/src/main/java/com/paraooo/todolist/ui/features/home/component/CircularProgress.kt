@@ -1,6 +1,7 @@
 package com.paraooo.todolist.ui.features.home.component
 
 import android.graphics.Bitmap
+import android.graphics.PorterDuff
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.VectorDrawable
@@ -28,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -57,33 +59,50 @@ fun vectorToBitmap(vectorDrawable: VectorDrawable): Bitmap {
 @Composable
 fun CircularProgress(
     sweepAngle : Float,
-    backgroundDrawableId : Int,
-    foregroundDrawableId : Int,
+    drawableId : Int,
     progressSize : Dp,
-    color : RoutineColorModel? = null
+    foregroundColor : Long? = null,
+    backgroundColor : Long = 0xFFFFFFFF
 ) {
 
     val context = LocalContext.current
-//    val drawable = remember(context, foregroundDrawableId) {
-//        AppCompatResources.getDrawable(context,foregroundDrawableId)
-//    }
 
-    val drawableResource: Drawable = ContextCompat.getDrawable(context, foregroundDrawableId)!!
-    val drawable = DrawableCompat.wrap(drawableResource).mutate()
-    DrawableCompat.setTint(drawable, ContextCompat.getColor(context, Color(color.color)))
+    val foregroundDrawableResource: Drawable = ContextCompat.getDrawable(context, drawableId)!!
+    val foregroundDrawable = DrawableCompat.wrap(foregroundDrawableResource).mutate()
 
+    val backgroundDrawableResource: Drawable = ContextCompat.getDrawable(context, drawableId)!!
+    val backgroundDrawable = DrawableCompat.wrap(backgroundDrawableResource).mutate()
 
-    val coroutineScope = rememberCoroutineScope()
-    val bitmap = remember(drawable) {
-        when (drawable) {
-            is VectorDrawable -> vectorToBitmap(drawable)
-            is BitmapDrawable -> drawable.bitmap
+    DrawableCompat.setTint(backgroundDrawable, backgroundColor.toInt())
+    DrawableCompat.setTintMode(backgroundDrawable, PorterDuff.Mode.SRC_IN)
+
+    if(foregroundColor != null){
+        DrawableCompat.setTint(foregroundDrawable, foregroundColor.toInt())
+        DrawableCompat.setTintMode(foregroundDrawable, PorterDuff.Mode.SRC_IN)
+    }
+
+    val foregroundBitmap = remember(foregroundDrawable) {
+        when (foregroundDrawable) {
+            is VectorDrawable -> vectorToBitmap(foregroundDrawable)
+            is BitmapDrawable -> foregroundDrawable.bitmap
             else -> throw IllegalArgumentException("Unsupported drawable type")
         }
     }
 
-    val imageBitmap = remember(bitmap) {
-        bitmap.asImageBitmap()
+    val foregroundImageBitmap = remember(foregroundBitmap) {
+        foregroundBitmap.asImageBitmap()
+    }
+
+    val backgroundBitmap = remember(backgroundDrawable) {
+        when (backgroundDrawable) {
+            is VectorDrawable -> vectorToBitmap(backgroundDrawable)
+            is BitmapDrawable -> backgroundDrawable.bitmap
+            else -> throw IllegalArgumentException("Unsupported drawable type")
+        }
+    }
+
+    val backgroundImageBitmap = remember(backgroundBitmap) {
+        backgroundBitmap.asImageBitmap()
     }
 
     Box(
@@ -91,7 +110,7 @@ fun CircularProgress(
     ){
 
         Image(
-            painter = painterResource(backgroundDrawableId)
+            painter = BitmapPainter(backgroundImageBitmap)
             , contentDescription = "checkbox of todo card",
             modifier = Modifier.size(progressSize)
         )
@@ -122,8 +141,8 @@ fun CircularProgress(
             // Arc 모양으로 이미지 잘라서 그리기
             clipPath(arcPath) {
                 drawImage(
-                    image = imageBitmap,
-                    srcSize = IntSize(bitmap.width, bitmap.height),
+                    image = foregroundImageBitmap,
+                    srcSize = IntSize(foregroundBitmap.width, foregroundBitmap.height),
                     dstSize = IntSize(size.width.toInt(), size.height.toInt())
                 )
             }
