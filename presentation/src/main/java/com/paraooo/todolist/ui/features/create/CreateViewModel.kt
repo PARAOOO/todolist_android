@@ -36,20 +36,6 @@ class CreateViewModel(
     private val _effectChannel = Channel<CreateUiEffect>()
     val effectFlow = _effectChannel.receiveAsFlow()
 
-    private fun updateCreateButtonEnabled() {
-        val isAlarmValid = _uiState.value.todoInputState.alarmInputState.alarmType != AlarmType.OFF
-        val isTimeValid = _uiState.value.todoInputState.timeInputState != TimeInputState.NoTime
-        val isTodoNameEmpty = _uiState.value.todoInputState.todoNameInputState.content.isEmpty()
-
-        _uiState.update { state ->
-            state.copy(
-                createButtonState = state.createButtonState.copy(
-                    isEnabled = ((!isAlarmValid && !isTimeValid) || isTimeValid) && !isTodoNameEmpty
-                )
-            )
-        }
-    }
-
     fun onEvent(event : CreateUiEvent) {
         viewModelScope.launch {
             when (event) {
@@ -75,9 +61,7 @@ class CreateViewModel(
 
                     _uiState.update { state ->
                         state.copy(
-                            createButtonState = state.createButtonState.copy(
-                                isEnabled = false
-                            )
+                            isCreateButtonUpdating = true
                         )
                     }
 
@@ -114,9 +98,7 @@ class CreateViewModel(
                     _effectChannel.send(CreateUiEffect.onPostTodoSuccess(todoTitle = _uiState.value.todoInputState.todoNameInputState.content))
                     _uiState.update { state ->
                         state.copy(
-                            createButtonState = state.createButtonState.copy(
-                                isEnabled = true
-                            )
+                            isCreateButtonUpdating = false
                         )
                     }
                 }
@@ -151,7 +133,6 @@ class CreateViewModel(
                             )
                         )
                     }
-                    updateCreateButtonEnabled()
                 }
 
                 is CreateUiEvent.onTodoNameInputChanged -> {
@@ -165,8 +146,6 @@ class CreateViewModel(
                             )
                         )
                     }
-
-                    updateCreateButtonEnabled()
                 }
 
                 is CreateUiEvent.onSelectedDateChanged -> {
@@ -210,7 +189,6 @@ class CreateViewModel(
                             )
                         )
                     }
-                    updateCreateButtonEnabled()
                 }
 
                 is CreateUiEvent.onAlarmSettingInputChanged -> {

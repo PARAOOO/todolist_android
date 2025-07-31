@@ -165,13 +165,13 @@ fun EditScreen(
                 .height(53.dp)
                 .background(
                     shape = RoundedCornerShape(12.dp),
-                    color = when (uiState.editButtonState.isEnabled) {
+                    color = when (uiState.isEditButtonEnabled) {
                         true -> Color(0xFF529DFF)
                         false -> Color(0xFF7F7F7F)
                     }
                 )
                 .roundedClickable(12.dp) {
-                    if (uiState.editButtonState.isEnabled) {
+                    if (uiState.isEditButtonEnabled) {
                         viewModel.onEvent(EditUiEvent.onEditClicked(instanceId))
                     }
                 },

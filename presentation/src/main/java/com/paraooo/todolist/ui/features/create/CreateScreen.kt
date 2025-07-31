@@ -145,13 +145,13 @@ fun CreateScreen(
                 .height(53.dp)
                 .background(
                     shape = RoundedCornerShape(12.dp),
-                    color = when (uiState.createButtonState.isEnabled) {
+                    color = when (uiState.isCreateButtonEnabled) {
                         true -> Color(0xFF54C392)
                         false -> Color(0xFF7F7F7F)
                     }
                 )
                 .roundedClickable(12.dp) {
-                    if(uiState.createButtonState.isEnabled){
+                    if(uiState.isCreateButtonEnabled){
                         viewModel.onEvent(CreateUiEvent.onCreateClicked)
                     }
                 },

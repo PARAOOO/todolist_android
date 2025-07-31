@@ -43,20 +43,6 @@ class EditViewModel(
 
     var selectedTodo = mutableStateOf<TodoModel?>(null)
 
-    private fun updateCreateButtonEnabled() {
-        val isAlarmValid = _uiState.value.todoInputState.alarmInputState.alarmType != AlarmType.OFF
-        val isTimeValid = _uiState.value.todoInputState.timeInputState != TimeInputState.NoTime
-        val isTodoNameEmpty = _uiState.value.todoInputState.todoNameInputState.content.isEmpty()
-
-        _uiState.update { state ->
-            state.copy(
-                editButtonState = state.editButtonState.copy(
-                    isEnabled = ((!isAlarmValid && !isTimeValid) || isTimeValid) && !isTodoNameEmpty
-                )
-            )
-        }
-    }
-
     fun onEvent(event : EditUiEvent) {
         viewModelScope.launch{
             when (event) {
@@ -74,7 +60,6 @@ class EditViewModel(
                             )
                         )
                     }
-                    updateCreateButtonEnabled()
                 }
 
                 is EditUiEvent.onDateInputChanged -> {
@@ -111,7 +96,6 @@ class EditViewModel(
                             )
                         )
                     }
-                    updateCreateButtonEnabled()
                 }
 
                 is EditUiEvent.onPeriodInputChanged -> {
@@ -145,7 +129,6 @@ class EditViewModel(
                             )
                         )
                     }
-                    updateCreateButtonEnabled()
                 }
 
                 is EditUiEvent.onAlarmSettingInputChanged -> {
@@ -240,9 +223,7 @@ class EditViewModel(
 
         _uiState.update { state ->
             state.copy(
-                editButtonState = state.editButtonState.copy(
-                    isEnabled = false
-                )
+                isUpdateButtonUpdating = true
             )
         }
 
@@ -277,9 +258,7 @@ class EditViewModel(
 
         _uiState.update { state ->
             state.copy(
-                editButtonState = state.editButtonState.copy(
-                    isEnabled = true
-                )
+                isUpdateButtonUpdating = false
             )
         }
 
