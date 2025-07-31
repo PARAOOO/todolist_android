@@ -240,9 +240,10 @@ fun SwipeableCard(
                         ) {
                             CircularProgress(
                                 sweepAngle = sweepAngle,
-                                backgroundDrawableId = R.drawable.ic_logo_unchecked,
-                                foregroundDrawableId = R.drawable.ic_logo_checked,
-                                progressSize = 44.dp
+                                drawableId = R.drawable.ic_logo_unchecked,
+                                progressSize = 44.dp,
+                                foregroundColor = 0xFF54C392,
+                                backgroundColor = 0xFFA6A6A6
                             )
                         }
 

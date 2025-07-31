@@ -36,8 +36,30 @@ import com.paraooo.todolist.R
 import com.paraooo.todolist.ui.features.home.component.CircularProgress
 import com.paraooo.todolist.ui.theme.PretendardFontFamily
 import com.paraooo.todolist.ui.util.computeTextLineCount
+import com.paraooo.todolist.ui.util.getRoutineIconDrawbleId
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.time.Duration
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+
+fun getFormattedStartAndEndTime(rootRoutine: RootRoutineModel): String {
+    val startTime: LocalTime = rootRoutine.startTime
+
+    val totalDuration: Duration = rootRoutine.subRoutines
+        .map { it.time }
+        .reduceOrNull { acc, duration -> acc.plus(duration) }
+        ?: Duration.ZERO
+
+    val endTime: LocalTime = startTime.plus(totalDuration)
+
+    val formatter = DateTimeFormatter.ofPattern("HH:mm")
+
+    val startTimeString = startTime.format(formatter)
+    val endTimeString = endTime.format(formatter)
+
+    return "$startTimeString ~ $endTimeString"
+}
 
 @Composable
 fun RootRoutineCard(
@@ -53,15 +75,20 @@ fun RootRoutineCard(
         color = Color(0xFFA6A6A6),
     )
 
+    val subRoutineDisplayTest =
+        routine.subRoutines.joinToString(", ") {
+            it.name
+        }
+
+
     var isToggleOpened by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
-            .fillMaxHeight()
             .fillMaxWidth()
     ) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
             Row(
@@ -87,10 +114,11 @@ fun RootRoutineCard(
                         modifier = Modifier.padding(end = 18.dp)
                     ) {
                         CircularProgress(
-                            sweepAngle = 360F,
-                            backgroundDrawableId = R.drawable.ic_logo_unchecked,
-                            foregroundDrawableId = R.drawable.ic_logo_checked,
-                            progressSize = 44.dp
+                            sweepAngle = 270F,
+                            drawableId = getRoutineIconDrawbleId(routine.icon),
+                            progressSize = 44.dp,
+                            foregroundColor = routine.color.color,
+                            backgroundColor = 0xFFA6A6A6
                         )
                     }
 
@@ -99,7 +127,7 @@ fun RootRoutineCard(
                             .fillMaxWidth()
                     ) {
                         Text(
-                            text = routine.name,
+                            text = "${getFormattedStartAndEndTime(routine)} / ${routine.name}",
                             fontFamily = PretendardFontFamily,
                             fontWeight = FontWeight.Medium,
                             fontSize = 16.sp,
@@ -123,7 +151,7 @@ fun RootRoutineCard(
                         )
 
                         Text(
-                            text = "설명설명설명",
+                            text = "하위 루틴 ${routine.subRoutines.size}개\n${subRoutineDisplayTest}",
                             fontFamily = PretendardFontFamily,
                             fontWeight = FontWeight.Normal,
                             fontSize = 10.sp,

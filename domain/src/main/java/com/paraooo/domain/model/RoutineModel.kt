@@ -1,9 +1,12 @@
 package com.paraooo.domain.model
 
-sealed class RoutineAlarmType {
-    data object Off : RoutineAlarmType()
-    data object Vibration : RoutineAlarmType()
-    data object Sound : RoutineAlarmType()
+import java.time.Duration
+import java.time.LocalTime
+
+enum class RoutineAlarmType(val label : String) {
+    OFF("Off"),
+    VIBRATION("Vibration"),
+    SOUND("Sound")
 }
 
 enum class RoutineColorModel(val color : Long) {
@@ -13,14 +16,15 @@ enum class RoutineColorModel(val color : Long) {
 }
 
 enum class RoutineIconModel(val icon : String) {
-    ICON1("icon1"),
-    ICON2 ("icon2"),
+    ICON1("1"),
+    ICON2 ("2"),
+    ICON3 ("3")
 }
 
 data class RootRoutineModel(
     val id : Int,
     val name : String,
-    val startTime : Long,
+    val startTime : LocalTime,
     val dayOfWeek : List<Int>,
     val alarm : RoutineAlarmType,
     val color : RoutineColorModel,
@@ -31,7 +35,8 @@ data class RootRoutineModel(
 data class SubRoutineModel(
     val id : Int,
     val name : String,
-    val time : Long,
+    val time : Duration,
     val icon : RoutineIconModel,
     val alarm : RoutineAlarmType
 )
+
