@@ -34,17 +34,20 @@ import androidx.navigation.compose.rememberNavController
 import com.paraooo.domain.model.RootRoutineModel
 import com.paraooo.domain.model.RoutineAlarmType
 import com.paraooo.domain.model.RoutineColorModel
-import com.paraooo.domain.model.RoutineIconModel
 import com.paraooo.domain.model.SubRoutineModel
 import com.paraooo.todolist.R
+import com.paraooo.todolist.ui.components.DayOfWeekSelectDialog
 import com.paraooo.todolist.ui.components.TLTopbar
+import com.paraooo.todolist.ui.components.TimePickerDialog
 import com.paraooo.todolist.ui.features.create.CreateUiEvent
 import com.paraooo.todolist.ui.features.edit.EditUiEffect
+import com.paraooo.todolist.ui.features.edit.EditUiEvent
 import com.paraooo.todolist.ui.features.routine_create.component.RootRoutineDialog
 import com.paraooo.todolist.ui.features.routine_create.component.RoutineList
 import com.paraooo.todolist.ui.features.routine_create.component.SubRoutineCard
 import com.paraooo.todolist.ui.util.roundedClickable
 import org.koin.androidx.compose.koinViewModel
+import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalTime
 
@@ -70,38 +73,40 @@ fun RoutineCreateScreen(
 //        }
 //    }
 
-    var rootRoutineDialog by remember { mutableStateOf(false) }
+    var showRootRoutineDialog by remember { mutableStateOf(false) }
+    var showDayOfWeekPicker by remember { mutableStateOf(false) }
+    var showTimePicker by remember { mutableStateOf(false) }
 
     val routineList = RootRoutineModel(
         id = 1,
         name = "아침 운동",
         startTime = LocalTime.of(13,20),
-        color = RoutineColorModel.BLUE,
-        icon = RoutineIconModel.ICON1,
+        color = RoutineColorModel.COLOR_9977B4,
+        icon = 1,
         subRoutines = listOf(
             SubRoutineModel(
                 id = 1,
                 name = "스쿼트",
-                icon = RoutineIconModel.ICON1,
+                icon = 1,
                 time = Duration.ofMinutes(10),
                 alarm = RoutineAlarmType.OFF
             ),
             SubRoutineModel(
                 id = 2,
                 name = "런지",
-                icon = RoutineIconModel.ICON2,
+                icon = 2,
                 time = Duration.ofMinutes(20),
                 alarm = RoutineAlarmType.OFF
             ),
             SubRoutineModel(
                 id = 3,
                 name = "팔굽혀펴기",
-                icon = RoutineIconModel.ICON3,
+                icon = 3,
                 time = Duration.ofMinutes(5),
                 alarm = RoutineAlarmType.OFF
             ),
         ),
-        dayOfWeek = listOf(1, 2, 3),
+        dayOfWeek = listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY),
         alarm = RoutineAlarmType.OFF
     )
 
@@ -121,7 +126,7 @@ fun RoutineCreateScreen(
         Spacer(modifier = Modifier.height(28.dp))
 
         RoutineList(
-            routine = routineList
+            routine = uiState.routine
         )
 
         Box(
@@ -131,12 +136,12 @@ fun RoutineCreateScreen(
                 .background(
                     shape = RoundedCornerShape(12.dp),
                     color = when (true) {
-                        true -> Color(0xFF54C392)
+                        true -> if(uiState.routine == null) Color(0xFF54C392) else Color(uiState.routine!!.color.color)
                         false -> Color(0xFF7F7F7F)
                     }
                 )
                 .roundedClickable(12.dp) {
-                    rootRoutineDialog = true
+                    showRootRoutineDialog = true
                 },
             contentAlignment = Alignment.Center
         ) {
@@ -151,11 +156,49 @@ fun RoutineCreateScreen(
 
     RootRoutineDialog(
         uiState = uiState,
-        onDismiss = { rootRoutineDialog = false },
-        showDialog = rootRoutineDialog,
+        onDismiss = { showRootRoutineDialog = false },
+        showDialog = showRootRoutineDialog,
         onRoutineNameChanged = { routineName ->
-            viewModel.onEvent(RoutineCreateUiEvent.onRoutineNameChanged(routineName))
+            viewModel.onEvent(RoutineCreateUiEvent.onRootNameChanged(routineName))
+        },
+        onDayOfWeekClicked = { showDayOfWeekPicker = true },
+        onTimeClicked = { showTimePicker = true },
+        onAlarmChanged = { alarm ->
+            viewModel.onEvent(RoutineCreateUiEvent.onRootAlarmChanged(alarm))
+        },
+        onColorChanged = { color ->
+            viewModel.onEvent(RoutineCreateUiEvent.onRootColorChanged(color))
+        },
+        onIconChanged = { icon ->
+            viewModel.onEvent(RoutineCreateUiEvent.onRootIconChanged(icon))
+        },
+        onCreateClicked = {
+            viewModel.onEvent(RoutineCreateUiEvent.onRootCreateClicked)
+            showRootRoutineDialog = false
         }
+    )
+
+    DayOfWeekSelectDialog(
+        showDialog = showDayOfWeekPicker,
+        onDismiss = { showDayOfWeekPicker = false },
+        onDaysOfWeekSelected = { daysOfWeek : List<DayOfWeek> ->
+            showDayOfWeekPicker = false
+            viewModel.onEvent(RoutineCreateUiEvent.onRootDayOfWeekChanged(daysOfWeek))
+        },
+        color = uiState.rootRoutineInput.color.color
+    )
+
+    TimePickerDialog(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp),
+        showDialog = showTimePicker,
+        onDismiss = { showTimePicker = false },
+        onConfirm = { result : LocalTime? ->
+            showTimePicker = false
+            viewModel.onEvent(RoutineCreateUiEvent.onRootTimeChanged(result))
+        },
+        color = uiState.rootRoutineInput.color.color
     )
 }
 

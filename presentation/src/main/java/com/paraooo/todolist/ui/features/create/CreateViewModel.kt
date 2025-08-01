@@ -3,7 +3,6 @@ package com.paraooo.todolist.ui.features.create
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.paraooo.domain.model.AlarmType
-import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.usecase.dayofweek.PostDayOfWeekUseCase
 import com.paraooo.domain.usecase.period.PostPeriodTodoUseCase
@@ -11,7 +10,6 @@ import com.paraooo.domain.usecase.todo.PostTodoUseCase
 import com.paraooo.todolist.ui.components.AlarmInputState
 import com.paraooo.todolist.ui.components.AlarmSettingInputState
 import com.paraooo.todolist.ui.components.DateInputState
-import com.paraooo.todolist.ui.components.TimeInputState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,13 +45,7 @@ class CreateViewModel(
                         title = _uiState.value.todoInputState.todoNameInputState.content,
                         description = _uiState.value.todoInputState.descriptionInputState.content,
                         date = LocalDate.now(),
-                        time = when (_uiState.value.todoInputState.timeInputState) {
-                            is TimeInputState.NoTime -> null
-                            is TimeInputState.Time -> Time(
-                                (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).hour,
-                                (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
-                            )
-                        },
+                        time = _uiState.value.todoInputState.timeInputState,
                         alarmType = _uiState.value.todoInputState.alarmInputState.alarmType,
                         isAlarmHasVibration = if (_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.vibration else false,
                         isAlarmHasSound = if (_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.sound else false

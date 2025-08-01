@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.paraooo.domain.model.RoutineColorModel
 import com.paraooo.todolist.ui.theme.PretendardFontFamily
 import com.paraooo.todolist.ui.util.roundedClickable
 import kotlinx.coroutines.launch
@@ -31,8 +34,10 @@ fun TimePickerDialog(
     modifier: Modifier,
     showDialog: Boolean,
     onDismiss: () -> Unit,
-    onConfirm: ( result : TimeInputState ) -> Unit
+    onConfirm: ( result : LocalTime? ) -> Unit,
+    color : Long = 0xFF54C392
 ) {
+
     if(showDialog) {
         Dialog(
             onDismissRequest = onDismiss,
@@ -71,7 +76,7 @@ fun TimePickerDialog(
                             color = Color(0xFF7F7F7F),
                             shape = RoundedCornerShape(12.dp)
                         ).roundedClickable(12.dp) {
-                            onConfirm(TimeInputState.NoTime)
+                            onConfirm(null)
                         },
                     contentAlignment = Alignment.Center
                 ) {
@@ -92,11 +97,11 @@ fun TimePickerDialog(
                         .height(53.dp)
                         .background(
                             shape = RoundedCornerShape(12.dp),
-                            color = Color(0xFF54C392)
+                            color = Color(color)
                         ).roundedClickable(12.dp) {
-                            onConfirm(TimeInputState.Time(
-                                hour = selectedHourState.value,
-                                minute = selectedMinuteState.value
+                            onConfirm(LocalTime.of(
+                                selectedHourState.value,
+                                selectedMinuteState.value
                             ))
                         },
                     contentAlignment = Alignment.Center

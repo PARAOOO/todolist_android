@@ -25,7 +25,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.clipPath
@@ -70,12 +72,6 @@ fun CircularProgress(
     val foregroundDrawableResource: Drawable = ContextCompat.getDrawable(context, drawableId)!!
     val foregroundDrawable = DrawableCompat.wrap(foregroundDrawableResource).mutate()
 
-    val backgroundDrawableResource: Drawable = ContextCompat.getDrawable(context, drawableId)!!
-    val backgroundDrawable = DrawableCompat.wrap(backgroundDrawableResource).mutate()
-
-    DrawableCompat.setTint(backgroundDrawable, backgroundColor.toInt())
-    DrawableCompat.setTintMode(backgroundDrawable, PorterDuff.Mode.SRC_IN)
-
     if(foregroundColor != null){
         DrawableCompat.setTint(foregroundDrawable, foregroundColor.toInt())
         DrawableCompat.setTintMode(foregroundDrawable, PorterDuff.Mode.SRC_IN)
@@ -93,26 +89,18 @@ fun CircularProgress(
         foregroundBitmap.asImageBitmap()
     }
 
-    val backgroundBitmap = remember(backgroundDrawable) {
-        when (backgroundDrawable) {
-            is VectorDrawable -> vectorToBitmap(backgroundDrawable)
-            is BitmapDrawable -> backgroundDrawable.bitmap
-            else -> throw IllegalArgumentException("Unsupported drawable type")
-        }
-    }
-
-    val backgroundImageBitmap = remember(backgroundBitmap) {
-        backgroundBitmap.asImageBitmap()
-    }
-
     Box(
         modifier = Modifier.size(progressSize)
     ){
 
         Image(
-            painter = BitmapPainter(backgroundImageBitmap)
+            painter = painterResource(drawableId)
             , contentDescription = "checkbox of todo card",
-            modifier = Modifier.size(progressSize)
+            modifier = Modifier.size(progressSize),
+            colorFilter = ColorFilter.tint(
+                color = Color(backgroundColor),
+                blendMode = BlendMode.SrcIn
+            )
         )
 
         Canvas(

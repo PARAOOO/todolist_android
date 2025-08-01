@@ -25,10 +25,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -41,7 +44,7 @@ import com.paraooo.todolist.ui.features.home.component.CircularProgress
 import com.paraooo.todolist.ui.features.home.component.vectorToBitmap
 import com.paraooo.todolist.ui.theme.PretendardFontFamily
 import com.paraooo.todolist.ui.util.computeTextLineCount
-import com.paraooo.todolist.ui.util.getRoutineIconDrawbleId
+import com.paraooo.todolist.ui.util.getRoutineIconDrawableId
 import java.time.Duration
 import kotlin.math.abs
 
@@ -78,30 +81,6 @@ fun SubRoutineCard(
     color : RoutineColorModel
 ) {
 
-    val context = LocalContext.current
-
-    val iconDrawableResource: Drawable = ContextCompat.getDrawable(context, getRoutineIconDrawbleId(routine.icon))!!
-    val iconDrawable = DrawableCompat.wrap(iconDrawableResource).mutate()
-
-    DrawableCompat.setTint(iconDrawable, color.color.toInt())
-    DrawableCompat.setTintMode(iconDrawable, PorterDuff.Mode.SRC_IN)
-
-    DrawableCompat.setTint(iconDrawable, color.color.toInt())
-    DrawableCompat.setTintMode(iconDrawable, PorterDuff.Mode.SRC_IN)
-
-
-    val iconBitmap = remember(iconDrawable) {
-        when (iconDrawable) {
-            is VectorDrawable -> vectorToBitmap(iconDrawable)
-            is BitmapDrawable -> iconDrawable.bitmap
-            else -> throw IllegalArgumentException("Unsupported drawable type")
-        }
-    }
-
-    val iconImageBitmap = remember(iconBitmap) {
-        iconBitmap.asImageBitmap()
-    }
-
     Box(
         modifier = Modifier
             .fillMaxHeight()
@@ -131,8 +110,12 @@ fun SubRoutineCard(
                     modifier = Modifier.padding(end = 8.dp, start = 14.dp)
                 ) {
                     Image(
-                        painter = BitmapPainter(iconImageBitmap),
+                        painter = painterResource(getRoutineIconDrawableId(routine.icon)),
                         contentDescription = null,
+                        colorFilter = ColorFilter.tint(
+                            color = Color(color.color),
+                            BlendMode.SrcIn
+                        ),
                         modifier = Modifier.size(20.dp)
                     )
                 }

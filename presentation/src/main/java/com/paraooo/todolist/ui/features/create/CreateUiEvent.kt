@@ -1,15 +1,15 @@
 package com.paraooo.todolist.ui.features.create
 
 import com.paraooo.domain.model.AlarmType
-import com.paraooo.todolist.ui.components.TimeInputState
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalTime
 
 sealed class CreateUiEvent {
 
     data class onTodoNameInputChanged(val text : String) : CreateUiEvent()
     data class onDescriptionInputChanged(val text : String) : CreateUiEvent()
-    data class onTimeInputChanged(val timeInputState: TimeInputState) : CreateUiEvent()
+    data class onTimeInputChanged(val timeInputState: LocalTime?) : CreateUiEvent()
     data class onDateInputChanged(val date : LocalDate) : CreateUiEvent()
     data class onSelectedDateChanged(val date : LocalDate) : CreateUiEvent()
     data class onPeriodInputChanged(val startDate : LocalDate, val endDate : LocalDate) : CreateUiEvent()

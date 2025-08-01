@@ -5,7 +5,6 @@ import com.paraooo.local.datasource.TodoDayOfWeekLocalDataSource
 import com.paraooo.local.datasource.TodoPeriodLocalDataSource
 import com.paraooo.local.datasource.TodoTemplateLocalDataSource
 import com.paraooo.data.platform.alarm.AlarmSchedulerImpl
-import com.paraooo.domain.model.Time
 import com.paraooo.domain.util.todoToMillis
 import com.paraooo.domain.util.transferLocalDateToMillis
 import com.paraooo.domain.util.transferMillis2LocalDate
@@ -41,13 +40,13 @@ class AlarmRestoreHandler(
 
             val alarmMillis = todoToMillis(
                 date = transferMillis2LocalDate(alarmTodo.date),
-                time = Time(alarmTodo.hour!!, alarmTodo.minute!!)
+                time = LocalTime.of(alarmTodo.hour!!, alarmTodo.minute!!)
             )
 
             if(alarmMillis > todayDateTimeMillis){
                 alarmScheduler.schedule(
                     date = transferMillis2LocalDate(alarmTodo.date),
-                    time = Time(alarmTodo.hour!!, alarmTodo.minute!!),
+                    time = LocalTime.of(alarmTodo.hour!!, alarmTodo.minute!!),
                     templateId = alarmTodo.templateId
                 )
             }
@@ -73,7 +72,7 @@ class AlarmRestoreHandler(
             if(startDateTime >= todayDateTime){
                 alarmScheduler.schedule(
                     date = startDate,
-                    time = Time(alarmPeriodTodo.hour!!, alarmPeriodTodo.minute!!),
+                    time = LocalTime.of(alarmPeriodTodo.hour!!, alarmPeriodTodo.minute!!),
                     templateId = alarmPeriodTodo.templateId,
                 )
             } else if(todayDateTime in startDateTime..endDateTime) {
@@ -84,7 +83,7 @@ class AlarmRestoreHandler(
 
                 alarmScheduler.schedule(
                     date = alarmDate,
-                    time = Time(alarmPeriodTodo.hour!!, alarmPeriodTodo.minute!!),
+                    time = LocalTime.of(alarmPeriodTodo.hour!!, alarmPeriodTodo.minute!!),
                     templateId = alarmPeriodTodo.templateId,
                 )
             }
@@ -109,7 +108,7 @@ class AlarmRestoreHandler(
 
             alarmScheduler.schedule(
                 date = alarmDate,
-                time = Time(alarmDayOfWeekTodo.hour!!, alarmDayOfWeekTodo.minute!!),
+                time = LocalTime.of(alarmDayOfWeekTodo.hour!!, alarmDayOfWeekTodo.minute!!),
                 templateId = alarmDayOfWeekTodo.templateId
             )
         }

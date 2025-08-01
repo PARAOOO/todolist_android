@@ -1,9 +1,9 @@
 package com.paraooo.domain.util
 
-import com.paraooo.domain.model.Time
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -46,7 +46,7 @@ fun getDateDiff(date1 : LocalDate, date2 : LocalDate) : Int {
     return ChronoUnit.DAYS.between(date1, date2).toInt()
 }
 
-fun todoToMillis(date : LocalDate, time : Time) : Long {
+fun todoToMillis(date : LocalDate, time : LocalTime) : Long {
     val millis = LocalDateTime.of(
         date.year,
         date.month,

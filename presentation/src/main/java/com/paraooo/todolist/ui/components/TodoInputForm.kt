@@ -53,6 +53,7 @@ import com.paraooo.todolist.ui.util.dpToPx
 import com.paraooo.todolist.ui.util.getDateWithDot
 import com.paraooo.todolist.ui.util.roundedClickable
 import java.time.LocalDate
+import java.time.LocalTime
 
 
 data class TodoNameInputState (
@@ -63,10 +64,10 @@ data class DescriptionInputState (
     val content : String = ""
 )
 
-sealed class TimeInputState {
-    data class Time(val hour : Int, val minute : Int) : TimeInputState()
-    data object NoTime : TimeInputState()
-}
+//sealed class TimeInputState {
+//    data class Time(val hour : Int, val minute : Int) : TimeInputState()
+//    data object NoTime : TimeInputState()
+//}
 
 sealed class DateInputState {
     data class Date(val date : LocalDate) : DateInputState()
@@ -86,7 +87,7 @@ data class AlarmSettingInputState (
 data class TodoInputState(
     val todoNameInputState : TodoNameInputState = TodoNameInputState(),
     val descriptionInputState : DescriptionInputState = DescriptionInputState(),
-    val timeInputState: TimeInputState = TimeInputState.NoTime,
+    val timeInputState: LocalTime? = null,
     val dateInputState : DateInputState = DateInputState.Date(LocalDate.now()),
     val alarmInputState : AlarmInputState = AlarmInputState(),
     val alarmSettingInputState : AlarmSettingInputState = AlarmSettingInputState()
@@ -212,13 +213,13 @@ fun TodoInputForm(
                 TLTextButton(
                     modifier = Modifier.weight(1F),
                     labelText = "Time",
-                    isActive = uiState.timeInputState is TimeInputState.Time,
+                    isActive = (uiState.timeInputState == null),
                     clickable = {
                         onTimeInputClicked()
                     },
                     text = when (uiState.timeInputState) {
-                        is TimeInputState.NoTime -> "시간 설정하지 않음"
-                        is TimeInputState.Time -> "${uiState.timeInputState.hour}시 ${uiState.timeInputState.minute}분"
+                        null -> "시간 설정하지 않음"
+                        else -> "${uiState.timeInputState.hour}시 ${uiState.timeInputState.minute}분"
                     }
                 )
 

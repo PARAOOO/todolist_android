@@ -1,7 +1,6 @@
 package com.paraooo.data.mapper
 
 import com.paraooo.domain.model.AlarmType
-import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoDayOfWeekModel
 import com.paraooo.domain.model.TodoDayOfWeekWithTimeModel
 import com.paraooo.domain.model.TodoInstanceModel
@@ -20,6 +19,7 @@ import com.paraooo.local.entity.TodoPeriod
 import com.paraooo.local.entity.TodoPeriodWithTime
 import com.paraooo.local.entity.TodoTemplate
 import com.paraooo.local.entity.TodoTypeEntity
+import java.time.LocalTime
 
 internal fun AlarmTypeEntity.toModel() : AlarmType {
     return when(this) {
@@ -47,7 +47,7 @@ internal fun TodoEntity.toModel() = TodoModel(
     progressAngle = progressAngle,
     time = when(hour) {
         null -> null
-        else -> Time(hour!!, minute!!)
+        else -> LocalTime.of(hour!!, minute!!)
     },
     alarmType = alarmType.toModel(),
     startDate = startDate?.let { transferMillis2LocalDate(it) },

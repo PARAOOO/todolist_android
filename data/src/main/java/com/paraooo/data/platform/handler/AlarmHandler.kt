@@ -10,12 +10,12 @@ import com.paraooo.local.datasource.TodoTemplateLocalDataSource
 import com.paraooo.data.platform.alarm.AlarmSchedulerImpl
 import com.paraooo.data.platform.alarm.IntentProvider
 import com.paraooo.data.platform.alarm.NotificationHelper
-import com.paraooo.domain.model.Time
 import com.paraooo.domain.util.transferLocalDateToMillis
 import com.paraooo.domain.util.transferMillis2LocalDate
 import com.paraooo.local.entity.AlarmTypeEntity
 import com.paraooo.local.entity.TodoTypeEntity
 import java.time.LocalDate
+import java.time.LocalTime
 
 class AlarmHandler(
     private val alarmScheduler: AlarmSchedulerImpl,
@@ -50,7 +50,7 @@ class AlarmHandler(
                     val tomorrowLocalDate = todayLocalDate.plusDays(1)
                     alarmScheduler.schedule(
                         date = tomorrowLocalDate,
-                        time = Time(todoTemplate.hour!!, todoTemplate.minute!!),
+                        time = LocalTime.of(todoTemplate.hour!!, todoTemplate.minute!!),
                         templateId = templateId
                     )
                 }
@@ -64,7 +64,7 @@ class AlarmHandler(
 
                 alarmScheduler.schedule(
                     date = nextAlarmDate,
-                    time = Time(todoTemplate.hour!!, todoTemplate.minute!!),
+                    time = LocalTime.of(todoTemplate.hour!!, todoTemplate.minute!!),
                     templateId = templateId
                 )
             }

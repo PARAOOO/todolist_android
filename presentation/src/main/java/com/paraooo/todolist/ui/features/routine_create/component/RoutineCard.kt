@@ -18,25 +18,29 @@ import com.paraooo.domain.model.RootRoutineModel
 @Composable
 fun RoutineList(
     modifier : Modifier = Modifier,
-    routine : RootRoutineModel
+    routine : RootRoutineModel?
 ) {
     Column(
-        modifier = modifier.fillMaxWidth().padding(bottom = 5.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(bottom = 5.dp),
     ) {
-        RootRoutineCard(
-            routine = routine
-        )
+        if(routine != null){
+            RootRoutineCard(
+                routine = routine
+            )
 
-        Spacer(modifier = Modifier.height(5.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(5.dp)
-        ) {
-            items(routine.subRoutines) { subRoutine ->
-                SubRoutineCard(
-                    routine = subRoutine,
-                    color = routine.color
-                )
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(5.dp)
+            ) {
+                items(routine.subRoutines) { subRoutine ->
+                    SubRoutineCard(
+                        routine = subRoutine,
+                        color = routine.color
+                    )
+                }
             }
         }
     }

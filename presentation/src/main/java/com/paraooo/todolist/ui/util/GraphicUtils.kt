@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.ceil
@@ -44,6 +45,13 @@ fun pxToDp(px: Int): Dp {
 fun dpToPx(dpValue: Dp): Int {
     val density = LocalDensity.current.density
     return with(LocalDensity.current) { dpValue.toPx().toInt() }
+}
+
+@Composable
+fun TextUnit.toDp(): Dp {
+    return with(LocalDensity.current) {
+        this@toDp.toDp()
+    }
 }
 
 @Composable

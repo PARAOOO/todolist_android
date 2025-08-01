@@ -36,7 +36,7 @@ import com.paraooo.todolist.R
 import com.paraooo.todolist.ui.features.home.component.CircularProgress
 import com.paraooo.todolist.ui.theme.PretendardFontFamily
 import com.paraooo.todolist.ui.util.computeTextLineCount
-import com.paraooo.todolist.ui.util.getRoutineIconDrawbleId
+import com.paraooo.todolist.ui.util.getRoutineIconDrawableId
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.Duration
@@ -44,7 +44,10 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 fun getFormattedStartAndEndTime(rootRoutine: RootRoutineModel): String {
-    val startTime: LocalTime = rootRoutine.startTime
+
+    if(rootRoutine.startTime == null) return ""
+
+    val startTime: LocalTime = rootRoutine.startTime!!
 
     val totalDuration: Duration = rootRoutine.subRoutines
         .map { it.time }
@@ -115,7 +118,7 @@ fun RootRoutineCard(
                     ) {
                         CircularProgress(
                             sweepAngle = 270F,
-                            drawableId = getRoutineIconDrawbleId(routine.icon),
+                            drawableId = getRoutineIconDrawableId(routine.icon),
                             progressSize = 44.dp,
                             foregroundColor = routine.color.color,
                             backgroundColor = 0xFFA6A6A6
