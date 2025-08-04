@@ -45,6 +45,7 @@ import com.paraooo.todolist.ui.features.edit.EditUiEvent
 import com.paraooo.todolist.ui.features.routine_create.component.RootRoutineDialog
 import com.paraooo.todolist.ui.features.routine_create.component.RoutineList
 import com.paraooo.todolist.ui.features.routine_create.component.SubRoutineCard
+import com.paraooo.todolist.ui.features.routine_create.component.SubRoutineDialog
 import com.paraooo.todolist.ui.util.roundedClickable
 import org.koin.androidx.compose.koinViewModel
 import java.time.DayOfWeek
@@ -74,6 +75,7 @@ fun RoutineCreateScreen(
 //    }
 
     var showRootRoutineDialog by remember { mutableStateOf(false) }
+    var showSubRoutineDialog by remember { mutableStateOf(false) }
     var showDayOfWeekPicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
 
@@ -136,12 +138,18 @@ fun RoutineCreateScreen(
                 .background(
                     shape = RoundedCornerShape(12.dp),
                     color = when (true) {
-                        true -> if(uiState.routine == null) Color(0xFF54C392) else Color(uiState.routine!!.color.color)
+                        true -> if (uiState.routine == null) Color(0xFF54C392) else Color(uiState.routine!!.color.color)
                         false -> Color(0xFF7F7F7F)
                     }
                 )
                 .roundedClickable(12.dp) {
-                    showRootRoutineDialog = true
+                    if(uiState.routine == null){
+                        showRootRoutineDialog = true
+                    } else {
+                        showSubRoutineDialog = true
+                    }
+
+
                 },
             contentAlignment = Alignment.Center
         ) {
@@ -175,6 +183,28 @@ fun RoutineCreateScreen(
         onCreateClicked = {
             viewModel.onEvent(RoutineCreateUiEvent.onRootCreateClicked)
             showRootRoutineDialog = false
+        }
+    )
+
+    SubRoutineDialog(
+        uiState = uiState,
+        onDismiss = { showSubRoutineDialog = false },
+        showDialog = showSubRoutineDialog,
+        onRoutineNameChanged = {
+            viewModel.onEvent(RoutineCreateUiEvent.onSubNameChanged(it))
+        },
+        onTimeClicked = {
+            showTimePicker = true
+        },
+        onAlarmChanged = {
+            viewModel.onEvent(RoutineCreateUiEvent.onSubAlarmChanged(it))
+        },
+        onIconChanged = {
+            viewModel.onEvent(RoutineCreateUiEvent.onSubIconChanged(it))
+        },
+        onCreateClicked = {
+            viewModel.onEvent(RoutineCreateUiEvent.onSubCreateClicked)
+            showSubRoutineDialog = false
         }
     )
 

@@ -106,6 +106,50 @@ class RoutineCreateViewModel(
                         )
                     }
                 }
+
+                is RoutineCreateUiEvent.onSubAlarmChanged -> {
+                    _uiState.update { state ->
+                        state.copy(
+                            subRoutineInput = state.subRoutineInput.copy(
+                                alarmType = event.alarm
+                            )
+                        )
+                    }
+                }
+
+                RoutineCreateUiEvent.onSubCreateClicked -> {
+                }
+
+                is RoutineCreateUiEvent.onSubIconChanged -> {
+                    _uiState.update { state ->
+                        state.copy(
+                            subRoutineInput = state.subRoutineInput.copy(
+                                icon = event.icon
+                            )
+                        )
+                    }
+                }
+
+                is RoutineCreateUiEvent.onSubNameChanged -> {
+                    _uiState.update { state ->
+                        state.copy(
+                            subRoutineInput = state.subRoutineInput.copy(
+                                routineName = event.name
+                            )
+                        )
+                    }
+                }
+
+                is RoutineCreateUiEvent.onSubTimeChanged -> {
+                    _uiState.update { state ->
+                        state.copy(
+                            subRoutineInput = state.subRoutineInput.copy(
+                                time = event.time
+                            )
+                        )
+                    }
+                }
+
             }
         }
     }

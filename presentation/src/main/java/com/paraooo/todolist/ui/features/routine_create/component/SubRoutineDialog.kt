@@ -75,15 +75,13 @@ import com.paraooo.todolist.ui.util.toDp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RootRoutineDialog(
+fun SubRoutineDialog(
     uiState: RoutineCreateUiState,
     onDismiss: () -> Unit,
     showDialog : Boolean,
     onRoutineNameChanged: (String) -> Unit,
-    onDayOfWeekClicked : () -> Unit,
     onTimeClicked : () -> Unit,
     onAlarmChanged : (alarm : RoutineAlarmType) -> Unit,
-    onColorChanged : (color : RoutineColorModel) -> Unit,
     onIconChanged : (icon : Int) -> Unit,
     onCreateClicked : () -> Unit
 ) {
@@ -94,7 +92,6 @@ fun RootRoutineDialog(
 
     val context = LocalContext.current
 
-    var isColorPopupVisible by remember { mutableStateOf(false) }
     var isIconPopupVisible by remember { mutableStateOf(false) }
 
     var lastColorClickTime = 0L
@@ -118,7 +115,7 @@ fun RootRoutineDialog(
                         .padding(horizontal = 18.dp)
                 ) {
                     Text(
-                        text = "루틴 생성하기",
+                        text = "하위 루틴 생성하기",
                         fontFamily = PretendardFontFamily,
                         fontWeight = FontWeight.Medium,
                         fontSize = 18.sp,
@@ -128,7 +125,7 @@ fun RootRoutineDialog(
                     Spacer(modifier = Modifier.height(30.dp))
 
                     TLTextField(
-                        text = uiState.rootRoutineInput.routineName,
+                        text = uiState.subRoutineInput.routineName,
                         onTextChange = onRoutineNameChanged,
                         hintText = "루틴 이름을 입력해주세요",
                         label = "Routine Name"
@@ -151,66 +148,6 @@ fun RootRoutineDialog(
                                 null -> "시간 설정하지 않음"
                                 else -> "${uiState.rootRoutineInput.time.hour}시 ${uiState.rootRoutineInput.time.minute}분"
                             },
-                            activeColor = uiState.rootRoutineInput.color.color
-                        )
-
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        TLTextButton(
-                            modifier = Modifier.weight(1F),
-                            labelText = "DayOfWeek",
-                            isActive = true,
-                            clickable = {
-                                onDayOfWeekClicked()
-                            },
-                            text = getDayOfWeekText(uiState.rootRoutineInput.dayOfWeek.map { it.value }),
-                            activeColor = uiState.rootRoutineInput.color.color
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    TLTextRadioButton<RoutineAlarmType>(
-                        labelText = "Alarm",
-                        radioList = alarmList,
-                        currentRadioItem = uiState.rootRoutineInput.alarmType,
-                        clickable = { radio ->
-                            onAlarmChanged(radio)
-                        },
-                        getText = { radio -> radio.label },
-                        activeColor = uiState.rootRoutineInput.color.color
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-
-                        ColorPickerPopup(
-                            currentColor = uiState.rootRoutineInput.color,
-                            onDismissRequest = {
-                                isColorPopupVisible = false
-                                lastColorClickTime = System.currentTimeMillis()
-                            },
-                            isColorPopupVisible = isColorPopupVisible,
-                            numberOfRows = 2,
-                            onColorSelected = { color ->
-                                onColorChanged(color)
-                            },
-                        )
-
-                        TLTextButton(
-                            modifier = Modifier.weight(1F),
-                            labelText = "Color",
-                            isActive = true,
-                            clickable = {
-                                if(System.currentTimeMillis() - lastColorClickTime > 100){
-                                    isColorPopupVisible = true
-                                }
-                            },
-                            text = longToColorHexString(uiState.rootRoutineInput.color.color),
                             activeColor = uiState.rootRoutineInput.color.color
                         )
 
@@ -260,7 +197,7 @@ fun RootRoutineDialog(
                                     }
                             ) {
                                 Image(
-                                    painter = painterResource(getRoutineIconDrawableId(uiState.rootRoutineInput.icon)),
+                                    painter = painterResource(getRoutineIconDrawableId(uiState.subRoutineInput.icon)),
                                     contentDescription = null,
                                     colorFilter = ColorFilter.tint(
                                         Color(uiState.rootRoutineInput.color.color),
@@ -273,6 +210,19 @@ fun RootRoutineDialog(
                             }
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    TLTextRadioButton<RoutineAlarmType>(
+                        labelText = "Alarm",
+                        radioList = alarmList,
+                        currentRadioItem = uiState.subRoutineInput.alarmType,
+                        clickable = { radio ->
+                            onAlarmChanged(radio)
+                        },
+                        getText = { radio -> radio.label },
+                        activeColor = uiState.rootRoutineInput.color.color
+                    )
 
                     Spacer(modifier = Modifier.height(30.dp))
 

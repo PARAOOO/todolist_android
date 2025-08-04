@@ -40,8 +40,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import com.paraooo.domain.model.RoutineColorModel
 import com.paraooo.domain.model.SubRoutineModel
-import com.paraooo.todolist.ui.features.home.component.CircularProgress
-import com.paraooo.todolist.ui.features.home.component.vectorToBitmap
 import com.paraooo.todolist.ui.theme.PretendardFontFamily
 import com.paraooo.todolist.ui.util.computeTextLineCount
 import com.paraooo.todolist.ui.util.getRoutineIconDrawableId
