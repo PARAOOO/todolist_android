@@ -12,6 +12,8 @@ internal class TodoDayOfWeekRepositoryImpl(
     private val todoDayOfWeekLocalDataSource: TodoDayOfWeekLocalDataSource
 ) : TodoDayOfWeekRepository {
 
+
+
     override suspend fun insertTodoDayOfWeek(todoDayOfWeek: TodoDayOfWeekModel) {
         todoDayOfWeekLocalDataSource.insertTodoDayOfWeek(todoDayOfWeek.toEntity())
     }
