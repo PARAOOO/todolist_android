@@ -47,4 +47,12 @@ class TodoRepositoryImpl(
             todoInstance.toEntity()
         )
     }
+
+    override suspend fun updateTodoProgress(todoInstanceId: Long, progressAngle: Float) {
+        todoInstanceLocalDataSource.updateTodoProgress(todoInstanceId, progressAngle)
+    }
+
+    override suspend fun deleteTodoTemplate(templateId: Long) {
+        todoTemplateLocalDataSource.deleteTodoTemplate(templateId)
+    }
 }

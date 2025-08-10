@@ -12,4 +12,8 @@ interface TodoRepository {
     suspend fun postTodo(todoTemplate: TodoTemplateModel, todoInstance : TodoInstanceModel) : Long
 
     suspend fun updateTodo(todoTemplate: TodoTemplateModel, todoInstance: TodoInstanceModel)
+
+    suspend fun updateTodoProgress(todoInstanceId: Long, progressAngle: Float)
+
+    suspend fun deleteTodoTemplate(templateId: Long)
 }
