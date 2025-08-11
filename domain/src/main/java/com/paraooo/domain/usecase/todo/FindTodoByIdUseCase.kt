@@ -5,26 +5,27 @@ import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.repository.TodoDayOfWeekRepository
 import com.paraooo.domain.repository.TodoInstanceRepository
 import com.paraooo.domain.repository.TodoPeriodRepository
+import com.paraooo.domain.repository.TodoRepository
 import com.paraooo.domain.repository.TodoTemplateRepository
 import com.paraooo.domain.util.transferMillis2LocalDate
 
 class FindTodoByIdUseCase(
-    private val todoTemplateRepository: TodoTemplateRepository,
-    private val todoDayOfWeekRepository: TodoDayOfWeekRepository,
-    private val todoInstanceRepository: TodoInstanceRepository,
-    private val todoPeriodRepository: TodoPeriodRepository
+    private val todoRepository : TodoRepository
 ) {
 
     suspend operator fun invoke(instanceId: Long): TodoModel {
-        val instance = todoInstanceRepository.getTodoInstanceById(instanceId)
-        val template = todoTemplateRepository.getTodoTemplateById(instance!!.templateId)
-        val period = todoPeriodRepository.getTodoPeriodByTemplateId(instance.templateId)
-        val dayOfWeek = todoDayOfWeekRepository.getDayOfWeekByTemplateId(instance.templateId).takeIf { it.isNotEmpty() }
+
+        val findTodoByIdResponse = todoRepository.findTodoById(instanceId)
+
+        val instance = findTodoByIdResponse.todoInstance
+        val template = findTodoByIdResponse.todoTemplate
+        val period = findTodoByIdResponse.todoPeriod
+        val dayOfWeek = findTodoByIdResponse.todoDayOfWeek
 
         return TodoModel(
             instanceId = instance.id,
             templateId = instance.templateId,
-            title = template!!.title,
+            title = template.title,
             description = template.description,
             date = transferMillis2LocalDate(instance.date),
             time = if (template.hour != null && template.minute != null) {

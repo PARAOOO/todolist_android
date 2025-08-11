@@ -2,22 +2,49 @@ package com.paraooo.data.repository
 
 import com.paraooo.data.mapper.toEntity
 import com.paraooo.data.mapper.toModel
+import com.paraooo.domain.model.TodoInstanceModel
 import com.paraooo.domain.model.TodoPeriodModel
 import com.paraooo.domain.model.TodoPeriodWithTimeModel
+import com.paraooo.domain.model.TodoTemplateModel
 import com.paraooo.domain.repository.TodoPeriodRepository
+import com.paraooo.local.datasource.TodoInstanceLocalDataSource
 import com.paraooo.local.datasource.TodoPeriodLocalDataSource
+import com.paraooo.local.datasource.TodoTemplateLocalDataSource
 import com.paraooo.local.entity.TodoPeriod
 import com.paraooo.local.entity.TodoPeriodWithTime
+import java.time.LocalDate
 
 internal class TodoPeriodRepositoryImpl(
+    private val todoTemplateLocalDataSource: TodoTemplateLocalDataSource,
+    private val todoInstanceLocalDataSource: TodoInstanceLocalDataSource,
     private val todoPeriodLocalDataSource: TodoPeriodLocalDataSource
 ) : TodoPeriodRepository {
-    override suspend fun insertTodoPeriod(todoPeriod: TodoPeriodModel) {
-        todoPeriodLocalDataSource.insertTodoPeriod(todoPeriod.toEntity())
+
+    override suspend fun postTodoPeriod(
+        todoTemplate: TodoTemplateModel,
+        todoInstances: List<TodoInstanceModel>,
+        todoPeriod: TodoPeriodModel
+    ) {
+        val templateId = todoTemplateLocalDataSource.insertTodoTemplate(todoTemplate.toEntity())
+        todoInstanceLocalDataSource.insertTodoInstances(todoInstances.map { it.toEntity().copy(templateId = templateId) })
+        todoPeriodLocalDataSource.insertTodoPeriod(todoPeriod.toEntity().copy(templateId = templateId))
     }
 
-    override suspend fun updateTodoPeriod(todoPeriod: TodoPeriodModel) {
-        todoPeriodLocalDataSource.updateTodoPeriod(todoPeriod.toEntity())
+    override suspend fun updateTodoPeriod(
+        templateId: Long,
+        todoTemplate: TodoTemplateModel,
+        todoPeriod: TodoPeriodModel,
+        datesToDelete: Set<Long>,
+        todoInstancesToInsert: List<TodoInstanceModel>
+    ) {
+        todoTemplateLocalDataSource.updateTodoTemplate(todoTemplate = todoTemplate.toEntity())
+        todoPeriodLocalDataSource.updateTodoPeriod(todoPeriod = todoPeriod.toEntity())
+        todoInstanceLocalDataSource.deleteInstancesByDates(templateId, datesToDelete)
+        todoInstanceLocalDataSource.insertTodoInstances(todoInstancesToInsert.map { it.toEntity() })
+    }
+
+    override suspend fun insertTodoPeriod(todoPeriod: TodoPeriodModel) {
+        todoPeriodLocalDataSource.insertTodoPeriod(todoPeriod.toEntity())
     }
 
     override suspend fun deleteTodoPeriod(todoPeriod: TodoPeriodModel) {

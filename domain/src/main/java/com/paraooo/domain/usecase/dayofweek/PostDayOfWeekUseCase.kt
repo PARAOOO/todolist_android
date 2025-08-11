@@ -12,7 +12,6 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 class PostDayOfWeekUseCase(
-    private val todoTemplateRepository: TodoTemplateRepository,
     private val todoDayOfWeekRepository: TodoDayOfWeekRepository,
     private val alarmScheduler: AlarmScheduler
 ) {
@@ -30,17 +29,22 @@ class PostDayOfWeekUseCase(
             isAlarmHasSound = todo.isAlarmHasSound
         )
 
-        val templateId = todoTemplateRepository.insertTodoTemplate(todoTemplate)
+        val todoDayOfWeeks = mutableListOf<TodoDayOfWeekModel>()
 
         for (week in dayOfWeek) {
-            todoDayOfWeekRepository.insertTodoDayOfWeek(
+            todoDayOfWeeks.add(
                 TodoDayOfWeekModel(
-                    templateId = templateId,
+                    templateId = 0,
                     dayOfWeeks = dayOfWeek,
                     dayOfWeek = week
                 )
             )
         }
+
+        val templateId = todoDayOfWeekRepository.postTodoDayOfWeek(
+            todoTemplate = todoTemplate,
+            todoDayOfWeeks = todoDayOfWeeks
+        )
 
         if(todo.time != null && todo.alarmType != AlarmType.OFF){
             val today = LocalDate.now()

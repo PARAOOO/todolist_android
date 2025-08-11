@@ -14,7 +14,6 @@ import java.time.LocalTime
 
 class UpdateDayOfWeekTodoUseCase(
     private val todoInstanceRepository: TodoInstanceRepository,
-    private val todoTemplateRepository: TodoTemplateRepository,
     private val todoDayOfWeekRepository: TodoDayOfWeekRepository,
     private val alarmScheduler: AlarmScheduler
 ) {
@@ -22,34 +21,25 @@ class UpdateDayOfWeekTodoUseCase(
     suspend operator fun invoke(todo: TodoModel) {
         val instanceTodo = todoInstanceRepository.getTodoInstanceById(todo.instanceId) ?: return
         val templateId = instanceTodo.templateId
+        val existingDayOfWeeks = todoDayOfWeekRepository.getDayOfWeekByTemplateId(templateId)
 
-        todoTemplateRepository.updateTodoTemplate(
-            TodoTemplateModel(
-                id = templateId,
-                title = todo.title,
-                description = todo.description ?: "",
-                hour = todo.time?.hour,
-                minute = todo.time?.minute,
-                type = TodoType.DAY_OF_WEEK,
-                alarmType = todo.alarmType,
-                isAlarmHasVibration = todo.isAlarmHasVibration,
-                isAlarmHasSound = todo.isAlarmHasSound
-            )
+        val todoTemplate = TodoTemplateModel(
+            id = templateId,
+            title = todo.title,
+            description = todo.description ?: "",
+            hour = todo.time?.hour,
+            minute = todo.time?.minute,
+            type = TodoType.DAY_OF_WEEK,
+            alarmType = todo.alarmType,
+            isAlarmHasVibration = todo.isAlarmHasVibration,
+            isAlarmHasSound = todo.isAlarmHasSound
         )
 
-        // 2. 기존 요일 조회
-        val existingDayOfWeeks = todoDayOfWeekRepository.getDayOfWeekByTemplateId(templateId)
         val existingDaysSet = existingDayOfWeeks.map { it.dayOfWeek }.toSet()
         val newDaysSet = todo.dayOfWeeks!!.toSet()
 
-        // 3. 삭제할 요일
-        val daysToDelete = existingDaysSet - newDaysSet
-        if (daysToDelete.isNotEmpty()) {
-            todoDayOfWeekRepository.deleteSpecificDayOfWeeks(templateId, daysToDelete.toList())
-            todoDayOfWeekRepository.deleteInstancesByTemplateIdAndDaysOfWeek(templateId, daysToDelete.toList())
-        }
+        val daysToDelete = (existingDaysSet - newDaysSet).toList()
 
-        // 4. 추가할 요일
         val daysToAdd = newDaysSet - existingDaysSet
         val newDayOfWeeks = daysToAdd.map { dayOfWeek ->
             TodoDayOfWeekModel(
@@ -58,7 +48,13 @@ class UpdateDayOfWeekTodoUseCase(
                 dayOfWeek = dayOfWeek
             )
         }
-        todoDayOfWeekRepository.insertDayOfWeekTodos(newDayOfWeeks)
+
+        todoDayOfWeekRepository.updateTodoDayOfWeek(
+            templateId = templateId,
+            todoTemplate = todoTemplate,
+            dayOfWeeksToDelete = daysToDelete,
+            dayOfWeeksToInsert = newDayOfWeeks
+        )
 
         alarmScheduler.cancel(templateId)
 
@@ -66,7 +62,7 @@ class UpdateDayOfWeekTodoUseCase(
             val today = LocalDate.now()
             val now = LocalTime.now()
 
-            val todoTime = LocalTime.of(todo.time.hour, todo.time.minute) // ⏰ 시간 조합
+            val todoTime = LocalTime.of(todo.time.hour, todo.time.minute)
             val isTimePassed = now > todoTime
 
             val startDayOffset = if (isTimePassed) 1 else 0

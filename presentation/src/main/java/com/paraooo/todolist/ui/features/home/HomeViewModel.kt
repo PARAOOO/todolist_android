@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.usecase.todo.DeleteTodoByIdUseCase
 import com.paraooo.domain.usecase.todo.GetTodoByDateUseCase
+import com.paraooo.domain.usecase.todo.ObserveTodosUseCase
+import com.paraooo.domain.usecase.todo.SyncDayOfWeekTodoUseCase
 import com.paraooo.domain.usecase.todo.UpdateTodoProgressUseCase
 import com.paraooo.domain.util.getDateDiff
 import com.paraooo.domain.util.transferLocalDateToMillis
@@ -28,6 +30,8 @@ class HomeViewModel(
     private val getTodoByDateUseCase: GetTodoByDateUseCase,
     private val updateTodoProgressUseCase: UpdateTodoProgressUseCase,
     private val deleteTodoByIdUseCase: DeleteTodoByIdUseCase,
+    private val syncDayOfWeekTodoUseCase: SyncDayOfWeekTodoUseCase,
+    private val observeTodosUseCase: ObserveTodosUseCase,
     private val initialUiState : HomeUiState = HomeUiState()
 ) : ViewModel() {
 
@@ -42,40 +46,43 @@ class HomeViewModel(
     var selectedTodo = mutableStateOf<TodoModel?>(null)
 
     private fun fetchTodoList(date: LocalDate) {
-        _uiState.update { state ->
-            state.copy(
-                todoListState = state.todoListState.copy(
-                    isLoading = true
-                )
-            )
-        }
 
-        try {
-            todoCollectJob?.cancel()
+        todoCollectJob?.cancel()
 
-            todoCollectJob = viewModelScope.launch {
-                getTodoByDateUseCase(transferLocalDateToMillis(date)).flowOn(Dispatchers.IO).collect { todoList ->
-                    _uiState.update { currentState ->
-                        currentState.copy(
-                            todoListState = currentState.todoListState.copy(
-                                todoList = todoList,
-                                isLoading = false,
-                                error = ""
-                            )
-                        )
-                    }
-                }
-
-            }
-
-        } catch (e: Exception) {
+        todoCollectJob = viewModelScope.launch {
             _uiState.update { state ->
                 state.copy(
                     todoListState = state.todoListState.copy(
-                        isLoading = false,
-                        error = "${e.message}"
+                        isLoading = true
                     )
                 )
+            }
+
+            try {
+
+                syncDayOfWeekTodoUseCase(transferLocalDateToMillis(date))
+
+                observeTodosUseCase(transferLocalDateToMillis(date)).flowOn(Dispatchers.IO)
+                    .collect { todoList ->
+                        _uiState.update { currentState ->
+                            currentState.copy(
+                                todoListState = currentState.todoListState.copy(
+                                    todoList = todoList,
+                                    isLoading = false,
+                                    error = ""
+                                )
+                            )
+                        }
+                    }
+            } catch (e: Exception) {
+                _uiState.update { state ->
+                    state.copy(
+                        todoListState = state.todoListState.copy(
+                            isLoading = false,
+                            error = "${e.message}"
+                        )
+                    )
+                }
             }
         }
     }

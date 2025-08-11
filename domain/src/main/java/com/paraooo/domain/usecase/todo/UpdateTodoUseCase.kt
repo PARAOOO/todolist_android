@@ -12,15 +12,13 @@ import com.paraooo.domain.repository.TodoTemplateRepository
 import com.paraooo.domain.util.transferLocalDateToMillis
 
 class UpdateTodoUseCase(
-//    private val todoInstanceRepository: TodoInstanceRepository,
-//    private val todoTemplateRepository: TodoTemplateRepository,
     private val todoRepository: TodoRepository,
     private val alarmScheduler: AlarmScheduler
 ) {
 
     suspend operator fun invoke(todo: TodoModel) {
 
-        val instanceTodo = todoRepository.getTodoInstanceByInstanceId(todo.instanceId) ?: return
+        val instanceTodo = todoRepository.getTodoInstanceById(todo.instanceId) ?: return
 
         val todoTemplate = TodoTemplateModel(
             id = instanceTodo.templateId,
@@ -40,33 +38,6 @@ class UpdateTodoUseCase(
             date = transferLocalDateToMillis(todo.date),
             progressAngle = todo.progressAngle
         )
-
-
-//        val instanceTodo = todoInstanceRepository.getTodoInstanceById(todo.instanceId)
-
-//        todoTemplateRepository.updateTodoTemplate(
-//            TodoTemplateModel(
-//                id = instanceTodo!!.templateId,
-//                title = todo.title,
-//                description = todo.description ?: "",
-//                hour = todo.time?.hour,
-//                minute = todo.time?.minute,
-//                type = TodoType.GENERAL,
-//                alarmType = todo.alarmType,
-//                isAlarmHasVibration = todo.isAlarmHasVibration,
-//                isAlarmHasSound = todo.isAlarmHasSound
-//            )
-//        )
-//
-//        todoInstanceRepository.updateTodoInstance(
-//            TodoInstanceModel(
-//                id = todo.instanceId,
-//                templateId = instanceTodo.templateId,
-//                date = transferLocalDateToMillis(todo.date),
-//                progressAngle = todo.progressAngle
-//            )
-//        )
-
 
         try {
             todoRepository.updateTodo(todoTemplate, todoInstance)

@@ -6,11 +6,13 @@ import com.paraooo.domain.model.TodoTemplateModel
 
 interface TodoDayOfWeekRepository {
 
+    suspend fun postTodoDayOfWeek(todoTemplate: TodoTemplateModel, todoDayOfWeeks: List<TodoDayOfWeekModel>) : Long
+
+    suspend fun updateTodoDayOfWeek(templateId: Long, todoTemplate: TodoTemplateModel, dayOfWeeksToDelete: List<Int>, dayOfWeeksToInsert: List<TodoDayOfWeekModel>)
+
     suspend fun insertTodoDayOfWeek(todoDayOfWeek: TodoDayOfWeekModel)
 
     suspend fun insertDayOfWeekTodos(todoDayOfWeekEntities: List<TodoDayOfWeekModel>)
-
-    suspend fun updateTodoDayOfWeek(todoDayOfWeek: TodoDayOfWeekModel)
 
     suspend fun deleteTodoDayOfWeek(todoDayOfWeek: TodoDayOfWeekModel)
 
