@@ -7,18 +7,12 @@ import com.paraooo.domain.repository.TodoTemplateRepository
 
 class DeleteTodoByIdUseCase(
     private val todoRepository: TodoRepository,
-    private val todoInstanceRepository: TodoInstanceRepository,
-    private val todoTemplateRepository: TodoTemplateRepository,
     private val alarmScheduler: AlarmScheduler
 ) {
 
     suspend operator fun invoke(instanceId: Long) {
 
-        val instanceTodo = todoRepository.getTodoInstanceByInstanceId(instanceId) ?: return
-
-//        val instanceTodo = todoInstanceRepository.getTodoInstanceById(instanceId)
-
-//        todoTemplateRepository.deleteTodoTemplate(instanceTodo!!.templateId)
+        val instanceTodo = todoRepository.getTodoInstanceById(instanceId) ?: return
 
         try {
             todoRepository.deleteTodoTemplate(instanceTodo.templateId)

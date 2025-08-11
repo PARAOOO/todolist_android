@@ -4,7 +4,6 @@ import com.paraooo.domain.repository.TodoInstanceRepository
 import com.paraooo.domain.repository.TodoRepository
 
 class UpdateTodoProgressUseCase(
-//    private val todoInstanceRepository: TodoInstanceRepository,
     private val todoRepository: TodoRepository
 ) {
 

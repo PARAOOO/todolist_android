@@ -17,39 +17,34 @@ import java.time.LocalDate
 
 class UpdatePeriodTodoUseCase(
     private val todoInstanceRepository: TodoInstanceRepository,
-    private val todoTemplateRepository: TodoTemplateRepository,
     private val todoPeriodRepository: TodoPeriodRepository,
     private val alarmScheduler: AlarmScheduler
 ) {
 
     suspend operator fun invoke(todo: TodoModel) {
-        val instanceTodo = todoInstanceRepository.getTodoInstanceById(todo.instanceId)
 
-        todoTemplateRepository.updateTodoTemplate(
-            TodoTemplateModel(
-                id = instanceTodo!!.templateId,
-                title = todo.title,
-                description = todo.description ?: "",
-                hour = todo.time?.hour,
-                minute = todo.time?.minute,
-                type = TodoType.PERIOD,
-                alarmType = todo.alarmType,
-                isAlarmHasVibration = todo.isAlarmHasVibration,
-                isAlarmHasSound = todo.isAlarmHasSound
-            )
+        val instanceTodo = todoInstanceRepository.getTodoInstanceById(todo.instanceId)
+        val existingInstances = todoInstanceRepository.getInstancesByTemplateId(instanceTodo!!.templateId)
+
+        val todoTemplate = TodoTemplateModel(
+            id = instanceTodo.templateId,
+            title = todo.title,
+            description = todo.description ?: "",
+            hour = todo.time?.hour,
+            minute = todo.time?.minute,
+            type = TodoType.PERIOD,
+            alarmType = todo.alarmType,
+            isAlarmHasVibration = todo.isAlarmHasVibration,
+            isAlarmHasSound = todo.isAlarmHasSound
         )
 
-        val existingInstances = todoInstanceRepository.getInstancesByTemplateId(instanceTodo.templateId)
+        val todoPeriod = TodoPeriodModel(
+            templateId = instanceTodo.templateId,
+            startDate = transferLocalDateToMillis(todo.startDate),
+            endDate = transferLocalDateToMillis(todo.endDate)
+        )
 
         val existingDateMap = existingInstances.associate { it.date to it.progressAngle }
-
-        todoPeriodRepository.updateTodoPeriod(
-            TodoPeriodModel(
-                templateId = instanceTodo.templateId,
-                startDate = transferLocalDateToMillis(todo.startDate),
-                endDate = transferLocalDateToMillis(todo.endDate)
-            )
-        )
 
         val newDates = generateSequence(todo.startDate) { it.plusDays(1) }
             .takeWhile { !it.isAfter(todo.endDate) }
@@ -61,13 +56,17 @@ class UpdatePeriodTodoUseCase(
         val datesToDelete = oldDates - newDates // 기존에 있었지만, 새 범위에 포함되지 않는 날짜
         val datesToAdd = newDates - oldDates // 새 범위에 포함되지만, 기존에 없던 날짜
 
-        todoInstanceRepository.deleteInstancesByDates(instanceTodo.templateId, datesToDelete)
-
         val newInstances = datesToAdd.map { date ->
             TodoInstanceModel(templateId = instanceTodo.templateId, date = date, progressAngle = 0F)
         }
 
-        todoInstanceRepository.insertTodoInstances(newInstances)
+        todoPeriodRepository.updateTodoPeriod(
+            templateId = instanceTodo.templateId,
+            todoTemplate = todoTemplate,
+            todoPeriod = todoPeriod,
+            datesToDelete = datesToDelete,
+            todoInstancesToInsert = newInstances
+        )
 
         alarmScheduler.cancel(instanceTodo.templateId)
 

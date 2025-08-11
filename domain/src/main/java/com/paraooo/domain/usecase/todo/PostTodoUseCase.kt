@@ -12,8 +12,6 @@ import com.paraooo.domain.repository.TodoTemplateRepository
 import com.paraooo.domain.util.transferLocalDateToMillis
 
 class PostTodoUseCase(
-//    private val todoTemplateRepository: TodoTemplateRepository,
-//    private val todoInstanceRepository: TodoInstanceRepository,
     private val todoRepository: TodoRepository,
     private val alarmScheduler: AlarmScheduler,
 ) {
@@ -34,15 +32,6 @@ class PostTodoUseCase(
             templateId = 0,
             date = transferLocalDateToMillis(todo.date)
         )
-//
-//        val templateId = todoTemplateRepository.insertTodoTemplate(todoTemplate)
-//
-//        val instanceId = todoInstanceRepository.insertTodoInstance(
-//            TodoInstanceModel(
-//                templateId = templateId,
-//                date = transferLocalDateToMillis(todo.date)
-//            )
-//        )
 
         try {
             val templateId = todoRepository.postTodo(todoTemplate, todoInstance)
