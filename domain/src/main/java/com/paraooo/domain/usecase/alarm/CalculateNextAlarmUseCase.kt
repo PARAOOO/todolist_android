@@ -1,6 +1,9 @@
 package com.paraooo.domain.usecase.alarm
 
 import com.paraooo.domain.model.Time
+import com.paraooo.domain.model.TodoDayOfWeekModel
+import com.paraooo.domain.model.TodoPeriodModel
+import com.paraooo.domain.model.TodoTemplateModel
 import com.paraooo.domain.model.TodoType
 import com.paraooo.domain.repository.TodoDayOfWeekRepository
 import com.paraooo.domain.repository.TodoInstanceRepository
@@ -18,53 +21,48 @@ data class AlarmSchedule(
 )
 
 class CalculateNextAlarmUseCase(
-    private val todoRepository: TodoRepository,
-    private val todoInstanceRepository: TodoInstanceRepository,
     private val todoTemplateRepository: TodoTemplateRepository,
     private val todoPeriodRepository: TodoPeriodRepository,
     private val todoDayOfWeekRepository: TodoDayOfWeekRepository
 ) {
-    suspend operator fun invoke(templateId: Long, todayDate: LocalDate): AlarmSchedule? {
+    suspend operator fun invoke(todoTemplate : TodoTemplateModel, todoPeriod: TodoPeriodModel?, todoDayOfWeek : List<TodoDayOfWeekModel>?, todayDate: LocalDate): AlarmSchedule? {
 
         val todayMillis = transferLocalDateToMillis(todayDate)
         val todayLocalDate = todayDate
 
-        val todoInstances = todoInstanceRepository.getInstancesByTemplateId(templateId)
-        val todoTemplate = todoTemplateRepository.getTodoTemplateById(templateId) ?: return null
-        val period = todoPeriodRepository.getTodoPeriodByTemplateId(templateId)
-        val dayOfWeek = todoDayOfWeekRepository.getDayOfWeekByTemplateId(templateId).takeIf { it.isNotEmpty() }
-
-        val todayInstance = todoInstances.firstOrNull {
-            transferMillis2LocalDate(it.date) == todayLocalDate
-        }
+//        val todoTemplate = todoTemplateRepository.getTodoTemplateById(templateId) ?: return null
+//        val period = todoPeriodRepository.getTodoPeriodByTemplateId(templateId)
+//        val dayOfWeek = todoDayOfWeekRepository.getDayOfWeekByTemplateId(templateId).takeIf { it.isNotEmpty() }
 
         when(todoTemplate.type) {
             TodoType.GENERAL -> {
-
+                return null
             }
             TodoType.PERIOD -> {
-                if(period!!.endDate > todayMillis) {
+                if(todoPeriod!!.endDate > todayMillis) {
                     val tomorrowLocalDate = todayLocalDate.plusDays(1)
-                    alarmScheduler.schedule(
+
+                    return AlarmSchedule(
                         date = tomorrowLocalDate,
                         time = Time(todoTemplate.hour!!, todoTemplate.minute!!),
-                        templateId = templateId
+                        templateId = todoTemplate.id
                     )
                 }
             }
             TodoType.DAY_OF_WEEK -> {
-                val availableDays = dayOfWeek!!.first().dayOfWeeks
+                val availableDays = todoDayOfWeek!!.first().dayOfWeeks
 
                 val nextAlarmDate = (1..7)
                     .map { todayLocalDate.plusDays(it.toLong()) }
                     .first { availableDays.contains(it.dayOfWeek.value) }
 
-                alarmScheduler.schedule(
+                return AlarmSchedule(
                     date = nextAlarmDate,
                     time = Time(todoTemplate.hour!!, todoTemplate.minute!!),
-                    templateId = templateId
+                    templateId = todoTemplate.id
                 )
             }
         }
+        return null
     }
 }
