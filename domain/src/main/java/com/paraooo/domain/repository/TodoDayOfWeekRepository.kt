@@ -12,6 +12,8 @@ interface TodoDayOfWeekRepository {
 
     suspend fun getDayOfWeekByTemplateId(templateId: Long): List<TodoDayOfWeekModel>
 
+    suspend fun getDayOfWeekTodoTemplatesByDate(date: Long): List<TodoTemplateModel>
+
     suspend fun getAlarmDayOfWeekTodos(): List<TodoDayOfWeekWithTimeModel>
 
 }

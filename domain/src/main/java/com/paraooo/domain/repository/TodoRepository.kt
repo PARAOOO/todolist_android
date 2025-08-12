@@ -28,7 +28,7 @@ interface TodoRepository {
 
     suspend fun deleteTodoTemplate(templateId: Long)
 
-    suspend fun syncDayOfWeekInstance(date: Long)
+    suspend fun syncDayOfWeekInstance(todoInstances: List<TodoInstanceModel>)
 
     suspend fun observeTodosByDate(date: Long) : Flow<List<TodoModel>>
 }
