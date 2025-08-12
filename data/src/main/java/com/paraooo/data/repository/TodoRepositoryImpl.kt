@@ -7,6 +7,7 @@ import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.model.TodoTemplateModel
 import com.paraooo.domain.repository.FindTodoByIdResponse
 import com.paraooo.domain.repository.TodoRepository
+import com.paraooo.local.database.TransactionProvider
 import com.paraooo.local.datasource.TodoDayOfWeekLocalDataSource
 import com.paraooo.local.datasource.TodoInstanceLocalDataSource
 import com.paraooo.local.datasource.TodoPeriodLocalDataSource
@@ -19,52 +20,58 @@ class TodoRepositoryImpl(
     private val todoInstanceLocalDataSource: TodoInstanceLocalDataSource,
     private val todoTemplateLocalDataSource: TodoTemplateLocalDataSource,
     private val todoPeriodLocalDataSource: TodoPeriodLocalDataSource,
-    private val todoDayOfWeekLocalDataSource: TodoDayOfWeekLocalDataSource
+    private val todoDayOfWeekLocalDataSource: TodoDayOfWeekLocalDataSource,
+    private val transactionProvider: TransactionProvider,
 ) : TodoRepository {
 
     override suspend fun getTodoInstanceById(instanceId: Long) : TodoInstanceModel? {
         return todoInstanceLocalDataSource.getTodoInstanceById(instanceId)?.toModel()
     }
 
-        override suspend fun findTodoById(instanceId: Long): FindTodoByIdResponse {
+    override suspend fun findTodoById(instanceId: Long): FindTodoByIdResponse {
+        return transactionProvider.runInTransaction {
             val instance = todoInstanceLocalDataSource.getTodoInstanceById(instanceId)
             val template = todoTemplateLocalDataSource.getTodoTemplateById(instance!!.templateId)
             val period = todoPeriodLocalDataSource.getTodoPeriodByTemplateId(instance.templateId)
             val dayOfWeek = todoDayOfWeekLocalDataSource.getDayOfWeekByTemplateId(instance.templateId)
 
-            return FindTodoByIdResponse(
+            FindTodoByIdResponse(
                 todoInstance = instance.toModel(),
                 todoTemplate = template!!.toModel(),
                 todoPeriod = period?.toModel(),
                 todoDayOfWeek = dayOfWeek.map { it.toModel() }
             )
         }
+    }
 
     override suspend fun postTodo(todoTemplate: TodoTemplateModel, todoInstance: TodoInstanceModel) : Long {
 
-        val templateId = todoTemplateLocalDataSource.insertTodoTemplate(todoTemplate.toEntity())
+        return transactionProvider.runInTransaction {
+            val templateId = todoTemplateLocalDataSource.insertTodoTemplate(todoTemplate.toEntity())
 
-        todoInstanceLocalDataSource.insertTodoInstance(
-            todoInstance.copy(
-                templateId = templateId
-            ).toEntity()
-        )
+            todoInstanceLocalDataSource.insertTodoInstance(
+                todoInstance.copy(
+                    templateId = templateId
+                ).toEntity()
+            )
 
-        return templateId
+            templateId
+        }
     }
 
     override suspend fun updateTodo(
         todoTemplate: TodoTemplateModel,
         todoInstance: TodoInstanceModel
     ) {
+        transactionProvider.runInTransaction {
+            todoTemplateLocalDataSource.updateTodoTemplate(
+                todoTemplate.toEntity()
+            )
 
-        todoTemplateLocalDataSource.updateTodoTemplate(
-            todoTemplate.toEntity()
-        )
-
-        todoInstanceLocalDataSource.updateTodoInstance(
-            todoInstance.toEntity()
-        )
+            todoInstanceLocalDataSource.updateTodoInstance(
+                todoInstance.toEntity()
+            )
+        }
     }
 
     override suspend fun updateTodoProgress(todoInstanceId: Long, progressAngle: Float) {
@@ -76,16 +83,16 @@ class TodoRepositoryImpl(
     }
 
     override suspend fun syncDayOfWeekInstance(date: Long) {
+        transactionProvider.runInTransaction {
+            val currentList = todoTemplateLocalDataSource.getTodosByDate(date)
+            val existingTemplateIds = currentList.map { it.templateId }.toSet()
+            val dayOfWeekTemplates = todoDayOfWeekLocalDataSource.getDayOfWeekTodoTemplatesByDate(date)
+            val newInstances = dayOfWeekTemplates.filterNot { existingTemplateIds.contains(it.id) }.map {
+                TodoInstance(templateId = it.id, date = date)
+            }
 
-        val currentList = todoTemplateLocalDataSource.getTodosByDate(date)
-
-        val existingTemplateIds = currentList.map { it.templateId }.toSet()
-        val dayOfWeekTemplates = todoDayOfWeekLocalDataSource.getDayOfWeekTodoTemplatesByDate(date)
-        val newInstances = dayOfWeekTemplates.filterNot { existingTemplateIds.contains(it.id) }.map {
-            TodoInstance(templateId = it.id, date = date)
+            todoInstanceLocalDataSource.insertTodoInstances(newInstances)
         }
-
-        todoInstanceLocalDataSource.insertTodoInstances(newInstances)
     }
 
     override suspend fun observeTodosByDate(date: Long): Flow<List<TodoModel>> {

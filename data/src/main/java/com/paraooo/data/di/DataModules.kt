@@ -17,7 +17,6 @@ import com.paraooo.domain.repository.TodoRepository
 import com.paraooo.domain.repository.TodoTemplateRepository
 import com.paraooo.domain.usecase.todo.DeleteTodoByIdUseCase
 import com.paraooo.domain.usecase.todo.FindTodoByIdUseCase
-import com.paraooo.domain.usecase.todo.GetTodoByDateUseCase
 import com.paraooo.domain.usecase.dayofweek.PostDayOfWeekUseCase
 import com.paraooo.domain.usecase.period.PostPeriodTodoUseCase
 import com.paraooo.domain.usecase.todo.PostTodoUseCase
@@ -35,9 +34,9 @@ import org.koin.dsl.module
 private val repositoryModule = module {
     single<TodoTemplateRepository> { TodoTemplateRepositoryImpl(get()) }
     single<TodoInstanceRepository> { TodoInstanceRepositoryImpl(get()) }
-    single<TodoPeriodRepository> { TodoPeriodRepositoryImpl(get(), get(), get()) }
-    single<TodoDayOfWeekRepository> { TodoDayOfWeekRepositoryImpl(get(), get()) }
-    single<TodoRepository> { TodoRepositoryImpl(get(), get(),get(),get()) }
+    single<TodoPeriodRepository> { TodoPeriodRepositoryImpl(get(), get(), get(), get()) }
+    single<TodoDayOfWeekRepository> { TodoDayOfWeekRepositoryImpl(get(), get(), get()) }
+    single<TodoRepository> { TodoRepositoryImpl(get(), get(),get(),get(), get()) }
 }
 
 
@@ -46,8 +45,8 @@ private val alarmSchedulerModule = module {
 }
 
 private val handlerModule = module {
-    single  { AlarmHandler(get(), get(), get(), get(), get(), get(), get()) }
-    single { AlarmRestoreHandler(get(), get(), get(), get()) }
+    single  { AlarmHandler(get(), get(), get(), get(), get(), get(), get(), get()) }
+    single { AlarmRestoreHandler(get(), get(), get(), get(), get()) }
 }
 
 private val notificationModule = module {
@@ -57,14 +56,13 @@ private val notificationModule = module {
 private val useCaseModule = module {
     single { PostTodoUseCase(get(), get()) }
     single { PostPeriodTodoUseCase(get(), get()) }
-    single { PostDayOfWeekUseCase(get(), get(), get()) }
+    single { PostDayOfWeekUseCase(get(), get()) }
     single { FindTodoByIdUseCase(get()) }
-    single { GetTodoByDateUseCase(get(), get(), get()) }
     single { DeleteTodoByIdUseCase(get(), get()) }
     single { UpdateTodoUseCase(get(), get()) }
     single { UpdateTodoProgressUseCase(get()) }
     single { UpdatePeriodTodoUseCase(get(), get(), get()) }
-    single { UpdateDayOfWeekTodoUseCase(get(), get(), get(), get()) }
+    single { UpdateDayOfWeekTodoUseCase(get(), get(), get()) }
 
     single { SyncDayOfWeekTodoUseCase(get()) }
     single { ObserveTodosUseCase(get()) }

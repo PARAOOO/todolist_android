@@ -36,7 +36,9 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.paraooo.domain.model.TodoModel
-import com.paraooo.domain.usecase.todo.GetTodoByDateUseCase
+import com.paraooo.domain.model.UseCaseResult
+import com.paraooo.domain.usecase.todo.ObserveTodosUseCase
+import com.paraooo.domain.usecase.todo.SyncDayOfWeekTodoUseCase
 import com.paraooo.domain.util.transferLocalDateToMillis
 import com.paraooo.todolist.MainActivity
 import com.paraooo.todolist.R
@@ -54,18 +56,26 @@ object TLWidget: GlanceAppWidget() {
 
         val todayDate = LocalDate.now()
 
-//        val todoReadRepository: TodoReadRepository = GlobalContext.get().get()
-        val getTodoByDateUseCase: GetTodoByDateUseCase = GlobalContext.get().get()
+        val syncDayOfWeekUseCase: SyncDayOfWeekTodoUseCase = GlobalContext.get().get()
+        val observeTodosUseCase: ObserveTodosUseCase = GlobalContext.get().get()
 
-        val todoListFlow = getTodoByDateUseCase(transferLocalDateToMillis(todayDate))
+        syncDayOfWeekUseCase(transferLocalDateToMillis(todayDate))
+        val todoListFlow = observeTodosUseCase(transferLocalDateToMillis(todayDate))
 
         provideContent {
 
-            val todoListState by todoListFlow.collectAsState(initial = emptyList())
+            val todoResultState by todoListFlow.collectAsState(initial = UseCaseResult.Success(listOf()))
 
-            TLWidgetView(
-                todoList = todoListState
-            )
+            when(val result = todoResultState) {
+                is UseCaseResult.Success-> {
+                    TLWidgetView(
+                        todoList = result.data
+                    )
+                }
+                else -> {
+
+                }
+            }
         }
     }
 }

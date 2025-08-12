@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
+import androidx.room.withTransaction
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.paraooo.local.dao.TodoDayOfWeekDao
 import com.paraooo.local.dao.TodoInstanceDao
@@ -21,10 +22,14 @@ import com.paraooo.local.util.TodoConverters
 
 @Database(entities = [TodoInstance::class, TodoTemplate::class, TodoPeriod::class, TodoDayOfWeek::class], version = 7, exportSchema = false)
 @TypeConverters(TodoConverters::class) // 여기 등록
-internal abstract class TodoDatabase : RoomDatabase() {
+internal abstract class TodoDatabase : RoomDatabase(), TransactionProvider {
     abstract fun todoTemplateDao(): TodoTemplateDao
     abstract fun todoInstanceDao(): TodoInstanceDao
     abstract fun todoPeriodDao() : TodoPeriodDao
     abstract fun todoDayOfWeekDao() : TodoDayOfWeekDao
+
+    override suspend fun <R> runInTransaction(block: suspend () -> R): R {
+        return withTransaction(block)
+    }
 
 }

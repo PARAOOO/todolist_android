@@ -30,10 +30,6 @@ class CalculateNextAlarmUseCase(
         val todayMillis = transferLocalDateToMillis(todayDate)
         val todayLocalDate = todayDate
 
-//        val todoTemplate = todoTemplateRepository.getTodoTemplateById(templateId) ?: return null
-//        val period = todoPeriodRepository.getTodoPeriodByTemplateId(templateId)
-//        val dayOfWeek = todoDayOfWeekRepository.getDayOfWeekByTemplateId(templateId).takeIf { it.isNotEmpty() }
-
         when(todoTemplate.type) {
             TodoType.GENERAL -> {
                 return null

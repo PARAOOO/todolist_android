@@ -5,8 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.paraooo.domain.model.TodoModel
+import com.paraooo.domain.model.UseCaseResult
 import com.paraooo.domain.usecase.todo.DeleteTodoByIdUseCase
-import com.paraooo.domain.usecase.todo.GetTodoByDateUseCase
 import com.paraooo.domain.usecase.todo.ObserveTodosUseCase
 import com.paraooo.domain.usecase.todo.SyncDayOfWeekTodoUseCase
 import com.paraooo.domain.usecase.todo.UpdateTodoProgressUseCase
@@ -27,7 +27,6 @@ import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
 class HomeViewModel(
-    private val getTodoByDateUseCase: GetTodoByDateUseCase,
     private val updateTodoProgressUseCase: UpdateTodoProgressUseCase,
     private val deleteTodoByIdUseCase: DeleteTodoByIdUseCase,
     private val syncDayOfWeekTodoUseCase: SyncDayOfWeekTodoUseCase,
@@ -58,30 +57,52 @@ class HomeViewModel(
                 )
             }
 
-            try {
+            val syncResult = syncDayOfWeekTodoUseCase(transferLocalDateToMillis(date))
 
-                syncDayOfWeekTodoUseCase(transferLocalDateToMillis(date))
-
-                observeTodosUseCase(transferLocalDateToMillis(date)).flowOn(Dispatchers.IO)
-                    .collect { todoList ->
-                        _uiState.update { currentState ->
-                            currentState.copy(
-                                todoListState = currentState.todoListState.copy(
-                                    todoList = todoList,
-                                    isLoading = false,
-                                    error = ""
-                                )
+            when(syncResult) {
+                is UseCaseResult.Error -> {
+                    _uiState.update { state ->
+                        state.copy(
+                            todoListState = state.todoListState.copy(
+                                isLoading = false,
+                                error = "${syncResult.exception}"
                             )
-                        }
-                    }
-            } catch (e: Exception) {
-                _uiState.update { state ->
-                    state.copy(
-                        todoListState = state.todoListState.copy(
-                            isLoading = false,
-                            error = "${e.message}"
                         )
-                    )
+                    }
+                }
+                is UseCaseResult.Failure -> {
+                    _uiState.update { state ->
+                        state.copy(
+                            todoListState = state.todoListState.copy(
+                                isLoading = false,
+                                error = syncResult.message
+                            )
+                        )
+                    }
+                }
+                is UseCaseResult.Success<*> -> {
+                    observeTodosUseCase(transferLocalDateToMillis(date)).flowOn(Dispatchers.IO)
+                        .collect { result ->
+                            when(result) {
+                                is UseCaseResult.Error -> {
+
+                                }
+                                is UseCaseResult.Failure -> {
+
+                                }
+                                is UseCaseResult.Success -> {
+                                    _uiState.update { currentState ->
+                                        currentState.copy(
+                                            todoListState = currentState.todoListState.copy(
+                                                todoList = result.data,
+                                                isLoading = false,
+                                                error = ""
+                                            )
+                                        )
+                                    }
+                                }
+                            }
+                        }
                 }
             }
         }
