@@ -190,11 +190,10 @@ class EditViewModel(
                                 content = todo.description ?: ""
                             ),
                             dateInputState = when {
-                                todo.startDate != null -> DateInputState.Period(
+                                (todo.startDate != null && todo.endDate != null)-> DateInputState.Period(
                                     todo.startDate!!,
                                     todo.endDate!!
                                 )
-
                                 (todo.dayOfWeeks != null) -> DateInputState.DayOfWeek(todo.dayOfWeeks!!)
                                 else -> DateInputState.Date(todo.date)
                             },

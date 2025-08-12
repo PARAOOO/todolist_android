@@ -52,7 +52,7 @@ class PostDayOfWeekUseCase(
                 val today = LocalDate.now()
                 val now = LocalTime.now()
 
-                val todoTime = LocalTime.of(todo.time.hour, todo.time.minute) // ⏰ 시간 조합
+                val todoTime = LocalTime.of(todo.time.hour, todo.time.minute)
                 val isTimePassed = now > todoTime
 
                 val startDayOffset = if (isTimePassed) 1 else 0

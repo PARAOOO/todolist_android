@@ -17,7 +17,7 @@ class FindTodoByIdUseCase(
     suspend operator fun invoke(instanceId: Long): UseCaseResult<TodoModel> {
 
         try {
-            val findTodoByIdResponse = todoRepository.findTodoById(instanceId)
+            val findTodoByIdResponse = todoRepository.findTodoById(instanceId) ?: return UseCaseResult.Failure("id가 유효하지 않습니다.")
 
             val instance = findTodoByIdResponse.todoInstance
             val template = findTodoByIdResponse.todoTemplate
