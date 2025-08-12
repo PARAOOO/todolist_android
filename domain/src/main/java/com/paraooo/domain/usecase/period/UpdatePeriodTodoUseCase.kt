@@ -25,9 +25,9 @@ class UpdatePeriodTodoUseCase(
     suspend operator fun invoke(todo: TodoModel): UseCaseResult<Unit> {
 
         try{
-            val instanceTodo = todoInstanceRepository.getTodoInstanceById(todo.instanceId)
+            val instanceTodo = todoInstanceRepository.getTodoInstanceById(todo.instanceId) ?: return UseCaseResult.Failure("id가 유효하지 않습니다.")
             val existingInstances =
-                todoInstanceRepository.getInstancesByTemplateId(instanceTodo!!.templateId)
+                todoInstanceRepository.getInstancesByTemplateId(instanceTodo.templateId)
 
             val todoTemplate = TodoTemplateModel(
                 id = instanceTodo.templateId,

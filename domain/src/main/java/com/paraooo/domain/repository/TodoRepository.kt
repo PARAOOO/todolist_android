@@ -18,7 +18,7 @@ interface TodoRepository {
 
     suspend fun getTodoInstanceById(instanceId: Long) : TodoInstanceModel?
 
-    suspend fun findTodoById(instanceId : Long) : FindTodoByIdResponse
+    suspend fun findTodoById(instanceId : Long) : FindTodoByIdResponse?
 
     suspend fun postTodo(todoTemplate: TodoTemplateModel, todoInstance : TodoInstanceModel) : Long
 

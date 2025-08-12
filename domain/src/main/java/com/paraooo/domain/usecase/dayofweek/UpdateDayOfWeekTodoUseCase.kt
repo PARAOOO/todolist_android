@@ -38,7 +38,7 @@ class UpdateDayOfWeekTodoUseCase(
             )
 
             val existingDaysSet = existingDayOfWeeks.map { it.dayOfWeek }.toSet()
-            val newDaysSet = todo.dayOfWeeks!!.toSet()
+            val newDaysSet = todo.dayOfWeeks?.toSet() ?: return UseCaseResult.Failure("id가 유효하지 않습니다.")
 
             val daysToDelete = (existingDaysSet - newDaysSet).toList()
 
