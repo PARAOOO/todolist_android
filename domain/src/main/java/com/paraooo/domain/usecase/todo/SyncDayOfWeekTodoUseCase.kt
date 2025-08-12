@@ -12,11 +12,21 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.transformLatest
 
 class SyncDayOfWeekTodoUseCase(
-    private val todoRepository: TodoRepository
+    private val todoRepository: TodoRepository,
+    private val todoTemplateRepository: TodoTemplateRepository,
+    private val todoDayOfWeekRepository: TodoDayOfWeekRepository
 ) {
     suspend operator fun invoke(date: Long): UseCaseResult<Unit> {
         try{
-            todoRepository.syncDayOfWeekInstance(date)
+            val currentList = todoTemplateRepository.getTodosByDate(date)
+
+            val existingTemplateIds = currentList.map { it.templateId }.toSet()
+            val dayOfWeekTemplates = todoDayOfWeekRepository.getDayOfWeekTodoTemplatesByDate(date)
+            val newInstances = dayOfWeekTemplates.filterNot { existingTemplateIds.contains(it.id) }.map {
+                TodoInstanceModel(templateId = it.id, date = date)
+            }
+
+            todoRepository.syncDayOfWeekInstance(newInstances)
             return UseCaseResult.Success(Unit)
         }catch (e: Exception) {
             return UseCaseResult.Error(e)

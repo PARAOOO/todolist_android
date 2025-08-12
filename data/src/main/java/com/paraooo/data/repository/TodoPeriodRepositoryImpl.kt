@@ -13,6 +13,9 @@ import com.paraooo.local.datasource.TodoPeriodLocalDataSource
 import com.paraooo.local.datasource.TodoTemplateLocalDataSource
 import com.paraooo.local.entity.TodoPeriod
 import com.paraooo.local.entity.TodoPeriodWithTime
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import java.time.LocalDate
 
 internal class TodoPeriodRepositoryImpl(
@@ -27,10 +30,21 @@ internal class TodoPeriodRepositoryImpl(
         todoInstances: List<TodoInstanceModel>,
         todoPeriod: TodoPeriodModel
     ) {
-        transactionProvider.runInTransaction{
+        transactionProvider.runInTransaction {
             val templateId = todoTemplateLocalDataSource.insertTodoTemplate(todoTemplate.toEntity())
-            todoInstanceLocalDataSource.insertTodoInstances(todoInstances.map { it.toEntity().copy(templateId = templateId) })
-            todoPeriodLocalDataSource.insertTodoPeriod(todoPeriod.toEntity().copy(templateId = templateId))
+
+            coroutineScope {
+                val jobs = listOf(
+                    async {
+                        todoInstanceLocalDataSource.insertTodoInstances(todoInstances.map { it.toEntity().copy(templateId = templateId) })
+                    },
+                    async {
+                        todoPeriodLocalDataSource.insertTodoPeriod(todoPeriod.toEntity().copy(templateId = templateId))
+                    }
+                )
+
+                jobs.awaitAll()
+            }
         }
     }
 
@@ -42,10 +56,15 @@ internal class TodoPeriodRepositoryImpl(
         todoInstancesToInsert: List<TodoInstanceModel>
     ) {
         transactionProvider.runInTransaction {
-            todoTemplateLocalDataSource.updateTodoTemplate(todoTemplate = todoTemplate.toEntity())
-            todoPeriodLocalDataSource.updateTodoPeriod(todoPeriod = todoPeriod.toEntity())
-            todoInstanceLocalDataSource.deleteInstancesByDates(templateId, datesToDelete)
-            todoInstanceLocalDataSource.insertTodoInstances(todoInstancesToInsert.map { it.toEntity() })
+            coroutineScope {
+                val jobs = listOf(
+                    async { todoTemplateLocalDataSource.updateTodoTemplate(todoTemplate = todoTemplate.toEntity()) },
+                    async { todoPeriodLocalDataSource.updateTodoPeriod(todoPeriod = todoPeriod.toEntity()) },
+                    async { todoInstanceLocalDataSource.deleteInstancesByDates(templateId, datesToDelete) },
+                    async { todoInstanceLocalDataSource.insertTodoInstances(todoInstancesToInsert.map { it.toEntity() }) }
+                )
+                jobs.awaitAll()
+            }
         }
     }
 

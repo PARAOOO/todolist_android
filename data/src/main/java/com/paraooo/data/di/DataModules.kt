@@ -29,8 +29,6 @@ import com.paraooo.domain.usecase.todo.UpdateTodoUseCase
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
-
-
 private val repositoryModule = module {
     single<TodoTemplateRepository> { TodoTemplateRepositoryImpl(get()) }
     single<TodoInstanceRepository> { TodoInstanceRepositoryImpl(get()) }
@@ -38,7 +36,6 @@ private val repositoryModule = module {
     single<TodoDayOfWeekRepository> { TodoDayOfWeekRepositoryImpl(get(), get(), get()) }
     single<TodoRepository> { TodoRepositoryImpl(get(), get(),get(),get(), get()) }
 }
-
 
 private val alarmSchedulerModule = module {
     single<AlarmScheduler> { AlarmSchedulerImpl(androidContext()) }
@@ -64,7 +61,7 @@ private val useCaseModule = module {
     single { UpdatePeriodTodoUseCase(get(), get(), get()) }
     single { UpdateDayOfWeekTodoUseCase(get(), get(), get()) }
 
-    single { SyncDayOfWeekTodoUseCase(get()) }
+    single { SyncDayOfWeekTodoUseCase(get(), get(), get()) }
     single { ObserveTodosUseCase(get()) }
 }
 

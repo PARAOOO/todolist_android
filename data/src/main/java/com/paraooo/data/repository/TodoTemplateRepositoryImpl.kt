@@ -18,8 +18,11 @@ internal class TodoTemplateRepositoryImpl(
         return todoTemplateLocalDataSource.getTodoTemplateById(id)?.toModel()
     }
 
+    override suspend fun getTodosByDate(date: Long): List<TodoModel> {
+        return todoTemplateLocalDataSource.getTodosByDate(date).map { it.toModel() }
+    }
+
     override suspend fun getAlarmTodos(todayMillis: Long): List<TodoModel> {
         return todoTemplateLocalDataSource.getAlarmTodos(todayMillis).map { it.toModel() }
     }
-
 }

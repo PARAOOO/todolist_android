@@ -9,6 +9,9 @@ import com.paraooo.domain.repository.TodoDayOfWeekRepository
 import com.paraooo.local.database.TransactionProvider
 import com.paraooo.local.datasource.TodoDayOfWeekLocalDataSource
 import com.paraooo.local.datasource.TodoTemplateLocalDataSource
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 
 internal class TodoDayOfWeekRepositoryImpl(
     private val todoDayOfWeekLocalDataSource: TodoDayOfWeekLocalDataSource,
@@ -37,15 +40,25 @@ internal class TodoDayOfWeekRepositoryImpl(
         dayOfWeeksToInsert: List<TodoDayOfWeekModel>
     ) {
         transactionProvider.runInTransaction {
-            todoTemplateLocalDataSource.updateTodoTemplate(todoTemplate.toEntity())
-            todoDayOfWeekLocalDataSource.deleteSpecificDayOfWeeks(templateId, dayOfWeeksToDelete)
-            todoDayOfWeekLocalDataSource.deleteInstancesByTemplateIdAndDaysOfWeek(templateId, dayOfWeeksToDelete)
-            todoDayOfWeekLocalDataSource.insertDayOfWeekTodos(dayOfWeeksToInsert.map { it.toEntity() })
+            coroutineScope {
+                val jobs = listOf(
+                    async { todoTemplateLocalDataSource.updateTodoTemplate(todoTemplate.toEntity()) },
+                    async { todoDayOfWeekLocalDataSource.deleteSpecificDayOfWeeks(templateId, dayOfWeeksToDelete) },
+                    async { todoDayOfWeekLocalDataSource.deleteInstancesByTemplateIdAndDaysOfWeek(templateId, dayOfWeeksToDelete) },
+                    async { todoDayOfWeekLocalDataSource.insertDayOfWeekTodos(dayOfWeeksToInsert.map { it.toEntity() }) }
+                )
+
+                jobs.awaitAll()
+            }
         }
     }
 
     override suspend fun getDayOfWeekByTemplateId(templateId: Long): List<TodoDayOfWeekModel> {
         return todoDayOfWeekLocalDataSource.getDayOfWeekByTemplateId(templateId).map { it.toModel() }
+    }
+
+    override suspend fun getDayOfWeekTodoTemplatesByDate(date: Long): List<TodoTemplateModel> {
+        return todoDayOfWeekLocalDataSource.getDayOfWeekTodoTemplatesByDate(date).map { it.toModel() }
     }
 
     override suspend fun getAlarmDayOfWeekTodos(): List<TodoDayOfWeekWithTimeModel> {

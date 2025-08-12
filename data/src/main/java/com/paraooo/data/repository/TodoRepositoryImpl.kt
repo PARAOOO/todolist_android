@@ -13,6 +13,9 @@ import com.paraooo.local.datasource.TodoInstanceLocalDataSource
 import com.paraooo.local.datasource.TodoPeriodLocalDataSource
 import com.paraooo.local.datasource.TodoTemplateLocalDataSource
 import com.paraooo.local.entity.TodoInstance
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -29,18 +32,21 @@ class TodoRepositoryImpl(
     }
 
     override suspend fun findTodoById(instanceId: Long): FindTodoByIdResponse {
-        return transactionProvider.runInTransaction {
-            val instance = todoInstanceLocalDataSource.getTodoInstanceById(instanceId)
-            val template = todoTemplateLocalDataSource.getTodoTemplateById(instance!!.templateId)
-            val period = todoPeriodLocalDataSource.getTodoPeriodByTemplateId(instance.templateId)
-            val dayOfWeek = todoDayOfWeekLocalDataSource.getDayOfWeekByTemplateId(instance.templateId)
+        val instance = todoInstanceLocalDataSource.getTodoInstanceById(instanceId)
 
-            FindTodoByIdResponse(
-                todoInstance = instance.toModel(),
-                todoTemplate = template!!.toModel(),
-                todoPeriod = period?.toModel(),
-                todoDayOfWeek = dayOfWeek.map { it.toModel() }
-            )
+        return transactionProvider.runInTransaction {
+            coroutineScope {
+                val templateDeferred = async { todoTemplateLocalDataSource.getTodoTemplateById(instance!!.templateId) }
+                val periodDeferred = async { todoPeriodLocalDataSource.getTodoPeriodByTemplateId(instance!!.templateId) }
+                val dayOfWeekDeferred = async { todoDayOfWeekLocalDataSource.getDayOfWeekByTemplateId(instance!!.templateId) }
+
+                FindTodoByIdResponse(
+                    todoInstance = instance!!.toModel(),
+                    todoTemplate = templateDeferred.await()!!.toModel(),
+                    todoPeriod = periodDeferred.await()?.toModel(),
+                    todoDayOfWeek = dayOfWeekDeferred.await().map { it.toModel() }
+                )
+            }
         }
     }
 
@@ -64,13 +70,13 @@ class TodoRepositoryImpl(
         todoInstance: TodoInstanceModel
     ) {
         transactionProvider.runInTransaction {
-            todoTemplateLocalDataSource.updateTodoTemplate(
-                todoTemplate.toEntity()
-            )
-
-            todoInstanceLocalDataSource.updateTodoInstance(
-                todoInstance.toEntity()
-            )
+            coroutineScope {
+                val jobs = listOf(
+                    async { todoTemplateLocalDataSource.updateTodoTemplate(todoTemplate.toEntity()) },
+                    async { todoInstanceLocalDataSource.updateTodoInstance(todoInstance.toEntity()) },
+                )
+                jobs.awaitAll()
+            }
         }
     }
 
@@ -82,17 +88,8 @@ class TodoRepositoryImpl(
         todoTemplateLocalDataSource.deleteTodoTemplate(templateId)
     }
 
-    override suspend fun syncDayOfWeekInstance(date: Long) {
-        transactionProvider.runInTransaction {
-            val currentList = todoTemplateLocalDataSource.getTodosByDate(date)
-            val existingTemplateIds = currentList.map { it.templateId }.toSet()
-            val dayOfWeekTemplates = todoDayOfWeekLocalDataSource.getDayOfWeekTodoTemplatesByDate(date)
-            val newInstances = dayOfWeekTemplates.filterNot { existingTemplateIds.contains(it.id) }.map {
-                TodoInstance(templateId = it.id, date = date)
-            }
-
-            todoInstanceLocalDataSource.insertTodoInstances(newInstances)
-        }
+    override suspend fun syncDayOfWeekInstance(todoInstances: List<TodoInstanceModel>) {
+        todoInstanceLocalDataSource.insertTodoInstances(todoInstances.map { it.toEntity() })
     }
 
     override suspend fun observeTodosByDate(date: Long): Flow<List<TodoModel>> {
