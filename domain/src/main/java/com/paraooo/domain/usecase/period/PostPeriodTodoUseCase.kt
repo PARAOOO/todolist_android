@@ -6,6 +6,7 @@ import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.model.TodoPeriodModel
 import com.paraooo.domain.model.TodoTemplateModel
 import com.paraooo.domain.model.TodoType
+import com.paraooo.domain.model.UseCaseResult
 import com.paraooo.domain.repository.AlarmScheduler
 import com.paraooo.domain.repository.TodoInstanceRepository
 import com.paraooo.domain.repository.TodoPeriodRepository
@@ -23,63 +24,69 @@ class PostPeriodTodoUseCase(
     private val alarmScheduler: AlarmScheduler
 ) {
 
-    suspend operator fun invoke(todo: TodoModel, startDate: LocalDate, endDate: LocalDate) {
+    suspend operator fun invoke(todo: TodoModel, startDate: LocalDate, endDate: LocalDate): UseCaseResult<Unit> {
 
-        val todoTemplate = TodoTemplateModel(
-            title = todo.title,
-            description = todo.description ?: "",
-            hour = todo.time?.hour,
-            minute = todo.time?.minute,
-            type = TodoType.PERIOD,
-            alarmType = todo.alarmType,
-            isAlarmHasVibration = todo.isAlarmHasVibration,
-            isAlarmHasSound = todo.isAlarmHasSound
-        )
-
-        val todos = mutableListOf<TodoInstanceModel>()
-
-        var currentDate = startDate
-        while (currentDate <= endDate) {
-            todos.add(
-                TodoInstanceModel(
-                    templateId = 0,
-                    date = transferLocalDateToMillis(currentDate)
-                )
+        try{
+            val todoTemplate = TodoTemplateModel(
+                title = todo.title,
+                description = todo.description ?: "",
+                hour = todo.time?.hour,
+                minute = todo.time?.minute,
+                type = TodoType.PERIOD,
+                alarmType = todo.alarmType,
+                isAlarmHasVibration = todo.isAlarmHasVibration,
+                isAlarmHasSound = todo.isAlarmHasSound
             )
-            currentDate = currentDate.plusDays(1)
-        }
 
-        val todoPeriod = TodoPeriodModel(
-            templateId = 0,
-            startDate = transferLocalDateToMillis(startDate),
-            endDate = transferLocalDateToMillis(endDate)
-        )
+            val todos = mutableListOf<TodoInstanceModel>()
 
-        todoPeriodRepository.postTodoPeriod(
-            todoTemplate = todoTemplate,
-            todoInstances = todos,
-            todoPeriod = todoPeriod
-        )
-
-        if(todo.time != null && todo.alarmType != AlarmType.OFF){
-            val nowLocalDateMillis = transferLocalDateToMillis(LocalDate.now())
-
-            for (todoInstance in todos) {
-
-                val alarmMillis = todoToMillis(
-                    date = transferMillis2LocalDate(todoInstance.date),
-                    time = todo.time
-                )
-
-                if (alarmMillis >= nowLocalDateMillis + 100) {
-                    alarmScheduler.schedule(
-                        date = transferMillis2LocalDate(todoInstance.date),
-                        time = todo.time,
-                        templateId = todoInstance.templateId,
+            var currentDate = startDate
+            while (currentDate <= endDate) {
+                todos.add(
+                    TodoInstanceModel(
+                        templateId = 0,
+                        date = transferLocalDateToMillis(currentDate)
                     )
-                    break
+                )
+                currentDate = currentDate.plusDays(1)
+            }
+
+            val todoPeriod = TodoPeriodModel(
+                templateId = 0,
+                startDate = transferLocalDateToMillis(startDate),
+                endDate = transferLocalDateToMillis(endDate)
+            )
+
+            todoPeriodRepository.postTodoPeriod(
+                todoTemplate = todoTemplate,
+                todoInstances = todos,
+                todoPeriod = todoPeriod
+            )
+
+            if (todo.time != null && todo.alarmType != AlarmType.OFF) {
+                val nowLocalDateMillis = transferLocalDateToMillis(LocalDate.now())
+
+                for (todoInstance in todos) {
+
+                    val alarmMillis = todoToMillis(
+                        date = transferMillis2LocalDate(todoInstance.date),
+                        time = todo.time
+                    )
+
+                    if (alarmMillis >= nowLocalDateMillis + 100) {
+                        alarmScheduler.schedule(
+                            date = transferMillis2LocalDate(todoInstance.date),
+                            time = todo.time,
+                            templateId = todoInstance.templateId,
+                        )
+                        break
+                    }
                 }
             }
+
+            return UseCaseResult.Success(Unit)
+        } catch (e: Exception) {
+            return UseCaseResult.Error(e)
         }
 
     }

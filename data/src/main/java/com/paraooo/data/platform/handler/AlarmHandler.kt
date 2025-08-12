@@ -17,7 +17,6 @@ import com.paraooo.domain.util.transferMillis2LocalDate
 import java.time.LocalDate
 
 class AlarmHandler(
-    private val alarmScheduler: AlarmSchedulerImpl,
     private val notificationHelper: NotificationHelper,
     private val calculateNextAlarmUseCase: CalculateNextAlarmUseCase,
     private val scheduleAlarmsUseCase: ScheduleAlarmsUseCase,
@@ -52,45 +51,6 @@ class AlarmHandler(
                 listOf(alarmSchedule)
             )
         }
-
-//        val todayMillis = transferLocalDateToMillis(LocalDate.now())
-//        val todayLocalDate = LocalDate.now()
-//
-//        val todoInstances = todoInstanceLocalDataSource.getInstancesByTemplateId(templateId)
-//        val todoTemplate = todoTemplateLocalDataSource.getTodoTemplateById(templateId) ?: return Result.failure()
-//        val period = todoPeriodLocalDataSource.getTodoPeriodByTemplateId(templateId)
-//        val dayOfWeek = todoDayOfWeekLocalDataSource.getDayOfWeekByTemplateId(templateId).takeIf { it.isNotEmpty() }
-//
-//
-//
-//        when(todoTemplate.type) {
-//            TodoTypeEntity.GENERAL -> {
-//
-//            }
-//            TodoTypeEntity.PERIOD -> {
-//                if(period!!.endDate > todayMillis) {
-//                    val tomorrowLocalDate = todayLocalDate.plusDays(1)
-//                    alarmScheduler.schedule(
-//                        date = tomorrowLocalDate,
-//                        time = Time(todoTemplate.hour!!, todoTemplate.minute!!),
-//                        templateId = templateId
-//                    )
-//                }
-//            }
-//            TodoTypeEntity.DAY_OF_WEEK -> {
-//                val availableDays = dayOfWeek!!.first().dayOfWeeks
-//
-//                val nextAlarmDate = (1..7)
-//                    .map { todayLocalDate.plusDays(it.toLong()) }
-//                    .first { availableDays.contains(it.dayOfWeek.value) }
-//
-//                alarmScheduler.schedule(
-//                    date = nextAlarmDate,
-//                    time = Time(todoTemplate.hour!!, todoTemplate.minute!!),
-//                    templateId = templateId
-//                )
-//            }
-//        }
 
         if (todayInstance != null && todayInstance.progressAngle < 360F){
             when(todoTemplate.alarmType) {

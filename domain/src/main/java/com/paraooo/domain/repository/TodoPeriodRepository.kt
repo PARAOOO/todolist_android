@@ -12,10 +12,6 @@ interface TodoPeriodRepository {
 
     suspend fun updateTodoPeriod(templateId : Long, todoTemplate : TodoTemplateModel, todoPeriod: TodoPeriodModel, datesToDelete : Set<Long>, todoInstancesToInsert: List<TodoInstanceModel>)
 
-    suspend fun insertTodoPeriod(todoPeriod: TodoPeriodModel)
-
-    suspend fun deleteTodoPeriod(todoPeriod: TodoPeriodModel)
-
     suspend fun getTodoPeriodByTemplateId(templateId: Long): TodoPeriodModel?
 
     suspend fun getAlarmPeriodTodos(todayMillis: Long): List<TodoPeriodWithTimeModel>

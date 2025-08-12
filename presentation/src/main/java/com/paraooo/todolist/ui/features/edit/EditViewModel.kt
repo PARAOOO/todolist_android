@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.paraooo.domain.model.AlarmType
 import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
+import com.paraooo.domain.model.UseCaseResult
 import com.paraooo.domain.usecase.todo.FindTodoByIdUseCase
 import com.paraooo.domain.usecase.dayofweek.UpdateDayOfWeekTodoUseCase
 import com.paraooo.domain.usecase.period.UpdatePeriodTodoUseCase
@@ -165,49 +166,56 @@ class EditViewModel(
     }
 
     private suspend fun fetchTodo(instanceId: Long) {
-        try {
-            val todo = withContext(Dispatchers.IO){
-                findTodoByIdUseCase(instanceId)
-            }
-            Log.d(TAG, "fetchTodo: ${todo}")
-            _uiState.update { state ->
-                state.copy(
-                    todoInputState = state.todoInputState.copy(
-                        todoNameInputState = state.todoInputState.todoNameInputState.copy(
-                            content = todo.title
-                        ),
-                        descriptionInputState = state.todoInputState.descriptionInputState.copy(
-                            content = todo.description ?: ""
-                        ),
-                        dateInputState = when {
-                            todo.startDate != null -> DateInputState.Period(
-                                todo.startDate!!,
-                                todo.endDate!!
-                            )
 
-                            (todo.dayOfWeeks != null) -> DateInputState.DayOfWeek(todo.dayOfWeeks!!)
-                            else -> DateInputState.Date(todo.date)
-                        },
-                        timeInputState = when (todo.time) {
-                            null -> TimeInputState.NoTime
-                            else -> TimeInputState.Time(todo.time!!.hour, todo.time!!.minute)
-                        },
-                        alarmInputState = state.todoInputState.alarmInputState.copy(
-                            alarmType = todo.alarmType
-                        ),
-                        alarmSettingInputState = state.todoInputState.alarmSettingInputState.copy(
-                            sound = todo.isAlarmHasSound,
-                            vibration = todo.isAlarmHasVibration
-                        )
-                    )
-                )
-            }
-            selectedTodo.value = todo
-            onEvent(EditUiEvent.onTodoNameInputChanged(todo.title))
-        } catch(e : Exception) {
-            Log.d(TAG, "fetchTodo: ${e}")
+        val result = withContext(Dispatchers.IO){
+            findTodoByIdUseCase(instanceId)
         }
 
+        when(result) {
+            is UseCaseResult.Error -> {
+
+            }
+            is UseCaseResult.Failure -> {
+
+            }
+            is UseCaseResult.Success -> {
+                val todo = result.data
+                _uiState.update { state ->
+                    state.copy(
+                        todoInputState = state.todoInputState.copy(
+                            todoNameInputState = state.todoInputState.todoNameInputState.copy(
+                                content = todo.title
+                            ),
+                            descriptionInputState = state.todoInputState.descriptionInputState.copy(
+                                content = todo.description ?: ""
+                            ),
+                            dateInputState = when {
+                                todo.startDate != null -> DateInputState.Period(
+                                    todo.startDate!!,
+                                    todo.endDate!!
+                                )
+
+                                (todo.dayOfWeeks != null) -> DateInputState.DayOfWeek(todo.dayOfWeeks!!)
+                                else -> DateInputState.Date(todo.date)
+                            },
+                            timeInputState = when (todo.time) {
+                                null -> TimeInputState.NoTime
+                                else -> TimeInputState.Time(todo.time!!.hour, todo.time!!.minute)
+                            },
+                            alarmInputState = state.todoInputState.alarmInputState.copy(
+                                alarmType = todo.alarmType
+                            ),
+                            alarmSettingInputState = state.todoInputState.alarmSettingInputState.copy(
+                                sound = todo.isAlarmHasSound,
+                                vibration = todo.isAlarmHasVibration
+                            )
+                        )
+                    )
+                }
+                selectedTodo.value = todo
+                onEvent(EditUiEvent.onTodoNameInputChanged(todo.title))
+            }
+        }
     }
 
     suspend fun updateTodo(instanceId : Long) {

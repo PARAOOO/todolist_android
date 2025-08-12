@@ -2,6 +2,7 @@ package com.paraooo.local.di
 
 import androidx.room.Room
 import com.paraooo.local.database.TodoDatabase
+import com.paraooo.local.database.TransactionProvider
 import com.paraooo.local.datasource.TodoDayOfWeekLocalDataSource
 import com.paraooo.local.datasource.TodoInstanceLocalDataSource
 import com.paraooo.local.datasource.TodoPeriodLocalDataSource
@@ -44,6 +45,10 @@ private val dataSourceModule = module {
     single<TodoDayOfWeekLocalDataSource> { TodoDayOfWeekLocalDataSourceImpl(get()) }
 }
 
+private val providerModule = module {
+    single<TransactionProvider> { get<TodoDatabase>() }
+}
+
 val localModules = module {
-    includes(databaseModule, dataSourceModule)
+    includes(databaseModule, dataSourceModule, providerModule)
 }
