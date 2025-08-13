@@ -43,7 +43,8 @@ class AlarmRestoreHandler(
             alarmPeriodTodos = alarmPeriodTodos,
             alarmDayOfWeekTodos = alarmDayOfWeekTodos,
             todayLocalDate = LocalDate.now(),
-            todayLocalDateTime = LocalDateTime.now()
+            todayLocalDateTime = LocalDateTime.now(),
+            todayLocalTime = LocalTime.now()
         )
 
         scheduleAlarmsUseCase(alarmSchedules)

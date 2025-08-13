@@ -17,6 +17,7 @@ class CalculateAlarmToRestoreUseCase() {
     suspend operator fun invoke(
         todayLocalDateTime: LocalDateTime,
         todayLocalDate: LocalDate,
+        todayLocalTime: LocalTime,
         alarmTodos: List<TodoModel>,
         alarmPeriodTodos: List<TodoPeriodWithTimeModel>,
         alarmDayOfWeekTodos: List<TodoDayOfWeekWithTimeModel>
@@ -54,19 +55,19 @@ class CalculateAlarmToRestoreUseCase() {
             //    else : today + 1에 schedule
             // endDateTime < todayTime : schedule 안함
 
-            val todayDateTime = LocalDateTime.now()
-            val todayTime = LocalTime.now()
+            val todayDateTime = todayLocalDateTime
+            val todayTime = todayLocalTime
             val alarmTime = LocalTime.of(alarmPeriodTodo.hour!!, alarmPeriodTodo.minute!!)
 
             val startDate = transferMillis2LocalDate(alarmPeriodTodo.startDate)
-            val startDateTime = startDate.atTime(alarmPeriodTodo.hour!!, alarmPeriodTodo.minute!!)
+            val startDateTime = startDate.atTime(alarmPeriodTodo.hour, alarmPeriodTodo.minute)
             val endDate = transferMillis2LocalDate(alarmPeriodTodo.endDate)
-            val endDateTime = endDate.atTime(alarmPeriodTodo.hour!!, alarmPeriodTodo.minute!!)
+            val endDateTime = endDate.atTime(alarmPeriodTodo.hour, alarmPeriodTodo.minute)
 
             if(startDateTime >= todayDateTime){
                 val alarmSchedule = AlarmSchedule(
                     date = startDate,
-                    time = Time(alarmPeriodTodo.hour!!, alarmPeriodTodo.minute!!),
+                    time = Time(alarmPeriodTodo.hour, alarmPeriodTodo.minute),
                     templateId = alarmPeriodTodo.templateId,
                 )
                 alarmSchedules.add(alarmSchedule)
@@ -78,7 +79,7 @@ class CalculateAlarmToRestoreUseCase() {
 
                 val alarmSchedule = AlarmSchedule(
                     date = alarmDate,
-                    time = Time(alarmPeriodTodo.hour!!, alarmPeriodTodo.minute!!),
+                    time = Time(alarmPeriodTodo.hour, alarmPeriodTodo.minute),
                     templateId = alarmPeriodTodo.templateId,
                 )
                 alarmSchedules.add((alarmSchedule))
@@ -88,10 +89,10 @@ class CalculateAlarmToRestoreUseCase() {
         for (alarmDayOfWeekTodo in alarmDayOfWeekTodos) {
             val availableDays = alarmDayOfWeekTodo.dayOfWeeks
 
-            val today = LocalDate.now()
-            val now = LocalTime.now()
+            val today = todayLocalDate
+            val now = todayLocalTime
 
-            val todoTime = LocalTime.of(alarmDayOfWeekTodo.hour!!, alarmDayOfWeekTodo.minute!!) // ⏰ 시간 조합
+            val todoTime = LocalTime.of(alarmDayOfWeekTodo.hour!!, alarmDayOfWeekTodo.minute!!)
             val isTimePassed = now > todoTime
 
             val startDayOffset = if (isTimePassed) 1 else 0
@@ -104,7 +105,7 @@ class CalculateAlarmToRestoreUseCase() {
 
             val alarmSchedule = AlarmSchedule(
                 date = alarmDate,
-                time = Time(alarmDayOfWeekTodo.hour!!, alarmDayOfWeekTodo.minute!!),
+                time = Time(alarmDayOfWeekTodo.hour, alarmDayOfWeekTodo.minute),
                 templateId = alarmDayOfWeekTodo.templateId
             )
             alarmSchedules.add(alarmSchedule)
