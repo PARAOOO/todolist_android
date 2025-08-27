@@ -17,6 +17,7 @@ import com.paraooo.todolist.ui.features.home.HomeScreen
 import com.paraooo.todolist.ui.features.privacy_policy.PrivacyPolicyScreen
 import com.paraooo.todolist.ui.features.routine_create.RoutineCreateScreen
 import com.paraooo.todolist.ui.features.setting.SettingScreen
+import com.paraooo.todolist.ui.features.signup.SignUpScreen
 import com.paraooo.todolist.ui.features.splash.SplashScreen
 import com.paraooo.todolist.ui.features.start.StartScreen
 import com.paraooo.todolist.ui.util.pxToDp
@@ -52,6 +53,12 @@ fun AppNavGraph(navController: NavHostController) {
 
         composable(Destinations.Start.route) {
             StartScreen(
+                navController = navController
+            )
+        }
+
+        composable(Destinations.SignUp.route) {
+            SignUpScreen(
                 navController = navController
             )
         }

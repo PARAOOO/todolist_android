@@ -149,7 +149,10 @@ fun StartScreen(
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Normal,
                 fontFamily = PretendardFontFamily,
-                color = Color(0xFF8F8F8F)
+                color = Color(0xFF8F8F8F),
+                modifier = Modifier.roundedClickable(12.dp) {
+                    navController.navigate(Destinations.SignUp.route)
+                }
             )
         }
 
