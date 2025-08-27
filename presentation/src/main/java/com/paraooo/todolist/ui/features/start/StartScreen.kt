@@ -1,5 +1,6 @@
 package com.paraooo.todolist.ui.features.start
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,13 +28,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import org.koin.androidx.compose.koinViewModel
 import com.paraooo.todolist.R
 import com.paraooo.todolist.ui.features.create.CreateUiEvent
+import com.paraooo.todolist.ui.features.home.HomeUiEffect
 import com.paraooo.todolist.ui.features.start.component.LoginInputForm
+import com.paraooo.todolist.ui.navigation.Destinations
 import com.paraooo.todolist.ui.theme.PretendardFontFamily
 import com.paraooo.todolist.ui.util.roundedClickable
 
@@ -44,6 +50,20 @@ fun StartScreen(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(viewModel.effectFlow, lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.effectFlow.collect { effect ->
+                when (effect) {
+                    StartUiEffect.onLoginSuccess -> {
+                        navController.navigate(Destinations.Home.route){
+                            popUpTo(Destinations.Start.route){inclusive = true}
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -114,10 +134,11 @@ fun StartScreen(
             uiState.loginErrorMessage?.let { errorMessage ->
                 Text(
                     text = errorMessage,
-                    fontSize = 14.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Normal,
                     fontFamily = PretendardFontFamily,
-                    color = Color(0xFFFF6E6E)
+                    color = Color(0xFFFF6E6E),
+                    modifier = Modifier.padding(top = 4.dp)
                 )
             }
 
