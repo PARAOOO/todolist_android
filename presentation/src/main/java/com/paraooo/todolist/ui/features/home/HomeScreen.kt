@@ -137,17 +137,17 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ){
-                    Image(
-                        painter = painterResource(R.drawable.ic_routine),
-                        contentDescription = "routine button",
-                        modifier = Modifier
-                            .size(24.dp)
-                            .circleClickable(20.dp) {
-                                navController.navigate(Destinations.RoutineCreate.route)
-                            }
-                    )
-
-                    Spacer(modifier = Modifier.width(16.dp))
+//                    Image(
+//                        painter = painterResource(R.drawable.ic_routine),
+//                        contentDescription = "routine button",
+//                        modifier = Modifier
+//                            .size(24.dp)
+//                            .circleClickable(20.dp) {
+//                                navController.navigate(Destinations.RoutineCreate.route)
+//                            }
+//                    )
+//
+//                    Spacer(modifier = Modifier.width(16.dp))
 
                     Image(
                         painter = painterResource(R.drawable.ic_setting),
