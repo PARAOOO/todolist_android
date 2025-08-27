@@ -2,6 +2,7 @@ package com.paraooo.todolist.ui.features.alarm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.paraooo.domain.model.UseCaseResult
 import com.paraooo.domain.usecase.todo.FindTodoByIdUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,17 +23,27 @@ class AlarmViewModel(
         viewModelScope.launch {
             when (event) {
                 is AlarmUiEvent.onInit -> {
-                    val todoTemplate = withContext(Dispatchers.IO){
+                    val result = withContext(Dispatchers.IO){
                         findTodoByIdUseCase(event.instanceId)
                     }
 
-                    _uiState.update { state ->
-                        state.copy(
-                            instanceId = todoTemplate.instanceId,
-                            todoName = todoTemplate.title,
-                            vibration = todoTemplate.isAlarmHasVibration,
-                            sound = todoTemplate.isAlarmHasSound
-                        )
+                    when(result) {
+                        is UseCaseResult.Error -> {
+
+                        }
+                        is UseCaseResult.Failure -> {
+
+                        }
+                        is UseCaseResult.Success -> {
+                            _uiState.update { state ->
+                                state.copy(
+                                    instanceId = result.data.instanceId,
+                                    todoName = result.data.title,
+                                    vibration = result.data.isAlarmHasVibration,
+                                    sound = result.data.isAlarmHasSound
+                                )
+                            }
+                        }
                     }
                 }
             }

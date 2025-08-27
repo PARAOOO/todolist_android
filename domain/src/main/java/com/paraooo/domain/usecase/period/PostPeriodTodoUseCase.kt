@@ -6,9 +6,11 @@ import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.model.TodoPeriodModel
 import com.paraooo.domain.model.TodoTemplateModel
 import com.paraooo.domain.model.TodoType
+import com.paraooo.domain.model.UseCaseResult
 import com.paraooo.domain.repository.AlarmScheduler
 import com.paraooo.domain.repository.TodoInstanceRepository
 import com.paraooo.domain.repository.TodoPeriodRepository
+import com.paraooo.domain.repository.TodoRepository
 import com.paraooo.domain.repository.TodoTemplateRepository
 import com.paraooo.domain.util.todoToMillis
 import com.paraooo.domain.util.transferLocalDateToMillis
@@ -18,15 +20,13 @@ import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
 class PostPeriodTodoUseCase(
-    private val todoInstanceRepository: TodoInstanceRepository,
-    private val todoTemplateRepository: TodoTemplateRepository,
     private val todoPeriodRepository: TodoPeriodRepository,
     private val alarmScheduler: AlarmScheduler
 ) {
 
-    suspend operator fun invoke(todo: TodoModel, startDate: LocalDate, endDate: LocalDate) {
-        withContext(Dispatchers.IO){
+    suspend operator fun invoke(todo: TodoModel, startDate: LocalDate, endDate: LocalDate): UseCaseResult<Unit> {
 
+        try{
             val todoTemplate = TodoTemplateModel(
                 title = todo.title,
                 description = todo.description ?: "",
@@ -38,31 +38,32 @@ class PostPeriodTodoUseCase(
                 isAlarmHasSound = todo.isAlarmHasSound
             )
 
-            val templateId = todoTemplateRepository.insertTodoTemplate(todoTemplate)
             val todos = mutableListOf<TodoInstanceModel>()
 
             var currentDate = startDate
             while (currentDate <= endDate) {
                 todos.add(
                     TodoInstanceModel(
-                        templateId = templateId,
+                        templateId = 0,
                         date = transferLocalDateToMillis(currentDate)
                     )
                 )
                 currentDate = currentDate.plusDays(1)
             }
 
-            todoInstanceRepository.insertTodoInstances(todos)
-
-            todoPeriodRepository.insertTodoPeriod(
-                TodoPeriodModel(
-                    templateId = templateId,
-                    startDate = transferLocalDateToMillis(startDate),
-                    endDate = transferLocalDateToMillis(endDate)
-                )
+            val todoPeriod = TodoPeriodModel(
+                templateId = 0,
+                startDate = transferLocalDateToMillis(startDate),
+                endDate = transferLocalDateToMillis(endDate)
             )
 
-            if(todo.time != null && todo.alarmType != AlarmType.OFF){
+            todoPeriodRepository.postTodoPeriod(
+                todoTemplate = todoTemplate,
+                todoInstances = todos,
+                todoPeriod = todoPeriod
+            )
+
+            if (todo.time != null && todo.alarmType != AlarmType.OFF) {
                 val nowLocalDateMillis = transferLocalDateToMillis(LocalDate.now())
 
                 for (todoInstance in todos) {
@@ -82,6 +83,11 @@ class PostPeriodTodoUseCase(
                     }
                 }
             }
+
+            return UseCaseResult.Success(Unit)
+        } catch (e: Exception) {
+            return UseCaseResult.Error(e)
         }
+
     }
 }

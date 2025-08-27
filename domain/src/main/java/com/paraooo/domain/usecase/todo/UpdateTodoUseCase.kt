@@ -5,23 +5,24 @@ import com.paraooo.domain.model.TodoInstanceModel
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.model.TodoTemplateModel
 import com.paraooo.domain.model.TodoType
+import com.paraooo.domain.model.UseCaseResult
 import com.paraooo.domain.repository.AlarmScheduler
 import com.paraooo.domain.repository.TodoInstanceRepository
+import com.paraooo.domain.repository.TodoRepository
 import com.paraooo.domain.repository.TodoTemplateRepository
 import com.paraooo.domain.util.transferLocalDateToMillis
 
 class UpdateTodoUseCase(
-    private val todoInstanceRepository: TodoInstanceRepository,
-    private val todoTemplateRepository: TodoTemplateRepository,
+    private val todoRepository: TodoRepository,
     private val alarmScheduler: AlarmScheduler
 ) {
+    suspend operator fun invoke(todo: TodoModel): UseCaseResult<Unit> {
 
-    suspend operator fun invoke(todo: TodoModel) {
-        val instanceTodo = todoInstanceRepository.getTodoInstanceById(todo.instanceId)
+        try {
+            val instanceTodo = todoRepository.getTodoInstanceById(todo.instanceId) ?: return UseCaseResult.Failure("id가 유효하지 않습니다.")
 
-        todoTemplateRepository.updateTodoTemplate(
-            TodoTemplateModel(
-                id = instanceTodo!!.templateId,
+            val todoTemplate = TodoTemplateModel(
+                id = instanceTodo.templateId,
                 title = todo.title,
                 description = todo.description ?: "",
                 hour = todo.time?.hour,
@@ -31,26 +32,29 @@ class UpdateTodoUseCase(
                 isAlarmHasVibration = todo.isAlarmHasVibration,
                 isAlarmHasSound = todo.isAlarmHasSound
             )
-        )
 
-        todoInstanceRepository.updateTodoInstance(
-            TodoInstanceModel(
+            val todoInstance = TodoInstanceModel(
                 id = todo.instanceId,
                 templateId = instanceTodo.templateId,
                 date = transferLocalDateToMillis(todo.date),
                 progressAngle = todo.progressAngle
             )
-        )
+            todoRepository.updateTodo(todoTemplate, todoInstance)
 
-        if(todo.time != null){
-            when (todo.alarmType) {
-                AlarmType.OFF -> {}
-                AlarmType.NOTIFY, AlarmType.POPUP -> {
-                    alarmScheduler.reschedule(todo.date, todo.time, instanceTodo.templateId)
+            if (todo.time != null) {
+                when (todo.alarmType) {
+                    AlarmType.OFF -> {}
+                    AlarmType.NOTIFY, AlarmType.POPUP -> {
+                        alarmScheduler.reschedule(todo.date, todo.time, instanceTodo.templateId)
+                    }
                 }
+            } else {
+                alarmScheduler.cancel(instanceTodo.templateId)
             }
-        } else {
-            alarmScheduler.cancel(instanceTodo.templateId)
+
+            return UseCaseResult.Success(Unit)
+        } catch (e : Exception) {
+            return UseCaseResult.Error(e)
         }
     }
 }

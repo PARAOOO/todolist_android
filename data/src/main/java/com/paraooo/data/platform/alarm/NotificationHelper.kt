@@ -1,24 +1,20 @@
 package com.paraooo.data.platform.alarm
 
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.os.Build
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.paraooo.data.R
-import com.paraooo.domain.model.TodoModel
-import com.paraooo.local.entity.TodoInstance
-import com.paraooo.local.entity.TodoTemplate
+import com.paraooo.domain.model.TodoInstanceModel
+import com.paraooo.domain.model.TodoTemplateModel
 
 class NotificationHelper(
     private val intentProvider: IntentProvider
 ) {
 
-    fun showNotification(context: Context, todoInstance: TodoInstance, todoTemplate: TodoTemplate) {
+    fun showNotification(context: Context, todoInstance: TodoInstanceModel, todoTemplate: TodoTemplateModel) {
         val channelId = "todo_channel"
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 

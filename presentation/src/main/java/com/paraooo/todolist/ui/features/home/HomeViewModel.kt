@@ -5,8 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.paraooo.domain.model.TodoModel
+import com.paraooo.domain.model.UseCaseResult
 import com.paraooo.domain.usecase.todo.DeleteTodoByIdUseCase
-import com.paraooo.domain.usecase.todo.GetTodoByDateUseCase
+import com.paraooo.domain.usecase.todo.ObserveTodosUseCase
+import com.paraooo.domain.usecase.todo.SyncDayOfWeekTodoUseCase
 import com.paraooo.domain.usecase.todo.UpdateTodoProgressUseCase
 import com.paraooo.domain.util.getDateDiff
 import com.paraooo.domain.util.transferLocalDateToMillis
@@ -25,9 +27,10 @@ import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
 class HomeViewModel(
-    private val getTodoByDateUseCase: GetTodoByDateUseCase,
     private val updateTodoProgressUseCase: UpdateTodoProgressUseCase,
     private val deleteTodoByIdUseCase: DeleteTodoByIdUseCase,
+    private val syncDayOfWeekTodoUseCase: SyncDayOfWeekTodoUseCase,
+    private val observeTodosUseCase: ObserveTodosUseCase,
     private val initialUiState : HomeUiState = HomeUiState()
 ) : ViewModel() {
 
@@ -42,40 +45,65 @@ class HomeViewModel(
     var selectedTodo = mutableStateOf<TodoModel?>(null)
 
     private fun fetchTodoList(date: LocalDate) {
-        _uiState.update { state ->
-            state.copy(
-                todoListState = state.todoListState.copy(
-                    isLoading = true
+
+        todoCollectJob?.cancel()
+
+        todoCollectJob = viewModelScope.launch {
+            _uiState.update { state ->
+                state.copy(
+                    todoListState = state.todoListState.copy(
+                        isLoading = true
+                    )
                 )
-            )
-        }
+            }
 
-        try {
-            todoCollectJob?.cancel()
+            val syncResult = syncDayOfWeekTodoUseCase(transferLocalDateToMillis(date))
 
-            todoCollectJob = viewModelScope.launch {
-                getTodoByDateUseCase(transferLocalDateToMillis(date)).flowOn(Dispatchers.IO).collect { todoList ->
-                    _uiState.update { currentState ->
-                        currentState.copy(
-                            todoListState = currentState.todoListState.copy(
-                                todoList = todoList,
+            when(syncResult) {
+                is UseCaseResult.Error -> {
+                    _uiState.update { state ->
+                        state.copy(
+                            todoListState = state.todoListState.copy(
                                 isLoading = false,
-                                error = ""
+                                error = "${syncResult.exception}"
                             )
                         )
                     }
                 }
+                is UseCaseResult.Failure -> {
+                    _uiState.update { state ->
+                        state.copy(
+                            todoListState = state.todoListState.copy(
+                                isLoading = false,
+                                error = syncResult.message
+                            )
+                        )
+                    }
+                }
+                is UseCaseResult.Success<*> -> {
+                    observeTodosUseCase(transferLocalDateToMillis(date)).flowOn(Dispatchers.IO)
+                        .collect { result ->
+                            when(result) {
+                                is UseCaseResult.Error -> {
 
-            }
+                                }
+                                is UseCaseResult.Failure -> {
 
-        } catch (e: Exception) {
-            _uiState.update { state ->
-                state.copy(
-                    todoListState = state.todoListState.copy(
-                        isLoading = false,
-                        error = "${e.message}"
-                    )
-                )
+                                }
+                                is UseCaseResult.Success -> {
+                                    _uiState.update { currentState ->
+                                        currentState.copy(
+                                            todoListState = currentState.todoListState.copy(
+                                                todoList = result.data,
+                                                isLoading = false,
+                                                error = ""
+                                            )
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                }
             }
         }
     }
