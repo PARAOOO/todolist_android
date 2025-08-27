@@ -6,11 +6,13 @@ import com.paraooo.todolist.ui.features.create.CreateViewModel
 import com.paraooo.todolist.ui.features.edit.EditViewModel
 import com.paraooo.todolist.ui.features.home.HomeViewModel
 import com.paraooo.todolist.ui.features.routine_create.RoutineCreateViewModel
+import com.paraooo.todolist.ui.features.start.StartViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val viewModelModule = module {
     viewModel { HomeViewModel(get(), get(), get()) }
+    viewModel { StartViewModel() }
     viewModel { CreateViewModel(get(), get(), get()) }
     viewModel { EditViewModel(get(), get(), get(), get())}
     viewModel { AlarmViewModel(get()) }

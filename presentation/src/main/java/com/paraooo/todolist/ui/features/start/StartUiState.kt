@@ -5,7 +5,7 @@ import com.paraooo.domain.model.AlarmType
 data class StartUiState (
     val email: String = "",
     val password: String = "",
-    val errorMessage: String? = null
+    val loginErrorMessage: String? = null
 ) {
     val isLoginButtonEnabled: Boolean
         get() {

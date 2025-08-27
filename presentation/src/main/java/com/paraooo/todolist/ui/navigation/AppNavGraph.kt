@@ -18,6 +18,7 @@ import com.paraooo.todolist.ui.features.privacy_policy.PrivacyPolicyScreen
 import com.paraooo.todolist.ui.features.routine_create.RoutineCreateScreen
 import com.paraooo.todolist.ui.features.setting.SettingScreen
 import com.paraooo.todolist.ui.features.splash.SplashScreen
+import com.paraooo.todolist.ui.features.start.StartScreen
 import com.paraooo.todolist.ui.util.pxToDp
 import java.time.LocalDate
 
@@ -45,6 +46,12 @@ fun AppNavGraph(navController: NavHostController) {
 
         composable(Destinations.Splash.route) {
             SplashScreen(
+                navController = navController
+            )
+        }
+
+        composable(Destinations.Start.route) {
+            StartScreen(
                 navController = navController
             )
         }
