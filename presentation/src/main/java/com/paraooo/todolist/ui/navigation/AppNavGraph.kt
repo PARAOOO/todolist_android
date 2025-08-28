@@ -15,8 +15,11 @@ import com.paraooo.todolist.ui.features.create.CreateScreen
 import com.paraooo.todolist.ui.features.edit.EditScreen
 import com.paraooo.todolist.ui.features.home.HomeScreen
 import com.paraooo.todolist.ui.features.privacy_policy.PrivacyPolicyScreen
+import com.paraooo.todolist.ui.features.routine_create.RoutineCreateScreen
 import com.paraooo.todolist.ui.features.setting.SettingScreen
+import com.paraooo.todolist.ui.features.signup.SignUpScreen
 import com.paraooo.todolist.ui.features.splash.SplashScreen
+import com.paraooo.todolist.ui.features.start.StartScreen
 import com.paraooo.todolist.ui.util.pxToDp
 import java.time.LocalDate
 
@@ -48,6 +51,18 @@ fun AppNavGraph(navController: NavHostController) {
             )
         }
 
+        composable(Destinations.Start.route) {
+            StartScreen(
+                navController = navController
+            )
+        }
+
+        composable(Destinations.SignUp.route) {
+            SignUpScreen(
+                navController = navController
+            )
+        }
+
         composable(
             route = "${Destinations.Create.route}/{selectedDate}",
             arguments = listOf(navArgument("selectedDate") { type = NavType.LongType })
@@ -71,6 +86,12 @@ fun AppNavGraph(navController: NavHostController) {
             EditScreen(
                 navController = navController,
                 instanceId = instanceId,
+            )
+        }
+
+        composable(Destinations.RoutineCreate.route) {
+            RoutineCreateScreen(
+                navController = navController
             )
         }
 

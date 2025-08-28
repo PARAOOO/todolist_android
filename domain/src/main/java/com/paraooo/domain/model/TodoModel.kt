@@ -1,11 +1,12 @@
 package com.paraooo.domain.model
 
 import java.time.LocalDate
+import java.time.LocalTime
 
-data class Time(
-    val hour: Int,
-    val minute: Int
-)
+//data class Time(
+//    val hour: Int,
+//    val minute: Int
+//)
 
 enum class AlarmType(val label : String) {
     OFF("Off"),
@@ -17,7 +18,7 @@ data class TodoModel(
     val instanceId : Long,
     val templateId : Long,
     val title : String,
-    val time : Time? = null,
+    val time : LocalTime? = null,
     val date: LocalDate,
     val description : String? = null,
     val progressAngle : Float = 0F,

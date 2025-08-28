@@ -71,7 +71,8 @@ fun getDayOfWeekText(selectedDays: List<Int>): String {
 fun DayOfWeekSelectDialog(
     onDismiss: () -> Unit,
     onDaysOfWeekSelected : (daysOfWeek : List<DayOfWeek>) -> Unit,
-    showDialog : Boolean
+    showDialog : Boolean,
+    color : Long = 0xFF54C392
 ) {
 
     var daysOfWeekList by remember {
@@ -131,7 +132,7 @@ fun DayOfWeekSelectDialog(
                                 modifier = Modifier
                                     .background(
                                         color = when {
-                                            item.isSelected -> Color(0xFFE7F6EF)
+                                            item.isSelected -> Color(adjustAlphaFromFloat(color, 0.1F))
                                             else -> Color.White
                                         },
                                         shape = CircleShape
@@ -139,7 +140,7 @@ fun DayOfWeekSelectDialog(
                                     .border(
                                         width = 1.dp,
                                         color = when {
-                                            item.isSelected -> Color(0xFF54C392)
+                                            item.isSelected -> Color(color)
                                             item.value.value == 6 -> Color(0xFFC0C5FF)
                                             item.value.value == 7 -> Color(0xFFFFD4D4)
                                             else -> Color(0xFFF2F2F2)
@@ -159,7 +160,7 @@ fun DayOfWeekSelectDialog(
                                     text = item.label,
                                     fontSize = 12.sp,
                                     color = when {
-                                        item.isSelected -> Color(0xFF54C392)
+                                        item.isSelected -> Color(color)
                                         item.value.value == 6 -> Color(0xFF707CFF)
                                         item.value.value == 7 -> Color(0xFFFF8484)
                                         else -> Color(0xFF777777)

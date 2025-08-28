@@ -1,6 +1,5 @@
 package com.paraooo.domain.usecase.alarm
 
-import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoDayOfWeekWithTimeModel
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.model.TodoPeriodWithTimeModel
@@ -67,7 +66,7 @@ class CalculateAlarmToRestoreUseCase() {
             if(startDateTime >= todayDateTime){
                 val alarmSchedule = AlarmSchedule(
                     date = startDate,
-                    time = Time(alarmPeriodTodo.hour, alarmPeriodTodo.minute),
+                    time = LocalTime.of(alarmPeriodTodo.hour, alarmPeriodTodo.minute),
                     templateId = alarmPeriodTodo.templateId,
                 )
                 alarmSchedules.add(alarmSchedule)
@@ -79,7 +78,7 @@ class CalculateAlarmToRestoreUseCase() {
 
                 val alarmSchedule = AlarmSchedule(
                     date = alarmDate,
-                    time = Time(alarmPeriodTodo.hour, alarmPeriodTodo.minute),
+                    time = LocalTime.of(alarmPeriodTodo.hour, alarmPeriodTodo.minute),
                     templateId = alarmPeriodTodo.templateId,
                 )
                 alarmSchedules.add((alarmSchedule))
@@ -105,7 +104,7 @@ class CalculateAlarmToRestoreUseCase() {
 
             val alarmSchedule = AlarmSchedule(
                 date = alarmDate,
-                time = Time(alarmDayOfWeekTodo.hour, alarmDayOfWeekTodo.minute),
+                time = LocalTime.of(alarmDayOfWeekTodo.hour, alarmDayOfWeekTodo.minute),
                 templateId = alarmDayOfWeekTodo.templateId
             )
             alarmSchedules.add(alarmSchedule)

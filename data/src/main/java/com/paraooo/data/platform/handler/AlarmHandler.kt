@@ -6,6 +6,7 @@ import androidx.work.ListenableWorker.Result
 import com.paraooo.data.platform.alarm.AlarmSchedulerImpl
 import com.paraooo.data.platform.alarm.IntentProvider
 import com.paraooo.data.platform.alarm.NotificationHelper
+import com.paraooo.domain.util.transferLocalDateToMillis
 import com.paraooo.domain.model.AlarmType
 import com.paraooo.domain.repository.TodoDayOfWeekRepository
 import com.paraooo.domain.repository.TodoInstanceRepository
@@ -15,6 +16,7 @@ import com.paraooo.domain.usecase.alarm.CalculateNextAlarmUseCase
 import com.paraooo.domain.usecase.alarm.ScheduleAlarmsUseCase
 import com.paraooo.domain.util.transferMillis2LocalDate
 import java.time.LocalDate
+import java.time.LocalTime
 
 class AlarmHandler(
     private val notificationHelper: NotificationHelper,
@@ -58,13 +60,13 @@ class AlarmHandler(
                 AlarmType.NOTIFY -> notificationHelper.showNotification(context, todayInstance, todoTemplate)
                 AlarmType.POPUP -> {
                     val intent = intentProvider.getPopupIntent(context)
-                    intent.putExtra("instanceId", todayInstance.id)  // 여기서 데이터를 전달
+                    intent.putExtra("instanceId", todayInstance.id)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     context.startActivity(intent)
                 }
             }
         }
-        // 다음 알람 예약 로직도 여기서
+        
         return Result.success()
     }
 }

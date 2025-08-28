@@ -1,6 +1,5 @@
 package com.paraooo.domain.usecase.todo
 
-import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.model.UseCaseResult
 import com.paraooo.domain.repository.TodoDayOfWeekRepository
@@ -9,6 +8,7 @@ import com.paraooo.domain.repository.TodoPeriodRepository
 import com.paraooo.domain.repository.TodoRepository
 import com.paraooo.domain.repository.TodoTemplateRepository
 import com.paraooo.domain.util.transferMillis2LocalDate
+import java.time.LocalTime
 
 class FindTodoByIdUseCase(
     private val todoRepository : TodoRepository
@@ -32,7 +32,7 @@ class FindTodoByIdUseCase(
                     description = template.description,
                     date = transferMillis2LocalDate(instance.date),
                     time = if (template.hour != null && template.minute != null) {
-                        Time(template.hour, template.minute)
+                        LocalTime.of(template.hour, template.minute)
                     } else {
                         null
                     },

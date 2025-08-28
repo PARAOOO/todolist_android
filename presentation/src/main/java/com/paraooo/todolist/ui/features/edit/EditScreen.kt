@@ -50,7 +50,6 @@ import com.paraooo.todolist.ui.components.DayOfWeekSelectDialog
 import com.paraooo.todolist.ui.components.PeriodSelectDialog
 import com.paraooo.todolist.ui.components.TLDialog
 import com.paraooo.todolist.ui.components.TLTopbar
-import com.paraooo.todolist.ui.components.TimeInputState
 import com.paraooo.todolist.ui.components.TimePickerDialog
 import com.paraooo.todolist.ui.components.TodoInputFormType
 import com.paraooo.todolist.ui.util.circleClickable
@@ -59,6 +58,7 @@ import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalTime
 
 
 //const val TAG = "PARAOOO"
@@ -165,13 +165,13 @@ fun EditScreen(
                 .height(53.dp)
                 .background(
                     shape = RoundedCornerShape(12.dp),
-                    color = when (uiState.editButtonState.isEnabled) {
+                    color = when (uiState.isEditButtonEnabled) {
                         true -> Color(0xFF529DFF)
                         false -> Color(0xFF7F7F7F)
                     }
                 )
                 .roundedClickable(12.dp) {
-                    if (uiState.editButtonState.isEnabled) {
+                    if (uiState.isEditButtonEnabled) {
                         viewModel.onEvent(EditUiEvent.onEditClicked(instanceId))
                     }
                 },
@@ -190,7 +190,7 @@ fun EditScreen(
                 .padding(horizontal = 12.dp),
             showDialog = showTimePicker,
             onDismiss = { showTimePicker = false },
-            onConfirm = { result : TimeInputState ->
+            onConfirm = { result : LocalTime? ->
                 showTimePicker = false
                 viewModel.onEvent(EditUiEvent.onTimeInputChanged(result))
             }

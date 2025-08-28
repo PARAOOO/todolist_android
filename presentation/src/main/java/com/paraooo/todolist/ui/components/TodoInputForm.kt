@@ -53,6 +53,7 @@ import com.paraooo.todolist.ui.util.dpToPx
 import com.paraooo.todolist.ui.util.getDateWithDot
 import com.paraooo.todolist.ui.util.roundedClickable
 import java.time.LocalDate
+import java.time.LocalTime
 
 
 data class TodoNameInputState (
@@ -63,10 +64,10 @@ data class DescriptionInputState (
     val content : String = ""
 )
 
-sealed class TimeInputState {
-    data class Time(val hour : Int, val minute : Int) : TimeInputState()
-    data object NoTime : TimeInputState()
-}
+//sealed class TimeInputState {
+//    data class Time(val hour : Int, val minute : Int) : TimeInputState()
+//    data object NoTime : TimeInputState()
+//}
 
 sealed class DateInputState {
     data class Date(val date : LocalDate) : DateInputState()
@@ -86,7 +87,7 @@ data class AlarmSettingInputState (
 data class TodoInputState(
     val todoNameInputState : TodoNameInputState = TodoNameInputState(),
     val descriptionInputState : DescriptionInputState = DescriptionInputState(),
-    val timeInputState: TimeInputState = TimeInputState.NoTime,
+    val timeInputState: LocalTime? = null,
     val dateInputState : DateInputState = DateInputState.Date(LocalDate.now()),
     val alarmInputState : AlarmInputState = AlarmInputState(),
     val alarmSettingInputState : AlarmSettingInputState = AlarmSettingInputState()
@@ -208,104 +209,50 @@ fun TodoInputForm(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(modifier = Modifier.weight(1F)) {
-                    Text(
-                        "Time",
-                        fontSize = 14.sp,
-                        color = Color(0xFF7F7F7F),
-                        fontFamily = PretendardFontFamily,
-                        fontWeight = FontWeight.Normal,
-                    )
 
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .border(
-                                border = BorderStroke(
-                                    1.dp,
-                                    color = if (uiState.timeInputState is TimeInputState.Time) Color(
-                                        0xFF54C392
-                                    ) else Color(0xFFECEEEE)
-                                ),
-                                shape = RoundedCornerShape(12.dp)
-                            )
-                            .roundedClickable(12.dp) {
-                                onTimeInputClicked()
-                            }
-                    ) {
-                        Text(
-                            text = when (uiState.timeInputState) {
-                                is TimeInputState.NoTime -> "시간 설정하지 않음"
-                                is TimeInputState.Time -> "${uiState.timeInputState.hour}시 ${uiState.timeInputState.minute}분"
-                            },
-                            fontSize = 12.sp,
-                            color = if (uiState.timeInputState is TimeInputState.Time) Color(
-                                0xFF54C392
-                            ) else Color(0xFF7F7F7F),
-                            modifier = Modifier.padding(vertical = 10.dp),
-                            fontFamily = PretendardFontFamily,
-                            fontWeight = FontWeight.Normal,
-                        )
+                TLTextButton(
+                    modifier = Modifier.weight(1F),
+                    labelText = "Time",
+                    isActive = (uiState.timeInputState != null),
+                    clickable = {
+                        onTimeInputClicked()
+                    },
+                    text = when (uiState.timeInputState) {
+                        null -> "시간 설정하지 않음"
+                        else -> "${uiState.timeInputState.hour}시 ${uiState.timeInputState.minute}분"
                     }
-                }
+                )
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                Column(modifier = Modifier.weight(1F)) {
-                    Text(
-                        "Date",
-                        fontSize = 14.sp,
-                        color = Color(0xFF7F7F7F),
-                        fontFamily = PretendardFontFamily,
-                        fontWeight = FontWeight.Normal,
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .border(
-                                border = BorderStroke(1.dp, color = Color(0xFF54C392)),
-                                shape = RoundedCornerShape(12.dp)
-                            )
-                            .roundedClickable(12.dp) {
-                                when (type) {
-                                    is TodoInputFormType.Add -> {
-                                        isPopupVisible = !isPopupVisible
-                                    }
-
-                                    is TodoInputFormType.Edit -> {
-                                        type.onDateInputClicked()
-                                    }
-
-                                    is TodoInputFormType.PeriodEdit -> {
-                                        type.onPeriodInputClicked()
-                                    }
-
-                                    is TodoInputFormType.DayOfWeekEdit -> {
-                                        type.onDayOfWeekInputClicked()
-                                    }
-                                }
+                TLTextButton(
+                    modifier = Modifier.weight(1F),
+                    labelText = "Date",
+                    isActive = true,
+                    clickable = {
+                        when (type) {
+                            is TodoInputFormType.Add -> {
+                                isPopupVisible = !isPopupVisible
                             }
-                    ) {
-                        Text(
-                            text = getTextOfDateInput(uiState.dateInputState),
-                            fontSize = 12.sp,
-                            color = Color(0xFF54C392),
-                            modifier = Modifier.padding(vertical = 10.dp),
-                            fontFamily = PretendardFontFamily,
-                            fontWeight = FontWeight.Normal,
-                        )
-                    }
 
-                    if(isPopupVisible && type is TodoInputFormType.Add){
+                            is TodoInputFormType.Edit -> {
+                                type.onDateInputClicked()
+                            }
 
-                        val popupWidth = ((screenWidthDp-24-36-8) / 2).dp
+                            is TodoInputFormType.PeriodEdit -> {
+                                type.onPeriodInputClicked()
+                            }
+
+                            is TodoInputFormType.DayOfWeekEdit -> {
+                                type.onDayOfWeekInputClicked()
+                            }
+                        }
+                    },
+                    text = getTextOfDateInput(uiState.dateInputState)
+                ) {
+                    if (isPopupVisible && type is TodoInputFormType.Add) {
+
+                        val popupWidth = ((screenWidthDp - 24 - 36 - 8) / 2).dp
                         val popupTextHeight = computeTextHeight(
                             textStyle = TextStyle(
                                 fontSize = 12.sp,
@@ -327,10 +274,10 @@ fun TodoInputForm(
                             { type.onDayOfWeekInputClicked() }
                         )
 
-                        val popupHeight = (popupTextHeight + dpToPx(20.dp) + dpToPx(2.dp)) * popupTextList.size
+                        val popupHeight =
+                            (popupTextHeight + dpToPx(20.dp) + dpToPx(2.dp)) * popupTextList.size
 
-
-                        Popup (
+                        Popup(
                             alignment = Alignment.BottomCenter,
                             onDismissRequest = { isPopupVisible = false },
                             offset = IntOffset(
@@ -381,65 +328,19 @@ fun TodoInputForm(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    "Alarm",
-                    fontSize = 14.sp,
-                    color = Color(0xFF7F7F7F),
-                    fontFamily = PretendardFontFamily,
-                    fontWeight = FontWeight.Normal,
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-
-                ) {
-                    for(alarm in alarmList){
-
-                        val isSelected = alarm == uiState.alarmInputState.alarmType
-
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .weight(1F)
-                                .fillMaxWidth()
-                                .border(
-                                    border = BorderStroke(
-                                        1.dp,
-                                        color = if (isSelected) Color(
-                                            0xFF54C392
-                                        ) else Color(0xFFECEEEE)
-                                    ),
-                                    shape = RoundedCornerShape(12.dp)
-                                )
-                                .roundedClickable(12.dp) {
-                                    when (alarm) {
-                                        AlarmType.NOTIFY -> notificationPermissionRequest()
-                                        AlarmType.POPUP -> overlayPermissionRequest()
-                                        else -> onAlarmChange(alarm)
-                                    }
-                                }
-                        ) {
-                            Text(
-                                text = alarm.label,
-                                fontSize = 12.sp,
-                                color = if (isSelected) Color(
-                                    0xFF54C392
-                                ) else Color(0xFF7F7F7F),
-                                modifier = Modifier.padding(vertical = 10.dp),
-                                fontFamily = PretendardFontFamily,
-                                fontWeight = FontWeight.Normal,
-                            )
-                        }
+            TLTextRadioButton<AlarmType>(
+                labelText = "Alarm",
+                radioList = alarmList,
+                currentRadioItem = uiState.alarmInputState.alarmType,
+                clickable = { radio ->
+                    when (radio) {
+                        AlarmType.NOTIFY -> notificationPermissionRequest()
+                        AlarmType.POPUP -> overlayPermissionRequest()
+                        else -> onAlarmChange(radio)
                     }
-                }
-            }
+                },
+                getText = { radio -> radio.label }
+            )
 
             if(uiState.alarmInputState.alarmType == AlarmType.POPUP){
 
@@ -447,89 +348,28 @@ fun TodoInputForm(
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column(modifier = Modifier.weight(1F)) {
-                        Text(
-                            "Vibration",
-                            fontSize = 14.sp,
-                            color = Color(0xFF7F7F7F),
-                            fontFamily = PretendardFontFamily,
-                            fontWeight = FontWeight.Normal,
-                        )
 
-                        Spacer(modifier = Modifier.height(4.dp))
-
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .border(
-                                    border = BorderStroke(
-                                        1.dp,
-                                        color = if (uiState.alarmSettingInputState.vibration) Color(
-                                            0xFF54C392
-                                        ) else Color(0xFFECEEEE)
-                                    ),
-                                    shape = RoundedCornerShape(12.dp)
-                                )
-                                .roundedClickable(12.dp) {
-                                    onAlarmSettingChange(!uiState.alarmSettingInputState.vibration, uiState.alarmSettingInputState.sound)
-                                }
-                        ) {
-                            Text(
-                                text = if(uiState.alarmSettingInputState.vibration) "On" else "Off",
-                                fontSize = 12.sp,
-                                color = if (uiState.alarmSettingInputState.vibration) Color(
-                                    0xFF54C392
-                                ) else Color(0xFF7F7F7F),
-                                modifier = Modifier.padding(vertical = 10.dp),
-                                fontFamily = PretendardFontFamily,
-                                fontWeight = FontWeight.Normal,
-                            )
-                        }
-                    }
+                    TLTextButton(
+                        modifier = Modifier.weight(1F),
+                        labelText = "Vibration",
+                        isActive = uiState.alarmSettingInputState.vibration,
+                        clickable = {
+                            onAlarmSettingChange(!uiState.alarmSettingInputState.vibration, uiState.alarmSettingInputState.sound)
+                        },
+                        text = if(uiState.alarmSettingInputState.vibration) "On" else "Off"
+                    )
 
                     Spacer(modifier = Modifier.width(8.dp))
 
-                    Column(modifier = Modifier.weight(1F)) {
-                        Text(
-                            "Sound",
-                            fontSize = 14.sp,
-                            color = Color(0xFF7F7F7F),
-                            fontFamily = PretendardFontFamily,
-                            fontWeight = FontWeight.Normal,
-                        )
-
-                        Spacer(modifier = Modifier.height(4.dp))
-
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .border(
-                                    border = BorderStroke(
-                                        1.dp,
-                                        color = if (uiState.alarmSettingInputState.sound) Color(
-                                            0xFF54C392
-                                        ) else Color(0xFFECEEEE)
-                                    ),
-                                    shape = RoundedCornerShape(12.dp)
-                                )
-                                .roundedClickable(12.dp) {
-                                    onAlarmSettingChange(uiState.alarmSettingInputState.vibration, !uiState.alarmSettingInputState.sound)
-                                }
-                        ) {
-                            Text(
-                                text = if(uiState.alarmSettingInputState.sound) "On" else "Off",
-                                fontSize = 12.sp,
-                                color = if (uiState.alarmSettingInputState.sound) Color(
-                                    0xFF54C392
-                                ) else Color(0xFF7F7F7F),
-                                modifier = Modifier.padding(vertical = 10.dp),
-                                fontFamily = PretendardFontFamily,
-                                fontWeight = FontWeight.Normal,
-                            )
-                        }
-                    }
+                    TLTextButton(
+                        modifier = Modifier.weight(1F),
+                        labelText = "Sound",
+                        isActive = uiState.alarmSettingInputState.sound,
+                        clickable = {
+                            onAlarmSettingChange(uiState.alarmSettingInputState.vibration, !uiState.alarmSettingInputState.sound)
+                        },
+                        text = if(uiState.alarmSettingInputState.sound) "On" else "Off"
+                    )
                 }
             }
         }

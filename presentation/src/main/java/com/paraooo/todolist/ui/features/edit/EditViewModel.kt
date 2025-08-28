@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.paraooo.domain.model.AlarmType
-import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.model.UseCaseResult
 import com.paraooo.domain.usecase.todo.FindTodoByIdUseCase
@@ -15,7 +14,6 @@ import com.paraooo.domain.usecase.todo.UpdateTodoUseCase
 import com.paraooo.todolist.ui.components.AlarmInputState
 import com.paraooo.todolist.ui.components.AlarmSettingInputState
 import com.paraooo.todolist.ui.components.DateInputState
-import com.paraooo.todolist.ui.components.TimeInputState
 import com.paraooo.todolist.ui.features.create.TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -44,20 +42,6 @@ class EditViewModel(
 
     var selectedTodo = mutableStateOf<TodoModel?>(null)
 
-    private fun updateCreateButtonEnabled() {
-        val isAlarmValid = _uiState.value.todoInputState.alarmInputState.alarmType != AlarmType.OFF
-        val isTimeValid = _uiState.value.todoInputState.timeInputState != TimeInputState.NoTime
-        val isTodoNameEmpty = _uiState.value.todoInputState.todoNameInputState.content.isEmpty()
-
-        _uiState.update { state ->
-            state.copy(
-                editButtonState = state.editButtonState.copy(
-                    isEnabled = ((!isAlarmValid && !isTimeValid) || isTimeValid) && !isTodoNameEmpty
-                )
-            )
-        }
-    }
-
     fun onEvent(event : EditUiEvent) {
         viewModelScope.launch{
             when (event) {
@@ -75,7 +59,6 @@ class EditViewModel(
                             )
                         )
                     }
-                    updateCreateButtonEnabled()
                 }
 
                 is EditUiEvent.onDateInputChanged -> {
@@ -112,7 +95,6 @@ class EditViewModel(
                             )
                         )
                     }
-                    updateCreateButtonEnabled()
                 }
 
                 is EditUiEvent.onPeriodInputChanged -> {
@@ -146,7 +128,6 @@ class EditViewModel(
                             )
                         )
                     }
-                    updateCreateButtonEnabled()
                 }
 
                 is EditUiEvent.onAlarmSettingInputChanged -> {
@@ -197,10 +178,7 @@ class EditViewModel(
                                 (todo.dayOfWeeks != null) -> DateInputState.DayOfWeek(todo.dayOfWeeks!!)
                                 else -> DateInputState.Date(todo.date)
                             },
-                            timeInputState = when (todo.time) {
-                                null -> TimeInputState.NoTime
-                                else -> TimeInputState.Time(todo.time!!.hour, todo.time!!.minute)
-                            },
+                            timeInputState =  todo.time,
                             alarmInputState = state.todoInputState.alarmInputState.copy(
                                 alarmType = todo.alarmType
                             ),
@@ -229,13 +207,7 @@ class EditViewModel(
                 is DateInputState.Period -> LocalDate.now()
                 is DateInputState.DayOfWeek -> LocalDate.now()
             },
-            time = when (_uiState.value.todoInputState.timeInputState) {
-                is TimeInputState.NoTime -> null
-                is TimeInputState.Time -> Time(
-                    (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).hour,
-                    (_uiState.value.todoInputState.timeInputState as TimeInputState.Time).minute
-                )
-            },
+            time = _uiState.value.todoInputState.timeInputState,
             alarmType = _uiState.value.todoInputState.alarmInputState.alarmType,
             isAlarmHasVibration = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.vibration else false,
             isAlarmHasSound = if(_uiState.value.todoInputState.alarmInputState.alarmType == AlarmType.POPUP) _uiState.value.todoInputState.alarmSettingInputState.sound else false,
@@ -247,9 +219,7 @@ class EditViewModel(
 
         _uiState.update { state ->
             state.copy(
-                editButtonState = state.editButtonState.copy(
-                    isEnabled = false
-                )
+                isUpdateButtonUpdating = true
             )
         }
 
@@ -284,9 +254,7 @@ class EditViewModel(
 
         _uiState.update { state ->
             state.copy(
-                editButtonState = state.editButtonState.copy(
-                    isEnabled = true
-                )
+                isUpdateButtonUpdating = false
             )
         }
 

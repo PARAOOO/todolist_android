@@ -5,17 +5,17 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import com.paraooo.domain.model.Time
 import com.paraooo.domain.repository.AlarmScheduler
 import com.paraooo.domain.util.todoToMillis
 import java.time.LocalDate
+import java.time.LocalTime
 
 
 class AlarmSchedulerImpl(
     private val context: Context
 ) : AlarmScheduler {
 
-    override fun schedule(date: LocalDate, time: Time, templateId : Long) {
+    override fun schedule(date: LocalDate, time: LocalTime, templateId : Long) {
 
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra("templateId", templateId)
@@ -38,7 +38,7 @@ class AlarmSchedulerImpl(
         )
     }
 
-    override fun reschedule(date: LocalDate, time: Time, templateId: Long) {
+    override fun reschedule(date: LocalDate, time: LocalTime, templateId: Long) {
         cancel(templateId) // 먼저 취소
         schedule(date, time, templateId) // 다시 등록
     }

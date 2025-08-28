@@ -1,10 +1,15 @@
 package com.paraooo.todolist.ui.navigation
 
 sealed class Destinations(val route: String) {
+
+    data object Start : Destinations("start")
+
+    data object SignUp : Destinations("sign_up")
     data object Home : Destinations("home")
     data object Splash : Destinations("splash")
     data object Create : Destinations("create")
     data object Edit : Destinations("edit")
+    data object RoutineCreate : Destinations("routine_create")
     data object Setting : Destinations("setting")
     data object PrivacyPolicy : Destinations("privacy_policy")
 }

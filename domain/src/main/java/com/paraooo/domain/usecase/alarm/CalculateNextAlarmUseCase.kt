@@ -1,6 +1,5 @@
 package com.paraooo.domain.usecase.alarm
 
-import com.paraooo.domain.model.Time
 import com.paraooo.domain.model.TodoDayOfWeekModel
 import com.paraooo.domain.model.TodoPeriodModel
 import com.paraooo.domain.model.TodoTemplateModel
@@ -13,10 +12,11 @@ import com.paraooo.domain.repository.TodoTemplateRepository
 import com.paraooo.domain.util.transferLocalDateToMillis
 import com.paraooo.domain.util.transferMillis2LocalDate
 import java.time.LocalDate
+import java.time.LocalTime
 
 data class AlarmSchedule(
     val date: LocalDate,
-    val time: Time,
+    val time: LocalTime,
     val templateId: Long
 )
 
@@ -40,7 +40,7 @@ class CalculateNextAlarmUseCase(
 
                     return AlarmSchedule(
                         date = tomorrowLocalDate,
-                        time = Time(todoTemplate.hour!!, todoTemplate.minute!!),
+                        time = LocalTime.of(todoTemplate.hour!!, todoTemplate.minute!!),
                         templateId = todoTemplate.id
                     )
                 }
@@ -54,7 +54,7 @@ class CalculateNextAlarmUseCase(
 
                 return AlarmSchedule(
                     date = nextAlarmDate,
-                    time = Time(todoTemplate.hour!!, todoTemplate.minute!!),
+                    time = LocalTime.of(todoTemplate.hour!!, todoTemplate.minute!!),
                     templateId = todoTemplate.id
                 )
             }

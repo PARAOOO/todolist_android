@@ -50,7 +50,6 @@ import com.paraooo.todolist.ui.components.DayOfWeekSelectDialog
 import com.paraooo.todolist.ui.components.PeriodSelectDialog
 import com.paraooo.todolist.ui.components.TLDialog
 import com.paraooo.todolist.ui.components.TLTopbar
-import com.paraooo.todolist.ui.components.TimeInputState
 import com.paraooo.todolist.ui.components.TimePickerDialog
 import com.paraooo.todolist.ui.components.TodoInputFormType
 import com.paraooo.todolist.ui.util.circleClickable
@@ -59,6 +58,7 @@ import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalTime
 
 
 const val TAG = "PARAOOO"
@@ -145,13 +145,13 @@ fun CreateScreen(
                 .height(53.dp)
                 .background(
                     shape = RoundedCornerShape(12.dp),
-                    color = when (uiState.createButtonState.isEnabled) {
+                    color = when (uiState.isCreateButtonEnabled) {
                         true -> Color(0xFF54C392)
                         false -> Color(0xFF7F7F7F)
                     }
                 )
                 .roundedClickable(12.dp) {
-                    if(uiState.createButtonState.isEnabled){
+                    if(uiState.isCreateButtonEnabled){
                         viewModel.onEvent(CreateUiEvent.onCreateClicked)
                     }
                 },
@@ -168,7 +168,7 @@ fun CreateScreen(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
             showDialog = showTimePicker,
             onDismiss = { showTimePicker = false },
-            onConfirm = { result : TimeInputState ->
+            onConfirm = { result : LocalTime? ->
                 showTimePicker = false
                 viewModel.onEvent(CreateUiEvent.onTimeInputChanged(result))
             }
@@ -241,8 +241,6 @@ fun CreateScreen(
                 )
             }
         }
-
-//        TLSnackbarHost(snackbarHostState)
     }
 }
 
