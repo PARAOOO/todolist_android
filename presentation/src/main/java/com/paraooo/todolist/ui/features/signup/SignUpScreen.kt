@@ -173,7 +173,8 @@ fun SignUpScreen(
                     hintText = "비밀번호를 입력해 주세요",
                     onChange = { viewModel.onEvent(SignUpUiEvent.onPasswordInputChanged(it)) },
                     label = "비밀번호",
-                    errorMessage = uiState.passwordErrorMessage
+                    errorMessage = uiState.passwordErrorMessage,
+                    isPassword = true
                 )
 
                 Spacer(modifier = Modifier.height(30.dp))
@@ -183,7 +184,8 @@ fun SignUpScreen(
                     hintText = "비밀번호를 다시 한번 입력해 주세요",
                     onChange = { viewModel.onEvent(SignUpUiEvent.onPasswordCheckInputChanged(it)) },
                     label = "비밀번호 확인",
-                    errorMessage = uiState.passwordCheckErrorMessage
+                    errorMessage = uiState.passwordCheckErrorMessage,
+                    isPassword = true
                 )
             }
         }

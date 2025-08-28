@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,6 +19,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.paraooo.todolist.ui.theme.PretendardFontFamily
@@ -30,6 +34,7 @@ fun SignUpTextField(
     label: String,
     errorMessage: String? = null,
     isEnabled: Boolean = true,
+    isPassword: Boolean = false
 ) {
 
 
@@ -75,7 +80,9 @@ fun SignUpTextField(
                     }
                     innerTextField()
                 }
-            }
+            },
+            visualTransformation = if(isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+            keyboardOptions = if(isPassword) KeyboardOptions(keyboardType = KeyboardType.Password) else KeyboardOptions.Default,
         )
 
         Spacer(modifier = Modifier.height(6.dp))
