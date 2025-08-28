@@ -119,7 +119,15 @@ dependencies {
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
 
+    // only for test, it have to be deleted after test
+    implementation(libs.retrofit)
+
+    implementation(libs.converter.gson)
+
+    implementation(libs.okhttp)
+
     implementation(project(":domain"))
     implementation(project(":data"))
     implementation(project(":local"))
+    implementation(project(":remote"))
 }

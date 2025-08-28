@@ -17,8 +17,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class StartViewModel(
+    private val fakeLoginRepository: FakeLoginRepository,
     private val initialUiState : StartUiState = StartUiState(),
-    private val fakeLoginRepository: FakeLoginRepository = FakeLoginRepository()
 ): ViewModel() {
     private val _uiState = MutableStateFlow(initialUiState)
     val uiState: StateFlow<StartUiState> = _uiState.asStateFlow()

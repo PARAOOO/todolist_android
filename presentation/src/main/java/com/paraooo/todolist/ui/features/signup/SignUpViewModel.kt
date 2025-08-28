@@ -20,8 +20,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class SignUpViewModel(
+    private val fakeSignUpRepository: FakeSignUpRepository,
     private val initialUiState: SignUpUiState = SignUpUiState(),
-    private val fakeSignUpRepository: FakeSignUpRepository = FakeSignUpRepository(),
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(initialUiState)

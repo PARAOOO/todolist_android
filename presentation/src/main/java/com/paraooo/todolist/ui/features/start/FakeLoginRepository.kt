@@ -1,6 +1,9 @@
 package com.paraooo.todolist.ui.features.start
 
+import android.util.Log
 import com.paraooo.domain.model.UseCaseResult
+import com.paraooo.remote.dto.request.LoginRequestDto
+import com.paraooo.remote.service.ApiService
 import kotlinx.coroutines.delay
 
 data class Tokens(
@@ -8,32 +11,48 @@ data class Tokens(
     val refreshToken: String
 )
 
-class FakeLoginRepository {
+class FakeLoginRepository(
+    private val apiService: ApiService
+) {
 
     suspend fun login(email: String, password: String) : UseCaseResult<Tokens> {
 
-        delay(1000L)
+        try{
+            val response = apiService.login(LoginRequestDto(email, password))
 
-        if(email == "nakim3159@gmail.com" && password == "1234") {
-            return UseCaseResult.Success(Tokens(
-                accessToken = "asd", refreshToken = "asd"
-            ))
+            if(response.body() == null) return UseCaseResult.Failure("실패실패")
+            else {
+                return UseCaseResult.Success(Tokens(
+                    accessToken = response.body()!!.accessToken, refreshToken = response.body()!!.refreshToken
+                ))
+            }
+        } catch (e: Exception) {
+            Log.e("PARAOOO", "login: ${e}")
+            return UseCaseResult.Error(e)
         }
-        else if(email == "nakim3159@gmail.com" && password == "3159") {
-            return UseCaseResult.Success(Tokens(
-                accessToken = "", refreshToken = ""
-            ))
-        }
-        else if(email == "nakim3159") {
-            return UseCaseResult.Error(
-                exception = Exception()
-            )
-        }
-        else {
-            return UseCaseResult.Failure(
-                message = "아이디 또는 비밀번호를 확인해주세요"
-            )
-        }
+
+//        delay(1000L)
+//
+//        if(email == "nakim3159@gmail.com" && password == "1234") {
+//            return UseCaseResult.Success(Tokens(
+//                accessToken = "asd", refreshToken = "asd"
+//            ))
+//        }
+//        else if(email == "nakim3159@gmail.com" && password == "3159") {
+//            return UseCaseResult.Success(Tokens(
+//                accessToken = "", refreshToken = ""
+//            ))
+//        }
+//        else if(email == "nakim3159") {
+//            return UseCaseResult.Error(
+//                exception = Exception()
+//            )
+//        }
+//        else {
+//            return UseCaseResult.Failure(
+//                message = "아이디 또는 비밀번호를 확인해주세요"
+//            )
+//        }
     }
 
     suspend fun storeTokens(

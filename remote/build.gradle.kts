@@ -18,10 +18,14 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        minSdk = 24
+        minSdk = 26
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
@@ -63,5 +67,4 @@ dependencies {
     implementation(libs.converter.gson)
 
     implementation(libs.okhttp)
-    implementation(libs.logging.interceptor)
 }
