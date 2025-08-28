@@ -213,7 +213,7 @@ fun TodoInputForm(
                 TLTextButton(
                     modifier = Modifier.weight(1F),
                     labelText = "Time",
-                    isActive = (uiState.timeInputState == null),
+                    isActive = (uiState.timeInputState != null),
                     clickable = {
                         onTimeInputClicked()
                     },
