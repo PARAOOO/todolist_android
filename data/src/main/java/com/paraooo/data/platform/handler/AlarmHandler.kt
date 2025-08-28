@@ -60,13 +60,13 @@ class AlarmHandler(
                 AlarmType.NOTIFY -> notificationHelper.showNotification(context, todayInstance, todoTemplate)
                 AlarmType.POPUP -> {
                     val intent = intentProvider.getPopupIntent(context)
-                    intent.putExtra("instanceId", todayInstance.id)  // 여기서 데이터를 전달
+                    intent.putExtra("instanceId", todayInstance.id)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     context.startActivity(intent)
                 }
             }
         }
-        // 다음 알람 예약 로직도 여기서
+        
         return Result.success()
     }
 }
