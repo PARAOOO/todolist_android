@@ -2,15 +2,9 @@ package com.paraooo.todolist.ui.features.signup
 
 sealed class VerificationState {
     object NONE : VerificationState()
-    object WAITING : VerificationState()
+    data class WAITING(val seconds: Int) : VerificationState()
     object SUCCESS : VerificationState()
-    object EXPIRED : VerificationState()
 }
-
-data class GetVerificationCodeButtonState(
-    val isEnabled: Boolean = false,
-    val verificationState: VerificationState = VerificationState.NONE
-)
 
 data class SignUpUiState (
     val nickname: String = "",
@@ -28,8 +22,7 @@ data class SignUpUiState (
     val verificationCode: String = "",
     val verificationCodeErrorMessage: String? = null,
 
-    val getVerificationCodeButtonState: GetVerificationCodeButtonState = GetVerificationCodeButtonState()
-
+    val verificationState: VerificationState = VerificationState.NONE
 ) {
 
     val isNicknameLengthValid: Boolean
@@ -82,9 +75,24 @@ data class SignUpUiState (
             return password == passwordCheck
         }
 
+    val isGetVerificationCodeButtonEnabled: Boolean
+        get() {
+            when(verificationState) {
+                VerificationState.NONE -> {
+                    return isEmailValid
+                }
+                VerificationState.SUCCESS -> {
+                    return false
+                }
+                is VerificationState.WAITING -> {
+                    return true
+                }
+            }
+        }
+
     val isSignUpButtonEnabled: Boolean
         get() {
-            return isNicknameValid && isEmailValid && isPasswordValid && isPasswordCheckValid && getVerificationCodeButtonState.verificationState == VerificationState.SUCCESS
+            return isNicknameValid && isEmailValid && isPasswordValid && isPasswordCheckValid && verificationState == VerificationState.SUCCESS
 
         }
 }

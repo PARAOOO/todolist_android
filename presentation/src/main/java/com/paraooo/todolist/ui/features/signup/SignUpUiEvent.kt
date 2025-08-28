@@ -6,6 +6,9 @@ sealed class SignUpUiEvent {
     data class onNicknameInputChanged(val nickname: String) : SignUpUiEvent()
     data class onPasswordInputChanged(val password: String) : SignUpUiEvent()
     data class onPasswordCheckInputChanged(val passwordCheck: String) : SignUpUiEvent()
+    data class onVerificationCodeInputChanged(val verificationCode: String) : SignUpUiEvent()
+
+    data object onGetVerificationCodeButtonClicked : SignUpUiEvent()
     object onSignUpClicked : SignUpUiEvent()
 
 }

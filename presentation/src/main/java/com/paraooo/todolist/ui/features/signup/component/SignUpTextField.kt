@@ -54,6 +54,7 @@ fun SignUpTextField(
                 fontSize = 18.sp,
                 color = Color(0xFF545454)
             ),
+            enabled = isEnabled,
             cursorBrush = SolidColor(Color(0xFF8F8F8F)),
             modifier = Modifier.fillMaxWidth(),
             decorationBox = { innerTextField ->
