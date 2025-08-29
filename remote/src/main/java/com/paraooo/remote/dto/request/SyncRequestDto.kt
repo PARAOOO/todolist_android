@@ -1,8 +1,5 @@
 package com.paraooo.remote.dto.request
-
-
-
-data class TodoTemplateDto(
+data class TodoTemplateRequestDto(
     val uuid: String,
     val title: String,
     val description: String,
@@ -10,26 +7,26 @@ data class TodoTemplateDto(
     val minute: Int,
     val type: String,
     val alarmType: String,
-    val isAlarmHasVibration: Boolean,
-    val isAlarmHasSound: Boolean,
-    val isDeleted: Boolean
+    val alarmHasVibration: Boolean,
+    val alarmHasSound: Boolean,
+    val deleted: Boolean
 )
 
 data class TodoTemplateIdDto(
     val uuid: String
 )
 
-data class TodoInstanceDto(
+data class TodoInstanceRequestDto(
     val uuid: String,
     val template: List<TodoTemplateIdDto>,
     val date: String,
     val progressAngle: Double,
-    val isDeleted: Boolean
+    val deleted: Boolean
 )
 
 data class SyncRequestDto(
-    val templates: List<TodoTemplateDto>,
-    val instances: List<TodoInstanceDto>,
+    val templates: List<TodoTemplateRequestDto>,
+    val instances: List<TodoInstanceRequestDto>,
     val deletedTemplateUuids: List<String>,
     val deletedInstanceUuids: List<String>
 )
