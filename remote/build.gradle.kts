@@ -35,10 +35,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "API_BASE_URL", "\"${localProperties.getProperty("API_BASE_URL")}\"")
+            buildConfigField("String", "API_BASE_URL", "${localProperties.getProperty("API_BASE_URL")}")
         }
         debug {
-            buildConfigField("String", "API_BASE_URL", "\"${localProperties.getProperty("API_BASE_URL")}\"")
+            buildConfigField("String", "API_BASE_URL", "${localProperties.getProperty("API_BASE_URL")}")
         }
     }
     compileOptions {
@@ -67,4 +67,6 @@ dependencies {
     implementation(libs.converter.gson)
 
     implementation(libs.okhttp)
+
+    implementation(project(":domain"))
 }

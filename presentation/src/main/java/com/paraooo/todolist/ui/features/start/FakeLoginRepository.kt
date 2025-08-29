@@ -3,7 +3,7 @@ package com.paraooo.todolist.ui.features.start
 import android.util.Log
 import com.paraooo.domain.model.UseCaseResult
 import com.paraooo.remote.dto.request.LoginRequestDto
-import com.paraooo.remote.service.ApiService
+import com.paraooo.remote.service.SyncService
 import kotlinx.coroutines.delay
 
 data class Tokens(
@@ -12,13 +12,13 @@ data class Tokens(
 )
 
 class FakeLoginRepository(
-    private val apiService: ApiService
+    private val syncService: SyncService
 ) {
 
     suspend fun login(email: String, password: String) : UseCaseResult<Tokens> {
 
         try{
-            val response = apiService.login(LoginRequestDto(email, password))
+            val response = syncService.login(LoginRequestDto(email, password))
 
             if(response.body() == null) return UseCaseResult.Failure("실패실패")
             else {
