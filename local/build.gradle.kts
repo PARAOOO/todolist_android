@@ -51,4 +51,8 @@ dependencies {
 
     implementation(libs.gson)
 
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.tink.android)
+    implementation(libs.androidx.security.crypto)
+
 }

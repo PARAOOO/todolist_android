@@ -1,5 +1,8 @@
 package com.paraooo.remote.di
 
+import com.paraooo.remote.datasource.AuthRemoteDataSource
+import com.paraooo.remote.datasourceimpl.AuthRemoteDataSourceImpl
+import com.paraooo.remote.service.AuthService
 import com.paraooo.remote.service.SyncService
 import okhttp3.OkHttpClient
 import org.koin.dsl.module
@@ -23,9 +26,14 @@ val networkModule = module {
 
     single {
         get<Retrofit>().create(SyncService::class.java)
+        get<Retrofit>().create(AuthService::class.java)
     }
 }
 
+val datasourceModule = module {
+    single<AuthRemoteDataSource> { AuthRemoteDataSourceImpl(get()) }
+}
+
 val remoteModules = module {
-    includes(networkModule)
+    includes(networkModule, datasourceModule)
 }
