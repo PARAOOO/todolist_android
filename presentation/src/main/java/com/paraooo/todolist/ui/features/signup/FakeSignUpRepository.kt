@@ -5,16 +5,17 @@ import com.paraooo.domain.model.UseCaseResult
 import com.paraooo.remote.dto.request.SendVerificationCodeRequestDto
 import com.paraooo.remote.dto.request.SignUpRequestDto
 import com.paraooo.remote.dto.request.VerifyCodeRequestDto
+import com.paraooo.remote.service.AuthService
 import com.paraooo.remote.service.SyncService
 
 class FakeSignUpRepository(
-    private val syncService: SyncService
+    private val authService: AuthService
 ) {
 
     suspend fun sendVerificationCode(email: String): UseCaseResult<Unit> {
 
         try{
-            syncService.sendVerificationCode(SendVerificationCodeRequestDto(email))
+            authService.sendVerificationCode(SendVerificationCodeRequestDto(email))
             return UseCaseResult.Success(Unit)
         } catch (e: Exception) {
             Log.e("PARAOOO", "login: ${e}")
@@ -38,7 +39,7 @@ class FakeSignUpRepository(
     suspend fun verifyCode(email: String, code: String): UseCaseResult<Unit> {
 
         try{
-            syncService.verifyCode(VerifyCodeRequestDto(email, code))
+            authService.verifyCode(VerifyCodeRequestDto(email, code))
             return UseCaseResult.Success(Unit)
         } catch (e: Exception) {
             Log.e("PARAOOO", "login: ${e}")
@@ -61,7 +62,7 @@ class FakeSignUpRepository(
 
     suspend fun signUp(nickname: String, email: String, password: String): UseCaseResult<Unit> {
         try{
-            syncService.signUp(SignUpRequestDto(email, password))
+            authService.signUp(SignUpRequestDto(email, password))
             return UseCaseResult.Success(Unit)
         } catch (e: Exception) {
             Log.e("PARAOOO", "login: ${e}")

@@ -4,17 +4,24 @@ import com.paraooo.data.platform.alarm.AlarmSchedulerImpl
 import com.paraooo.data.platform.alarm.NotificationHelper
 import com.paraooo.data.platform.handler.AlarmHandler
 import com.paraooo.data.platform.handler.AlarmRestoreHandler
+import com.paraooo.data.repository.AuthRepositoryImpl
 import com.paraooo.data.repository.TodoDayOfWeekRepositoryImpl
 import com.paraooo.data.repository.TodoInstanceRepositoryImpl
 import com.paraooo.data.repository.TodoPeriodRepositoryImpl
 import com.paraooo.data.repository.TodoRepositoryImpl
 import com.paraooo.data.repository.TodoTemplateRepositoryImpl
 import com.paraooo.domain.repository.AlarmScheduler
+import com.paraooo.domain.repository.AuthRepository
 import com.paraooo.domain.repository.TodoDayOfWeekRepository
 import com.paraooo.domain.repository.TodoInstanceRepository
 import com.paraooo.domain.repository.TodoPeriodRepository
 import com.paraooo.domain.repository.TodoRepository
 import com.paraooo.domain.repository.TodoTemplateRepository
+import com.paraooo.domain.usecase.auth.LoginUseCase
+import com.paraooo.domain.usecase.auth.RefreshTokenUseCase
+import com.paraooo.domain.usecase.auth.SendVerificationCodeUseCase
+import com.paraooo.domain.usecase.auth.SignUpUseCase
+import com.paraooo.domain.usecase.auth.VerifyCodeUseCase
 import com.paraooo.domain.usecase.todo.DeleteTodoByIdUseCase
 import com.paraooo.domain.usecase.todo.FindTodoByIdUseCase
 import com.paraooo.domain.usecase.dayofweek.PostDayOfWeekUseCase
@@ -35,6 +42,7 @@ private val repositoryModule = module {
     single<TodoPeriodRepository> { TodoPeriodRepositoryImpl(get(), get(), get(), get()) }
     single<TodoDayOfWeekRepository> { TodoDayOfWeekRepositoryImpl(get(), get(), get()) }
     single<TodoRepository> { TodoRepositoryImpl(get(), get(),get(),get(), get()) }
+    single<AuthRepository> { AuthRepositoryImpl(get()) }
 }
 
 private val alarmSchedulerModule = module {
@@ -63,6 +71,12 @@ private val useCaseModule = module {
 
     single { SyncDayOfWeekTodoUseCase(get(), get(), get()) }
     single { ObserveTodosUseCase(get()) }
+
+    single { LoginUseCase(get()) }
+    single { RefreshTokenUseCase(get()) }
+    single { SendVerificationCodeUseCase(get()) }
+    single { VerifyCodeUseCase(get()) }
+    single { SignUpUseCase(get()) }
 }
 
 val dataModules = module {
