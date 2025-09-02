@@ -18,6 +18,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.util.UUID
 
 class TodoRepositoryImpl(
     private val todoInstanceLocalDataSource: TodoInstanceLocalDataSource,
@@ -27,11 +28,11 @@ class TodoRepositoryImpl(
     private val transactionProvider: TransactionProvider,
 ) : TodoRepository {
 
-    override suspend fun getTodoInstanceById(instanceId: Long) : TodoInstanceModel? {
+    override suspend fun getTodoInstanceById(instanceId: UUID) : TodoInstanceModel? {
         return todoInstanceLocalDataSource.getTodoInstanceById(instanceId)?.toModel()
     }
 
-    override suspend fun findTodoById(instanceId: Long): FindTodoByIdResponse? {
+    override suspend fun findTodoById(instanceId: UUID): FindTodoByIdResponse? {
         val instance = todoInstanceLocalDataSource.getTodoInstanceById(instanceId) ?: return null
 
         return transactionProvider.runInTransaction {
@@ -52,18 +53,16 @@ class TodoRepositoryImpl(
         }
     }
 
-    override suspend fun postTodo(todoTemplate: TodoTemplateModel, todoInstance: TodoInstanceModel) : Long {
+    override suspend fun postTodo(todoTemplate: TodoTemplateModel, todoInstance: TodoInstanceModel) {
 
         return transactionProvider.runInTransaction {
-            val templateId = todoTemplateLocalDataSource.insertTodoTemplate(todoTemplate.toEntity())
+            todoTemplateLocalDataSource.insertTodoTemplate(todoTemplate.toEntity())
 
             todoInstanceLocalDataSource.insertTodoInstance(
                 todoInstance.copy(
-                    templateId = templateId
+                    templateId = todoTemplate.id
                 ).toEntity()
             )
-
-            templateId
         }
     }
 
@@ -82,11 +81,11 @@ class TodoRepositoryImpl(
         }
     }
 
-    override suspend fun updateTodoProgress(todoInstanceId: Long, progressAngle: Float) {
+    override suspend fun updateTodoProgress(todoInstanceId: UUID, progressAngle: Float) {
         todoInstanceLocalDataSource.updateTodoProgress(todoInstanceId, progressAngle)
     }
 
-    override suspend fun deleteTodoTemplate(templateId: Long) {
+    override suspend fun deleteTodoTemplate(templateId: UUID) {
         todoTemplateLocalDataSource.deleteTodoTemplate(templateId)
     }
 

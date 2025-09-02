@@ -8,13 +8,14 @@ import com.paraooo.domain.repository.TodoTemplateRepository
 import com.paraooo.local.datasource.TodoTemplateLocalDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.util.UUID
 
 
 internal class TodoTemplateRepositoryImpl(
     private val todoTemplateLocalDataSource: TodoTemplateLocalDataSource
 ) : TodoTemplateRepository {
 
-    override suspend fun getTodoTemplateById(id: Long): TodoTemplateModel? {
+    override suspend fun getTodoTemplateById(id: UUID): TodoTemplateModel? {
         return todoTemplateLocalDataSource.getTodoTemplateById(id)?.toModel()
     }
 

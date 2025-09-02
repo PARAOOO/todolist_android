@@ -55,4 +55,6 @@ dependencies {
     implementation(libs.tink.android)
     implementation(libs.androidx.security.crypto)
 
+
+    implementation(project(":domain"))
 }

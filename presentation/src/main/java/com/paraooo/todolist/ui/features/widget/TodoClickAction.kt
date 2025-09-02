@@ -6,9 +6,10 @@ import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.action.ActionCallback
 import com.paraooo.domain.usecase.todo.UpdateTodoProgressUseCase
 import org.koin.core.context.GlobalContext
+import java.util.UUID
 
 object TodoKey {
-    val TodoId = ActionParameters.Key<Long>("todoId")
+    val TodoId = ActionParameters.Key<UUID>("todoId")
     val TodoProgressAngle = ActionParameters.Key<Float>("todoProgressAngle")
 }
 

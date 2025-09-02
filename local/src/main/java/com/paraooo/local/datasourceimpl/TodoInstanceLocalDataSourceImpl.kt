@@ -2,6 +2,7 @@ package com.paraooo.local.datasourceimpl
 import com.paraooo.local.dao.TodoInstanceDao
 import com.paraooo.local.datasource.TodoInstanceLocalDataSource
 import com.paraooo.local.entity.TodoInstance
+import java.util.UUID
 
 internal class TodoInstanceLocalDataSourceImpl(
     private val todoInstanceDao: TodoInstanceDao
@@ -18,23 +19,23 @@ internal class TodoInstanceLocalDataSourceImpl(
         todoInstanceDao.updateTodoInstance(todoInstance)
     }
 
-    override suspend fun updateTodoProgress(todoInstanceId: Long, progressAngle: Float) {
+    override suspend fun updateTodoProgress(todoInstanceId: UUID, progressAngle: Float) {
         todoInstanceDao.updateTodoProgress(todoInstanceId, progressAngle)
     }
 
-    override suspend fun deleteTodoInstance(todoInstanceId: Long) {
+    override suspend fun deleteTodoInstance(todoInstanceId: UUID) {
         todoInstanceDao.deleteTodoInstance(todoInstanceId)
     }
 
-    override suspend fun getTodoInstanceById(todoInstanceId: Long): TodoInstance? {
+    override suspend fun getTodoInstanceById(todoInstanceId: UUID): TodoInstance? {
         return todoInstanceDao.getTodoInstanceById(todoInstanceId)
     }
 
-    override suspend fun getInstancesByTemplateId(templateId: Long): List<TodoInstance> {
+    override suspend fun getInstancesByTemplateId(templateId: UUID): List<TodoInstance> {
         return todoInstanceDao.getInstancesByTemplateId(templateId)
     }
 
-    override suspend fun deleteInstancesByDates(templateId: Long, dates: Set<Long>) {
+    override suspend fun deleteInstancesByDates(templateId: UUID, dates: Set<Long>) {
         todoInstanceDao.deleteInstancesByDates(templateId, dates)
     }
 }

@@ -9,6 +9,7 @@ import androidx.room.Update
 import com.paraooo.local.entity.TodoDayOfWeek
 import com.paraooo.local.entity.TodoDayOfWeekWithTime
 import com.paraooo.local.entity.TodoTemplate
+import java.util.UUID
 
 @Dao
 internal interface TodoDayOfWeekDao {
@@ -29,17 +30,17 @@ internal interface TodoDayOfWeekDao {
     suspend fun getTodosByDayOfWeek(dayOfWeek: Int): List<TodoDayOfWeek>
 
     @Query("SELECT * FROM todo_day_of_week WHERE templateId = :templateId")
-    suspend fun getDayOfWeekByTemplateId(templateId: Long): List<TodoDayOfWeek>
+    suspend fun getDayOfWeekByTemplateId(templateId: UUID): List<TodoDayOfWeek>
 
     @Query("DELETE FROM todo_day_of_week WHERE templateId = :templateId AND dayOfWeek IN (:days)")
-    suspend fun deleteSpecificDayOfWeeks(templateId: Long, days: List<Int>)
+    suspend fun deleteSpecificDayOfWeeks(templateId: UUID, days: List<Int>)
 
     @Query("""
     DELETE FROM todo_instance
     WHERE templateId = :templateId
     AND CAST(strftime('%w', date / 1000, 'unixepoch') AS INTEGER) + 1 IN (:days)
 """)
-    suspend fun deleteInstancesByTemplateIdAndDaysOfWeek(templateId: Long, days: List<Int>)
+    suspend fun deleteInstancesByTemplateIdAndDaysOfWeek(templateId: UUID, days: List<Int>)
 
     @Query(
         """

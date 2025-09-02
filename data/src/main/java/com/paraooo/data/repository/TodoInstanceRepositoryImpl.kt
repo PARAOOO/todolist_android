@@ -4,6 +4,7 @@ import com.paraooo.data.mapper.toModel
 import com.paraooo.domain.model.TodoInstanceModel
 import com.paraooo.domain.repository.TodoInstanceRepository
 import com.paraooo.local.datasource.TodoInstanceLocalDataSource
+import java.util.UUID
 
 internal class TodoInstanceRepositoryImpl(
     private val todoInstanceLocalDataSource: TodoInstanceLocalDataSource
@@ -12,11 +13,11 @@ internal class TodoInstanceRepositoryImpl(
         todoInstanceLocalDataSource.insertTodoInstance(todoInstance.toEntity())
     }
 
-    override suspend fun getTodoInstanceById(todoInstanceId: Long): TodoInstanceModel? {
+    override suspend fun getTodoInstanceById(todoInstanceId: UUID): TodoInstanceModel? {
         return todoInstanceLocalDataSource.getTodoInstanceById(todoInstanceId)?.toModel()
     }
 
-    override suspend fun getInstancesByTemplateId(templateId: Long): List<TodoInstanceModel> {
+    override suspend fun getInstancesByTemplateId(templateId: UUID): List<TodoInstanceModel> {
         return todoInstanceLocalDataSource.getInstancesByTemplateId(templateId).map { it.toModel() }
     }
 }

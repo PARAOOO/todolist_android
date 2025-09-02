@@ -11,6 +11,7 @@ import com.paraooo.domain.repository.TodoInstanceRepository
 import com.paraooo.domain.repository.TodoRepository
 import com.paraooo.domain.repository.TodoTemplateRepository
 import com.paraooo.domain.util.transferLocalDateToMillis
+import java.util.UUID
 
 class PostTodoUseCase(
     private val todoRepository: TodoRepository,
@@ -19,6 +20,7 @@ class PostTodoUseCase(
     suspend operator fun invoke(todo: TodoModel): UseCaseResult<Unit> {
         try {
             val todoTemplate = TodoTemplateModel(
+                id = UUID.randomUUID(),
                 title = todo.title,
                 description = todo.description ?: "",
                 hour = todo.time?.hour,
@@ -30,17 +32,17 @@ class PostTodoUseCase(
             )
 
             val todoInstance = TodoInstanceModel(
-                templateId = 0,
+                templateId = todoTemplate.id,
                 date = transferLocalDateToMillis(todo.date)
             )
 
-            val templateId = todoRepository.postTodo(todoTemplate, todoInstance)
+            todoRepository.postTodo(todoTemplate, todoInstance)
 
             if (todo.time != null) {
                 when (todo.alarmType) {
                     AlarmType.OFF -> {}
                     AlarmType.NOTIFY, AlarmType.POPUP -> {
-                        alarmScheduler.schedule(todo.date, todo.time, templateId)
+                        alarmScheduler.schedule(todo.date, todo.time, todoTemplate.id)
                     }
                 }
             }

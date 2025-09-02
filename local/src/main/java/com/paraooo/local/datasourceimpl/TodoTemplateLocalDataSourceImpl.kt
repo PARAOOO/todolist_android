@@ -5,13 +5,14 @@ import com.paraooo.local.entity.TodoTemplate
 import com.paraooo.local.dao.TodoTemplateDao
 import com.paraooo.local.datasource.TodoTemplateLocalDataSource
 import kotlinx.coroutines.flow.Flow
+import java.util.UUID
 
 
 internal class TodoTemplateLocalDataSourceImpl(
     private val todoTemplateDao: TodoTemplateDao
 ) : TodoTemplateLocalDataSource {
 
-    override suspend fun insertTodoTemplate(todoTemplate: TodoTemplate): Long {
+    override suspend fun insertTodoTemplate(todoTemplate: TodoTemplate) {
         return todoTemplateDao.insertTodoTemplate(todoTemplate)
     }
 
@@ -19,11 +20,11 @@ internal class TodoTemplateLocalDataSourceImpl(
         todoTemplateDao.updateTodoTemplate(todoTemplate)
     }
 
-    override suspend fun deleteTodoTemplate(templateId: Long) {
+    override suspend fun deleteTodoTemplate(templateId: UUID) {
         todoTemplateDao.deleteTodoTemplate(templateId)
     }
 
-    override suspend fun getTodoTemplateById(id: Long): TodoTemplate? {
+    override suspend fun getTodoTemplateById(id: UUID): TodoTemplate? {
         return todoTemplateDao.getTodoTemplateById(id)
     }
 

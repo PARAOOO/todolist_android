@@ -13,11 +13,12 @@ import com.paraooo.domain.util.transferLocalDateToMillis
 import com.paraooo.domain.util.transferMillis2LocalDate
 import java.time.LocalDate
 import java.time.LocalTime
+import java.util.UUID
 
 data class AlarmSchedule(
     val date: LocalDate,
     val time: LocalTime,
-    val templateId: Long
+    val templateId: UUID
 )
 
 class CalculateNextAlarmUseCase(

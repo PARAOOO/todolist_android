@@ -17,6 +17,7 @@ import com.paraooo.domain.usecase.alarm.ScheduleAlarmsUseCase
 import com.paraooo.domain.util.transferMillis2LocalDate
 import java.time.LocalDate
 import java.time.LocalTime
+import java.util.UUID
 
 class AlarmHandler(
     private val notificationHelper: NotificationHelper,
@@ -28,8 +29,8 @@ class AlarmHandler(
     private val todoDayOfWeekRepository: TodoDayOfWeekRepository,
     private val intentProvider: IntentProvider,
 ) {
-    suspend fun handleAlarm(templateId : Long, context: Context) : Result {
-        if (templateId == -1L) return Result.failure()
+    suspend fun handleAlarm(templateId : UUID, context: Context) : Result {
+//        if (templateId == -1L) return Result.failure()
 
         val todoInstances = todoInstanceRepository.getInstancesByTemplateId(templateId)
         val todoTemplate = todoTemplateRepository.getTodoTemplateById(templateId) ?: return Result.failure()

@@ -16,6 +16,7 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
+import java.util.UUID
 
 class AlarmActivity : ComponentActivity() {
 
@@ -33,7 +34,7 @@ class AlarmActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val instanceId = intent.getLongExtra("instanceId", 0)
+        val instanceId = intent.getStringExtra("instanceId")
 
         // deprecated 플래그 사용 (잠금화면 위 + 화면 켜기)
         window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED)
@@ -56,7 +57,7 @@ class AlarmActivity : ComponentActivity() {
 
         setContent {
             AlarmScreen(
-                instanceId = instanceId,
+                instanceId = UUID.fromString(instanceId),
                 onDismiss = {
                     onDismiss()
                 },

@@ -18,6 +18,7 @@ import com.paraooo.domain.util.transferMillis2LocalDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import java.util.UUID
 
 class PostPeriodTodoUseCase(
     private val todoPeriodRepository: TodoPeriodRepository,
@@ -44,7 +45,7 @@ class PostPeriodTodoUseCase(
             while (currentDate <= endDate) {
                 todos.add(
                     TodoInstanceModel(
-                        templateId = 0,
+                        templateId = UUID.randomUUID(),
                         date = transferLocalDateToMillis(currentDate)
                     )
                 )
@@ -52,7 +53,7 @@ class PostPeriodTodoUseCase(
             }
 
             val todoPeriod = TodoPeriodModel(
-                templateId = 0,
+                templateId = UUID.randomUUID(),
                 startDate = transferLocalDateToMillis(startDate),
                 endDate = transferLocalDateToMillis(endDate)
             )

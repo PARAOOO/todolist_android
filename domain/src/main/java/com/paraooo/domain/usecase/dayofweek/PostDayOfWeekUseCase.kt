@@ -11,6 +11,7 @@ import com.paraooo.domain.repository.TodoDayOfWeekRepository
 import com.paraooo.domain.repository.TodoTemplateRepository
 import java.time.LocalDate
 import java.time.LocalTime
+import java.util.UUID
 
 class PostDayOfWeekUseCase(
     private val todoDayOfWeekRepository: TodoDayOfWeekRepository,
@@ -36,14 +37,14 @@ class PostDayOfWeekUseCase(
             for (week in dayOfWeek) {
                 todoDayOfWeeks.add(
                     TodoDayOfWeekModel(
-                        templateId = 0,
+                        templateId = UUID.randomUUID(),
                         dayOfWeeks = dayOfWeek,
                         dayOfWeek = week
                     )
                 )
             }
 
-            val templateId = todoDayOfWeekRepository.postTodoDayOfWeek(
+            todoDayOfWeekRepository.postTodoDayOfWeek(
                 todoTemplate = todoTemplate,
                 todoDayOfWeeks = todoDayOfWeeks
             )
@@ -66,7 +67,7 @@ class PostDayOfWeekUseCase(
                 alarmScheduler.schedule(
                     date = alarmDate,
                     time = todo.time,
-                    templateId = templateId
+                    templateId = todoTemplate.id
                 )
             }
 

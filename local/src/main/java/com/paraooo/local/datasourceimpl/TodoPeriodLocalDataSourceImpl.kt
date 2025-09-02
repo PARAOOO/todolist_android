@@ -4,6 +4,7 @@ import com.paraooo.local.dao.TodoPeriodDao
 import com.paraooo.local.datasource.TodoPeriodLocalDataSource
 import com.paraooo.local.entity.TodoPeriod
 import com.paraooo.local.entity.TodoPeriodWithTime
+import java.util.UUID
 
 internal class TodoPeriodLocalDataSourceImpl(
     private val todoPeriodDao: TodoPeriodDao
@@ -20,7 +21,7 @@ internal class TodoPeriodLocalDataSourceImpl(
         todoPeriodDao.deleteTodoPeriod(todoPeriod)
     }
 
-    override suspend fun getTodoPeriodByTemplateId(templateId: Long): TodoPeriod? {
+    override suspend fun getTodoPeriodByTemplateId(templateId: UUID): TodoPeriod? {
         return todoPeriodDao.getTodoPeriodByTemplateId(templateId)
     }
 

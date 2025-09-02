@@ -10,6 +10,7 @@ import com.paraooo.domain.repository.TodoTemplateRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.transformLatest
+import java.util.UUID
 
 class SyncDayOfWeekTodoUseCase(
     private val todoRepository: TodoRepository,

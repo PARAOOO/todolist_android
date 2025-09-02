@@ -6,9 +6,10 @@ import android.content.Intent
 import com.paraooo.data.platform.alarm.IntentProvider
 import com.paraooo.todolist.MainActivity
 import com.paraooo.todolist.ui.features.alarm.AlarmActivity
+import java.util.UUID
 
 class AppIntentProvider : IntentProvider {
-    override fun getNotificationIntent(context: Context, todoId: Long): PendingIntent {
+    override fun getNotificationIntent(context: Context, todoId: UUID): PendingIntent {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             putExtra("todo_id", todoId)  // 필요 시 데이터 전달
@@ -16,7 +17,7 @@ class AppIntentProvider : IntentProvider {
 
         return PendingIntent.getActivity(
             context,
-            todoId.toInt(),
+            todoId.hashCode(),
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )

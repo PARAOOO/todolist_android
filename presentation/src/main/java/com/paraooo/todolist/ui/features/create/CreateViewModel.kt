@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import java.util.UUID
 
 class CreateViewModel(
     private val postTodoUseCase: PostTodoUseCase,
@@ -40,8 +41,8 @@ class CreateViewModel(
                 CreateUiEvent.onCreateClicked -> {
 
                     val baseTodoModel = TodoModel(
-                        instanceId = 0,
-                        templateId = 0,
+                        instanceId = UUID.randomUUID(),
+                        templateId = UUID.randomUUID(),
                         title = _uiState.value.todoInputState.todoNameInputState.content,
                         description = _uiState.value.todoInputState.descriptionInputState.content,
                         date = LocalDate.now(),

@@ -12,6 +12,7 @@ import com.paraooo.local.datasource.TodoTemplateLocalDataSource
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import java.util.UUID
 
 internal class TodoDayOfWeekRepositoryImpl(
     private val todoDayOfWeekLocalDataSource: TodoDayOfWeekLocalDataSource,
@@ -22,19 +23,17 @@ internal class TodoDayOfWeekRepositoryImpl(
     override suspend fun postTodoDayOfWeek(
         todoTemplate: TodoTemplateModel,
         todoDayOfWeeks: List<TodoDayOfWeekModel>
-    ): Long {
+    ) {
         return transactionProvider.runInTransaction {
-            val templateId = todoTemplateLocalDataSource.insertTodoTemplate(todoTemplate.toEntity())
+            todoTemplateLocalDataSource.insertTodoTemplate(todoTemplate.toEntity())
             todoDayOfWeekLocalDataSource.insertDayOfWeekTodos(todoDayOfWeeks.map {
-                it.toEntity().copy(templateId = templateId)
+                it.toEntity().copy(templateId = todoTemplate.id)
             })
-
-            templateId
         }
     }
 
     override suspend fun updateTodoDayOfWeek(
-        templateId: Long,
+        templateId: UUID,
         todoTemplate: TodoTemplateModel,
         dayOfWeeksToDelete: List<Int>,
         dayOfWeeksToInsert: List<TodoDayOfWeekModel>
@@ -53,7 +52,7 @@ internal class TodoDayOfWeekRepositoryImpl(
         }
     }
 
-    override suspend fun getDayOfWeekByTemplateId(templateId: Long): List<TodoDayOfWeekModel> {
+    override suspend fun getDayOfWeekByTemplateId(templateId: UUID): List<TodoDayOfWeekModel> {
         return todoDayOfWeekLocalDataSource.getDayOfWeekByTemplateId(templateId).map { it.toModel() }
     }
 

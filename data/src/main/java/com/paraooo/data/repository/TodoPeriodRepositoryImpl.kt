@@ -17,6 +17,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import java.time.LocalDate
+import java.util.UUID
 
 internal class TodoPeriodRepositoryImpl(
     private val todoTemplateLocalDataSource: TodoTemplateLocalDataSource,
@@ -31,15 +32,15 @@ internal class TodoPeriodRepositoryImpl(
         todoPeriod: TodoPeriodModel
     ) {
         transactionProvider.runInTransaction {
-            val templateId = todoTemplateLocalDataSource.insertTodoTemplate(todoTemplate.toEntity())
+            todoTemplateLocalDataSource.insertTodoTemplate(todoTemplate.toEntity())
 
             coroutineScope {
                 val jobs = listOf(
                     async {
-                        todoInstanceLocalDataSource.insertTodoInstances(todoInstances.map { it.toEntity().copy(templateId = templateId) })
+                        todoInstanceLocalDataSource.insertTodoInstances(todoInstances.map { it.toEntity().copy(templateId = todoTemplate.id) })
                     },
                     async {
-                        todoPeriodLocalDataSource.insertTodoPeriod(todoPeriod.toEntity().copy(templateId = templateId))
+                        todoPeriodLocalDataSource.insertTodoPeriod(todoPeriod.toEntity().copy(templateId = todoTemplate.id))
                     }
                 )
 
@@ -49,7 +50,7 @@ internal class TodoPeriodRepositoryImpl(
     }
 
     override suspend fun updateTodoPeriod(
-        templateId: Long,
+        templateId: UUID,
         todoTemplate: TodoTemplateModel,
         todoPeriod: TodoPeriodModel,
         datesToDelete: Set<Long>,
@@ -68,7 +69,7 @@ internal class TodoPeriodRepositoryImpl(
         }
     }
 
-    override suspend fun getTodoPeriodByTemplateId(templateId: Long): TodoPeriodModel? {
+    override suspend fun getTodoPeriodByTemplateId(templateId: UUID): TodoPeriodModel? {
         return todoPeriodLocalDataSource.getTodoPeriodByTemplateId(templateId)?.toModel()
     }
 

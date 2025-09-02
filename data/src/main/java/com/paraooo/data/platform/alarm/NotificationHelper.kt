@@ -37,6 +37,6 @@ class NotificationHelper(
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
 
-        manager.notify(todoInstance.id.toInt(), builder.build())
+        manager.notify(todoInstance.id.hashCode(), builder.build())
     }
 }
