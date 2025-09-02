@@ -5,13 +5,14 @@ import com.paraooo.domain.repository.AlarmScheduler
 import com.paraooo.domain.repository.TodoInstanceRepository
 import com.paraooo.domain.repository.TodoRepository
 import com.paraooo.domain.repository.TodoTemplateRepository
+import java.util.UUID
 
 class DeleteTodoByIdUseCase(
     private val todoRepository: TodoRepository,
     private val alarmScheduler: AlarmScheduler
 ) {
 
-    suspend operator fun invoke(instanceId: Long) : UseCaseResult<Unit> {
+    suspend operator fun invoke(instanceId: UUID) : UseCaseResult<Unit> {
         try {
             val instanceTodo = todoRepository.getTodoInstanceById(instanceId) ?: return UseCaseResult.Failure("id가 유효하지 않습니다.")
 

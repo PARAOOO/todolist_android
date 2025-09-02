@@ -4,17 +4,18 @@ import com.paraooo.local.entity.TodoEntity
 import com.paraooo.local.entity.TodoTemplate
 import com.paraooo.local.dao.TodoTemplateDao
 import kotlinx.coroutines.flow.Flow
+import java.util.UUID
 
 
 interface TodoTemplateLocalDataSource {
 
-    suspend fun insertTodoTemplate(todoTemplate: TodoTemplate): Long
+    suspend fun insertTodoTemplate(todoTemplate: TodoTemplate)
 
     suspend fun updateTodoTemplate(todoTemplate: TodoTemplate)
 
-    suspend fun deleteTodoTemplate(templateId: Long)
+    suspend fun deleteTodoTemplate(templateId: UUID)
 
-    suspend fun getTodoTemplateById(id: Long): TodoTemplate?
+    suspend fun getTodoTemplateById(id: UUID): TodoTemplate?
 
     suspend fun getAllTodoTemplates(): List<TodoTemplate>
 

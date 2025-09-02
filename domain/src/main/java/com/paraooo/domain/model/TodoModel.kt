@@ -2,6 +2,7 @@ package com.paraooo.domain.model
 
 import java.time.LocalDate
 import java.time.LocalTime
+import java.util.UUID
 
 //data class Time(
 //    val hour: Int,
@@ -15,8 +16,8 @@ enum class AlarmType(val label : String) {
 }
 
 data class TodoModel(
-    val instanceId : Long,
-    val templateId : Long,
+    val instanceId : UUID,
+    val templateId : UUID,
     val title : String,
     val time : LocalTime? = null,
     val date: LocalDate,
@@ -33,7 +34,7 @@ data class TodoModel(
 )
 
 data class TodoTemplateModel(
-    val id: Long = 0,
+    val id: UUID = UUID.randomUUID(),
     val title: String,
     val description: String,
     val hour: Int?, // null이면 시간 미지정,
@@ -45,27 +46,27 @@ data class TodoTemplateModel(
 )
 
 data class TodoInstanceModel(
-    val id: Long = 0,
-    val templateId: Long,
+    val id: UUID = UUID.randomUUID(),
+    val templateId: UUID,
     val date: Long,
     val progressAngle: Float = 0F,
 )
 
 data class TodoPeriodModel(
-    val templateId: Long,
+    val templateId: UUID,
     val startDate: Long,
     val endDate: Long
 )
 
 data class TodoDayOfWeekModel(
-    val id: Long = 0,
-    val templateId: Long,
+    val id: UUID = UUID.randomUUID(),
+    val templateId: UUID,
     val dayOfWeeks: List<Int>,
     val dayOfWeek: Int
 )
 
 data class TodoPeriodWithTimeModel(
-    val templateId : Long,
+    val templateId : UUID,
     val hour: Int?,
     val minute: Int?,
     val startDate: Long,
@@ -73,7 +74,7 @@ data class TodoPeriodWithTimeModel(
 )
 
 data class TodoDayOfWeekWithTimeModel(
-    val templateId : Long,
+    val templateId : UUID,
     val hour: Int?,
     val minute: Int?,
     val dayOfWeeks : List<Int>

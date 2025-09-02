@@ -1,6 +1,7 @@
 package com.paraooo.local.datasource
 import com.paraooo.local.dao.TodoInstanceDao
 import com.paraooo.local.entity.TodoInstance
+import java.util.UUID
 
 interface TodoInstanceLocalDataSource {
 
@@ -10,15 +11,15 @@ interface TodoInstanceLocalDataSource {
 
     suspend fun updateTodoInstance(todoInstance: TodoInstance)
 
-    suspend fun updateTodoProgress(todoInstanceId: Long, progressAngle: Float)
+    suspend fun updateTodoProgress(todoInstanceId: UUID, progressAngle: Float)
 
-    suspend fun deleteTodoInstance(todoInstanceId: Long)
+    suspend fun deleteTodoInstance(todoInstanceId: UUID)
 
-    suspend fun getTodoInstanceById(todoInstanceId: Long): TodoInstance?
+    suspend fun getTodoInstanceById(todoInstanceId: UUID): TodoInstance?
 
-    suspend fun getInstancesByTemplateId(templateId: Long): List<TodoInstance>
+    suspend fun getInstancesByTemplateId(templateId: UUID): List<TodoInstance>
 
-    suspend fun deleteInstancesByDates(templateId: Long, dates: Set<Long>)
+    suspend fun deleteInstancesByDates(templateId: UUID, dates: Set<Long>)
 
 }
 

@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Update
 import com.paraooo.local.entity.TodoPeriod
 import com.paraooo.local.entity.TodoPeriodWithTime
+import java.util.UUID
 
 @Dao
 internal interface TodoPeriodDao {
@@ -21,7 +22,7 @@ internal interface TodoPeriodDao {
     suspend fun deleteTodoPeriod(todoPeriod: TodoPeriod)
 
     @Query("SELECT * FROM todo_period WHERE templateId = :templateId")
-    suspend fun getTodoPeriodByTemplateId(templateId: Long): TodoPeriod?
+    suspend fun getTodoPeriodByTemplateId(templateId: UUID): TodoPeriod?
 
     @Query("""
         SELECT 

@@ -9,12 +9,13 @@ import com.paraooo.domain.repository.TodoRepository
 import com.paraooo.domain.repository.TodoTemplateRepository
 import com.paraooo.domain.util.transferMillis2LocalDate
 import java.time.LocalTime
+import java.util.UUID
 
 class FindTodoByIdUseCase(
     private val todoRepository : TodoRepository
 ) {
 
-    suspend operator fun invoke(instanceId: Long): UseCaseResult<TodoModel> {
+    suspend operator fun invoke(instanceId: UUID): UseCaseResult<TodoModel> {
 
         try {
             val findTodoByIdResponse = todoRepository.findTodoById(instanceId) ?: return UseCaseResult.Failure("id가 유효하지 않습니다.")

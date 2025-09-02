@@ -17,3 +17,5 @@ class BadRequestException(message: String = "잘못된 요청입니다.") : TLEx
 class DataEmptyException(message: String = "데이터가 비어있습니다.") : TLException(message)
 
 class UnknownHttpException(val code: Int, message: String) : TLException(message)
+
+class TokenStorageException(message: String = "토큰 저장에 실패했습니다."): TLException(message)

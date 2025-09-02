@@ -11,6 +11,7 @@ import com.paraooo.domain.repository.TodoInstanceRepository
 import com.paraooo.domain.repository.TodoRepository
 import com.paraooo.domain.repository.TodoTemplateRepository
 import com.paraooo.domain.util.transferLocalDateToMillis
+import java.util.UUID
 
 class UpdateTodoUseCase(
     private val todoRepository: TodoRepository,

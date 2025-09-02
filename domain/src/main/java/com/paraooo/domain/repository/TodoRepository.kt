@@ -7,6 +7,7 @@ import com.paraooo.domain.model.TodoPeriodModel
 import com.paraooo.domain.model.TodoTemplateModel
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
+import java.util.UUID
 
 data class FindTodoByIdResponse(
     val todoInstance : TodoInstanceModel,
@@ -16,17 +17,17 @@ data class FindTodoByIdResponse(
 )
 interface TodoRepository {
 
-    suspend fun getTodoInstanceById(instanceId: Long) : TodoInstanceModel?
+    suspend fun getTodoInstanceById(instanceId: UUID) : TodoInstanceModel?
 
-    suspend fun findTodoById(instanceId : Long) : FindTodoByIdResponse?
+    suspend fun findTodoById(instanceId : UUID) : FindTodoByIdResponse?
 
-    suspend fun postTodo(todoTemplate: TodoTemplateModel, todoInstance : TodoInstanceModel) : Long
+    suspend fun postTodo(todoTemplate: TodoTemplateModel, todoInstance : TodoInstanceModel)
 
     suspend fun updateTodo(todoTemplate: TodoTemplateModel, todoInstance: TodoInstanceModel)
 
-    suspend fun updateTodoProgress(todoInstanceId: Long, progressAngle: Float)
+    suspend fun updateTodoProgress(todoInstanceId: UUID, progressAngle: Float)
 
-    suspend fun deleteTodoTemplate(templateId: Long)
+    suspend fun deleteTodoTemplate(templateId: UUID)
 
     suspend fun syncDayOfWeekInstance(todoInstances: List<TodoInstanceModel>)
 

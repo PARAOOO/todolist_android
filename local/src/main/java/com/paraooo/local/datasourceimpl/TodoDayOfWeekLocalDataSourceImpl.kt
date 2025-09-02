@@ -5,6 +5,7 @@ import com.paraooo.local.datasource.TodoDayOfWeekLocalDataSource
 import com.paraooo.local.entity.TodoDayOfWeek
 import com.paraooo.local.entity.TodoDayOfWeekWithTime
 import com.paraooo.local.entity.TodoTemplate
+import java.util.UUID
 
 internal class TodoDayOfWeekLocalDataSourceImpl(
     private val todoDayOfWeekDao: TodoDayOfWeekDao
@@ -29,15 +30,15 @@ internal class TodoDayOfWeekLocalDataSourceImpl(
         return todoDayOfWeekDao.getTodosByDayOfWeek(dayOfWeek)
     }
 
-    override suspend fun getDayOfWeekByTemplateId(templateId: Long): List<TodoDayOfWeek> {
+    override suspend fun getDayOfWeekByTemplateId(templateId: UUID): List<TodoDayOfWeek> {
         return todoDayOfWeekDao.getDayOfWeekByTemplateId(templateId)
     }
 
-    override suspend fun deleteSpecificDayOfWeeks(templateId: Long, days: List<Int>) {
+    override suspend fun deleteSpecificDayOfWeeks(templateId: UUID, days: List<Int>) {
         todoDayOfWeekDao.deleteSpecificDayOfWeeks(templateId, days)
     }
 
-    override suspend fun deleteInstancesByTemplateIdAndDaysOfWeek(templateId: Long, days: List<Int>) {
+    override suspend fun deleteInstancesByTemplateIdAndDaysOfWeek(templateId: UUID, days: List<Int>) {
         todoDayOfWeekDao.deleteInstancesByTemplateIdAndDaysOfWeek(templateId, days)
     }
 

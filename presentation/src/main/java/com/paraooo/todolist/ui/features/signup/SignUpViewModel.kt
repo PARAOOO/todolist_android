@@ -1,10 +1,12 @@
 package com.paraooo.todolist.ui.features.signup
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.ui.geometry.Rect
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.paraooo.domain.model.UseCaseResult
+import com.paraooo.local.util.TokenManager
 import com.paraooo.todolist.ui.features.home.HomeUiEffect
 import com.paraooo.todolist.ui.features.home.HomeUiEvent
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +23,7 @@ import kotlinx.coroutines.withContext
 
 class SignUpViewModel(
     private val fakeSignUpRepository: FakeSignUpRepository,
+    private val tokenManager: TokenManager,
     private val initialUiState: SignUpUiState = SignUpUiState(),
 ) : ViewModel() {
 

@@ -7,6 +7,7 @@ import com.paraooo.data.platform.handler.AlarmHandler
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.time.LocalDate
+import java.util.UUID
 
 class AlarmWorker(
     appContext: Context,
@@ -16,9 +17,9 @@ class AlarmWorker(
     private val alarmHandler : AlarmHandler by inject()
 
     override suspend fun doWork(): Result {
-        val templateId = inputData.getLong("templateId", -1L)
+        val templateId = inputData.getString("templateId")
 
-        return alarmHandler.handleAlarm(templateId, applicationContext)
+        return alarmHandler.handleAlarm(UUID.fromString(templateId), applicationContext)
 
     }
 }

@@ -14,10 +14,10 @@ interface SyncService {
     @GET("api/sync/pull")
     suspend fun syncPull(
         @Query("lastSyncTimestamp") lastSyncTimestamp: String
-    ): SyncPullResponseDto
+    ): Response<SyncPullResponseDto>
 
     @POST("api/sync")
-    suspend fun sync(
+    suspend fun syncPush(
         @Body request: SyncRequestDto
     ): Response<Unit>
 

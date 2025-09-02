@@ -8,21 +8,22 @@ import androidx.room.Update
 import com.paraooo.local.entity.TodoEntity
 import com.paraooo.local.entity.TodoTemplate
 import kotlinx.coroutines.flow.Flow
+import java.util.UUID
 
 @Dao
 internal interface TodoTemplateDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTodoTemplate(todoTemplate: TodoTemplate): Long
+    suspend fun insertTodoTemplate(todoTemplate: TodoTemplate)
 
     @Update
     suspend fun updateTodoTemplate(todoTemplate: TodoTemplate)
 
     @Query("DELETE FROM todo_template WHERE id = :templateId")
-    suspend fun deleteTodoTemplate(templateId: Long)
+    suspend fun deleteTodoTemplate(templateId: UUID)
 
     @Query("SELECT * FROM todo_template WHERE id = :id")
-    suspend fun getTodoTemplateById(id: Long): TodoTemplate?
+    suspend fun getTodoTemplateById(id: UUID): TodoTemplate?
 
     @Query("SELECT * FROM todo_template")
     suspend fun getAllTodoTemplates(): List<TodoTemplate>

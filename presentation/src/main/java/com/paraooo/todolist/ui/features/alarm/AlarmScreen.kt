@@ -41,10 +41,11 @@ import org.koin.androidx.compose.koinViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import java.util.UUID
 
 @Composable
 fun AlarmScreen(
-    instanceId: Long,
+    instanceId: UUID,
     onDismiss: () -> Unit,
     viewModel : AlarmViewModel = koinViewModel(),
     onVibrate : () -> Unit,
@@ -161,8 +162,8 @@ fun AlarmScreen(
     }
 }
 
-@Preview
-@Composable
-fun PreviewAlarmScreen() {
-    AlarmScreen(0, onDismiss = {}, onVibrate = {}, onSound = {})
-}
+//@Preview
+//@Composable
+//fun PreviewAlarmScreen() {
+//    AlarmScreen(0, onDismiss = {}, onVibrate = {}, onSound = {})
+//}

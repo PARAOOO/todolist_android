@@ -3,6 +3,7 @@ package com.paraooo.local.datasource
 import com.paraooo.local.dao.TodoPeriodDao
 import com.paraooo.local.entity.TodoPeriod
 import com.paraooo.local.entity.TodoPeriodWithTime
+import java.util.UUID
 
 interface TodoPeriodLocalDataSource {
 
@@ -12,7 +13,7 @@ interface TodoPeriodLocalDataSource {
 
     suspend fun deleteTodoPeriod(todoPeriod: TodoPeriod)
 
-    suspend fun getTodoPeriodByTemplateId(templateId: Long): TodoPeriod?
+    suspend fun getTodoPeriodByTemplateId(templateId: UUID): TodoPeriod?
 
     suspend fun getAlarmPeriodTodos(todayMillis: Long): List<TodoPeriodWithTime>
 }

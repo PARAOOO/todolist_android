@@ -18,7 +18,7 @@ data class TodoTemplateIdDto(
 
 data class TodoInstanceRequestDto(
     val uuid: String,
-    val template: List<TodoTemplateIdDto>,
+    val template: TodoTemplateIdDto,
     val date: String,
     val progressAngle: Double,
     val deleted: Boolean

@@ -59,6 +59,7 @@ import org.koin.androidx.compose.koinViewModel
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
+import java.util.UUID
 
 
 //const val TAG = "PARAOOO"
@@ -67,7 +68,7 @@ import java.time.LocalTime
 fun EditScreen(
     navController: NavController,
     viewModel : EditViewModel = koinViewModel(),
-    instanceId : Long,
+    instanceId : UUID,
 ) {
 
     LaunchedEffect(instanceId) {
@@ -269,11 +270,11 @@ fun EditScreen(
     }
 }
 
-@Composable
-@Preview
-fun PreviewEditScreen() {
-    EditScreen(
-        navController = rememberNavController(),
-        instanceId = 1,
-    )
-}
+//@Composable
+//@Preview
+//fun PreviewEditScreen() {
+//    EditScreen(
+//        navController = rememberNavController(),
+//        instanceId = 1,
+//    )
+//}

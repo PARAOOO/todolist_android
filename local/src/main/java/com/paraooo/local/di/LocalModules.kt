@@ -7,16 +7,23 @@ import com.paraooo.local.datasource.TodoDayOfWeekLocalDataSource
 import com.paraooo.local.datasource.TodoInstanceLocalDataSource
 import com.paraooo.local.datasource.TodoPeriodLocalDataSource
 import com.paraooo.local.datasource.TodoTemplateLocalDataSource
+import com.paraooo.local.datasource.TokenLocalDataSource
 import com.paraooo.local.datasourceimpl.TodoDayOfWeekLocalDataSourceImpl
 import com.paraooo.local.datasourceimpl.TodoInstanceLocalDataSourceImpl
 import com.paraooo.local.datasourceimpl.TodoPeriodLocalDataSourceImpl
 import com.paraooo.local.datasourceimpl.TodoTemplateLocalDataSourceImpl
+import com.paraooo.local.datasourceimpl.TokenLocalDataSourceImpl
 import com.paraooo.local.migrations.MIGRATION_1_2
 import com.paraooo.local.migrations.MIGRATION_2_5
 import com.paraooo.local.migrations.MIGRATION_5_7
+import com.paraooo.local.util.CryptoManager
+import com.paraooo.local.util.TokenManager
 import org.koin.dsl.module
 
-
+val storageModule = module {
+    single { CryptoManager() }
+    single { TokenManager(get(), get()) }
+}
 private val databaseModule = module {
     single {
         Room.databaseBuilder(
@@ -39,6 +46,7 @@ private val databaseModule = module {
 }
 
 private val dataSourceModule = module {
+    single<TokenLocalDataSource> { TokenLocalDataSourceImpl(get()) }
     single<TodoTemplateLocalDataSource> { TodoTemplateLocalDataSourceImpl(get()) }
     single<TodoInstanceLocalDataSource> { TodoInstanceLocalDataSourceImpl(get()) }
     single<TodoPeriodLocalDataSource> { TodoPeriodLocalDataSourceImpl(get()) }
@@ -50,5 +58,5 @@ private val providerModule = module {
 }
 
 val localModules = module {
-    includes(databaseModule, dataSourceModule, providerModule)
+    includes(storageModule, databaseModule, dataSourceModule, providerModule)
 }

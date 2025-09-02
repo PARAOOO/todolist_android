@@ -1,17 +1,21 @@
 package com.paraooo.todolist.ui.features.start
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.paraooo.domain.model.UseCaseResult
 import com.paraooo.domain.usecase.auth.LoginUseCase
+import com.paraooo.local.util.TokenManager
 import com.paraooo.todolist.ui.features.home.HomeUiEffect
 import com.paraooo.todolist.ui.features.home.HomeUiEvent
 import com.paraooo.todolist.ui.features.home.HomeUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -19,6 +23,7 @@ import kotlinx.coroutines.withContext
 
 class StartViewModel(
     private val loginUseCase: LoginUseCase,
+    private val tokenManager: TokenManager,
     private val initialUiState : StartUiState = StartUiState(),
 ): ViewModel() {
     private val _uiState = MutableStateFlow(initialUiState)
@@ -59,29 +64,12 @@ class StartViewModel(
                             }
                         }
                         is UseCaseResult.Success<Pair<String, String>> -> {
-//                            val result = withContext(Dispatchers.IO) {
-//                                fakeLoginRepository.storeTokens(result.data.accessToken, result.data.refreshToken)
-//                            }
-
-                            when(result) {
-                                is UseCaseResult.Error -> {
-                                    _uiState.update { state ->
-                                        state.copy(
-                                            loginErrorMessage = "사용자 정보 저장 과정에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
-                                        )
-                                    }
-                                }
-                                is UseCaseResult.Failure -> {}
-                                is UseCaseResult.Success<*> -> {
-                                    _uiState.update { state ->
-                                        state.copy(
-                                            loginErrorMessage = null
-                                        )
-                                    }
-
-                                    _effectChannel.send(StartUiEffect.onLoginSuccess)
-                                }
+                            _uiState.update { state ->
+                                state.copy(
+                                    loginErrorMessage = null
+                                )
                             }
+                            _effectChannel.send(StartUiEffect.onLoginSuccess)
                         }
                     }
 

@@ -9,20 +9,21 @@ import com.paraooo.domain.repository.AlarmScheduler
 import com.paraooo.domain.util.todoToMillis
 import java.time.LocalDate
 import java.time.LocalTime
+import java.util.UUID
 
 
 class AlarmSchedulerImpl(
     private val context: Context
 ) : AlarmScheduler {
 
-    override fun schedule(date: LocalDate, time: LocalTime, templateId : Long) {
+    override fun schedule(date: LocalDate, time: LocalTime, templateId : UUID) {
 
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra("templateId", templateId)
         }
         val pendingIntent = PendingIntent.getBroadcast(
             context,
-            templateId.toInt(),  // 고유 키
+            templateId.hashCode(),  // 고유 키
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -38,18 +39,18 @@ class AlarmSchedulerImpl(
         )
     }
 
-    override fun reschedule(date: LocalDate, time: LocalTime, templateId: Long) {
+    override fun reschedule(date: LocalDate, time: LocalTime, templateId: UUID) {
         cancel(templateId) // 먼저 취소
         schedule(date, time, templateId) // 다시 등록
     }
 
-    override fun cancel(templateId: Long) {
+    override fun cancel(templateId: UUID) {
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra("templateId", templateId)
         }
         val pendingIntent = PendingIntent.getBroadcast(
             context,
-            templateId.toInt(),
+            templateId.hashCode(),
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )

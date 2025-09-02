@@ -22,6 +22,7 @@ import com.paraooo.todolist.ui.features.splash.SplashScreen
 import com.paraooo.todolist.ui.features.start.StartScreen
 import com.paraooo.todolist.ui.util.pxToDp
 import java.time.LocalDate
+import java.util.UUID
 
 
 @Composable
@@ -65,7 +66,7 @@ fun AppNavGraph(navController: NavHostController) {
 
         composable(
             route = "${Destinations.Create.route}/{selectedDate}",
-            arguments = listOf(navArgument("selectedDate") { type = NavType.LongType })
+            arguments = listOf(navArgument("selectedDate") { type = NavType.StringType })
         ) { backStackEntry ->
             val epochDay = backStackEntry.arguments?.getLong("selectedDate") ?: 0
             val selectedDate = LocalDate.ofEpochDay(epochDay)
@@ -78,14 +79,14 @@ fun AppNavGraph(navController: NavHostController) {
         composable(
             route = "${Destinations.Edit.route}/{instanceId}",
             arguments = listOf(
-                navArgument("instanceId") { type = NavType.LongType },
+                navArgument("instanceId") { type = NavType.StringType },
             )
         ) { backStackEntry ->
-            val instanceId = backStackEntry.arguments?.getLong("instanceId") ?: 0
+            val instanceId = backStackEntry.arguments?.getString("instanceId") ?: ""
 
             EditScreen(
                 navController = navController,
-                instanceId = instanceId,
+                instanceId = UUID.fromString(instanceId),
             )
         }
 

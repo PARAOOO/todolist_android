@@ -6,10 +6,11 @@ import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import java.util.UUID
 
 @Entity(tableName = "todo_template")
 data class TodoTemplate(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @PrimaryKey val id: UUID = UUID.randomUUID(),
     val title: String,
     val description: String,
     val hour: Int?, // null이면 시간 미지정,
@@ -28,8 +29,8 @@ data class TodoTemplate(
     indices = [Index(value = ["date"]), Index(value = ["templateId"])] // date, templateId 인덱스 설정
 )
 data class TodoInstance(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val templateId: Long, // 원본 TodoTemplate Id
+    @PrimaryKey val id: UUID = UUID.randomUUID(),
+    val templateId: UUID, // 원본 TodoTemplate Id
     val date: Long,
     val progressAngle: Float = 0F,
 )
@@ -42,7 +43,7 @@ data class TodoInstance(
     indices = [Index(value = ["templateId"])] // templateId 인덱스 설정
 )
 data class TodoPeriod(
-    @PrimaryKey val templateId: Long, // 원본 TodoTemplate Id
+    @PrimaryKey val templateId: UUID, // 원본 TodoTemplate Id
     val startDate: Long,
     val endDate: Long
 )
@@ -55,15 +56,15 @@ data class TodoPeriod(
     indices = [Index(value = ["templateId"]), Index(value = ["dayOfWeek"])] // 검색 속도 향상을 위해 요일 인덱스 추가
 )
 data class TodoDayOfWeek(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val templateId: Long, // 원본 TodoTemplate Id
+    @PrimaryKey val id: UUID = UUID.randomUUID(),
+    val templateId: UUID, // 원본 TodoTemplate Id
     val dayOfWeeks: List<Int>,
     val dayOfWeek: Int // 1(월) ~ 7(일)
 )
 
 data class TodoEntity(
-    val instanceId: Long,
-    val templateId: Long,
+    val instanceId: UUID,
+    val templateId: UUID,
     val title: String,
     val description: String,
     val date: Long,
@@ -79,7 +80,7 @@ data class TodoEntity(
 )
 
 data class TodoPeriodWithTime(
-    val templateId : Long,
+    val templateId : UUID,
     val hour: Int?,
     val minute: Int?,
     val startDate: Long,
@@ -87,7 +88,7 @@ data class TodoPeriodWithTime(
 )
 
 data class TodoDayOfWeekWithTime(
-    val templateId : Long,
+    val templateId : UUID,
     val hour: Int?,
     val minute: Int?,
     val dayOfWeeks : List<Int>

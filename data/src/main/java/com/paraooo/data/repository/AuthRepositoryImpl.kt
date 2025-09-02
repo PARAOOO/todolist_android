@@ -1,6 +1,7 @@
 package com.paraooo.data.repository
 
 import com.paraooo.domain.repository.AuthRepository
+import com.paraooo.local.datasource.TokenLocalDataSource
 import com.paraooo.remote.datasource.AuthRemoteDataSource
 import com.paraooo.remote.dto.request.LoginRequestDto
 import com.paraooo.remote.dto.request.SendVerificationCodeRequestDto
@@ -8,7 +9,8 @@ import com.paraooo.remote.dto.request.SignUpRequestDto
 import com.paraooo.remote.dto.request.VerifyCodeRequestDto
 
 class AuthRepositoryImpl(
-    private val authRemoteDataSource: AuthRemoteDataSource
+    private val authRemoteDataSource: AuthRemoteDataSource,
+    private val tokenLocalDataSource: TokenLocalDataSource
 ): AuthRepository {
     override suspend fun sendVerificationCode(email: String) {
         authRemoteDataSource.sendVerificationCode(SendVerificationCodeRequestDto(email))
@@ -22,11 +24,10 @@ class AuthRepositoryImpl(
         authRemoteDataSource.signUp(SignUpRequestDto(email, password))
     }
 
-    override suspend fun login(
-        email: String,
-        password: String
-    ): Pair<String, String> {
+    override suspend fun login(email: String, password: String): Pair<String, String> {
         val response = authRemoteDataSource.login(LoginRequestDto(email, password))
+
+        tokenLocalDataSource.storeTokens(response.accessToken, response.refreshToken)
 
         return response.accessToken to response.refreshToken
     }

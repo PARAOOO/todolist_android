@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import java.util.UUID
 
 class EditViewModel(
     private val findTodoByIdUseCase: FindTodoByIdUseCase,
@@ -146,7 +147,7 @@ class EditViewModel(
         }
     }
 
-    private suspend fun fetchTodo(instanceId: Long) {
+    private suspend fun fetchTodo(instanceId: UUID) {
 
         val result = withContext(Dispatchers.IO){
             findTodoByIdUseCase(instanceId)
@@ -195,11 +196,11 @@ class EditViewModel(
         }
     }
 
-    suspend fun updateTodo(instanceId : Long) {
+    suspend fun updateTodo(instanceId : UUID) {
 
         val baseTodoModel = TodoModel(
             instanceId = instanceId,
-            templateId = 0,
+            templateId = UUID.randomUUID(),
             title = uiState.value.todoInputState.todoNameInputState.content,
             description = uiState.value.todoInputState.descriptionInputState.content,
             date = when (uiState.value.todoInputState.dateInputState) {
