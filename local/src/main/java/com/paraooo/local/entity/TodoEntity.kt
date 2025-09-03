@@ -18,7 +18,8 @@ data class TodoTemplate(
     @ColumnInfo(index = true) val type: TodoTypeEntity, // GENERAL, PERIOD, DAY_OF_WEEK,
     val alarmType : AlarmTypeEntity, // OFF, NOTIFY, POPUP
     val isAlarmHasVibration : Boolean,
-    val isAlarmHasSound : Boolean
+    val isAlarmHasSound : Boolean,
+    val needsSync: Boolean = true,
 )
 
 @Entity(
@@ -33,6 +34,7 @@ data class TodoInstance(
     val templateId: UUID, // 원본 TodoTemplate Id
     val date: Long,
     val progressAngle: Float = 0F,
+    val needsSync: Boolean = true,
 )
 
 @Entity(

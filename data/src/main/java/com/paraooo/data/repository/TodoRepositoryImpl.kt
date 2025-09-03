@@ -7,11 +7,14 @@ import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.model.TodoTemplateModel
 import com.paraooo.domain.repository.FindTodoByIdResponse
 import com.paraooo.domain.repository.TodoRepository
+import com.paraooo.local.dao.DeletedTodoDao
 import com.paraooo.local.database.TransactionProvider
+import com.paraooo.local.datasource.DeletedTodoLocalDataSource
 import com.paraooo.local.datasource.TodoDayOfWeekLocalDataSource
 import com.paraooo.local.datasource.TodoInstanceLocalDataSource
 import com.paraooo.local.datasource.TodoPeriodLocalDataSource
 import com.paraooo.local.datasource.TodoTemplateLocalDataSource
+import com.paraooo.local.entity.DeletedTodo
 import com.paraooo.local.entity.TodoInstance
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -25,6 +28,7 @@ class TodoRepositoryImpl(
     private val todoTemplateLocalDataSource: TodoTemplateLocalDataSource,
     private val todoPeriodLocalDataSource: TodoPeriodLocalDataSource,
     private val todoDayOfWeekLocalDataSource: TodoDayOfWeekLocalDataSource,
+    private val deletedTodoLocalDataSource: DeletedTodoLocalDataSource,
     private val transactionProvider: TransactionProvider,
 ) : TodoRepository {
 
@@ -86,7 +90,9 @@ class TodoRepositoryImpl(
     }
 
     override suspend fun deleteTodoTemplate(templateId: UUID) {
-        todoTemplateLocalDataSource.deleteTodoTemplate(templateId)
+        transactionProvider.runInTransaction {
+            todoTemplateLocalDataSource.deleteTodoTemplate(templateId)
+        }
     }
 
     override suspend fun syncDayOfWeekInstance(todoInstances: List<TodoInstanceModel>) {

@@ -9,6 +9,7 @@ import com.paraooo.domain.model.TodoPeriodModel
 import com.paraooo.domain.model.TodoPeriodWithTimeModel
 import com.paraooo.domain.model.TodoTemplateModel
 import com.paraooo.domain.model.TodoType
+import com.paraooo.domain.util.convertMillisToDateString
 import com.paraooo.domain.util.transferMillis2LocalDate
 import com.paraooo.local.entity.AlarmTypeEntity
 import com.paraooo.local.entity.TodoDayOfWeek
@@ -19,6 +20,9 @@ import com.paraooo.local.entity.TodoPeriod
 import com.paraooo.local.entity.TodoPeriodWithTime
 import com.paraooo.local.entity.TodoTemplate
 import com.paraooo.local.entity.TodoTypeEntity
+import com.paraooo.remote.dto.request.TodoInstanceRequestDto
+import com.paraooo.remote.dto.request.TodoTemplateIdDto
+import com.paraooo.remote.dto.request.TodoTemplateRequestDto
 import java.time.LocalTime
 
 internal fun AlarmTypeEntity.toModel() : AlarmType {
@@ -141,4 +145,42 @@ internal fun TodoPeriodWithTime.toModel() = TodoPeriodWithTimeModel(
     minute = minute,
     startDate = startDate,
     endDate = endDate
+)
+//val uuid: String,
+//val title: String,
+//val description: String,
+//val hour: Int,
+//val minute: Int,
+//val type: String,
+//val alarmType: String,
+//val alarmHasVibration: Boolean,
+//val alarmHasSound: Boolean,
+//val deleted: Boolean
+
+
+internal fun TodoTemplateModel.toDto() = TodoTemplateRequestDto(
+    uuid = id.toString(),
+    title = title,
+    description = description,
+    hour = hour,
+    minute = minute,
+    type = type.name,
+    alarmType = alarmType.name,
+    alarmHasVibration = isAlarmHasVibration,
+    alarmHasSound = isAlarmHasSound,
+    deleted = false
+)
+
+//val uuid: String,
+//val template: TodoTemplateIdDto,
+//val date: String,
+//val progressAngle: Double,
+//val deleted: Boolean
+
+internal fun TodoInstanceModel.toDto() = TodoInstanceRequestDto(
+    uuid = id.toString(),
+    template = TodoTemplateIdDto(templateId.toString()),
+    date = convertMillisToDateString(date),
+    progressAngle = progressAngle,
+    deleted = false
 )

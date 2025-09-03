@@ -5,6 +5,7 @@ import com.paraooo.data.platform.alarm.NotificationHelper
 import com.paraooo.data.platform.handler.AlarmHandler
 import com.paraooo.data.platform.handler.AlarmRestoreHandler
 import com.paraooo.data.repository.AuthRepositoryImpl
+import com.paraooo.data.repository.SyncRepositoryImpl
 import com.paraooo.data.repository.TodoDayOfWeekRepositoryImpl
 import com.paraooo.data.repository.TodoInstanceRepositoryImpl
 import com.paraooo.data.repository.TodoPeriodRepositoryImpl
@@ -12,6 +13,7 @@ import com.paraooo.data.repository.TodoRepositoryImpl
 import com.paraooo.data.repository.TodoTemplateRepositoryImpl
 import com.paraooo.domain.repository.AlarmScheduler
 import com.paraooo.domain.repository.AuthRepository
+import com.paraooo.domain.repository.SyncRepository
 import com.paraooo.domain.repository.TodoDayOfWeekRepository
 import com.paraooo.domain.repository.TodoInstanceRepository
 import com.paraooo.domain.repository.TodoPeriodRepository
@@ -41,8 +43,9 @@ private val repositoryModule = module {
     single<TodoInstanceRepository> { TodoInstanceRepositoryImpl(get()) }
     single<TodoPeriodRepository> { TodoPeriodRepositoryImpl(get(), get(), get(), get()) }
     single<TodoDayOfWeekRepository> { TodoDayOfWeekRepositoryImpl(get(), get(), get()) }
-    single<TodoRepository> { TodoRepositoryImpl(get(), get(),get(),get(), get()) }
+    single<TodoRepository> { TodoRepositoryImpl(get(), get(),get(),get(), get(), get()) }
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
+    single<SyncRepository> { SyncRepositoryImpl(get(), get(), get(), get()) }
 }
 
 private val alarmSchedulerModule = module {

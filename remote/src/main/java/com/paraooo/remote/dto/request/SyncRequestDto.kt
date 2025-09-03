@@ -1,10 +1,13 @@
 package com.paraooo.remote.dto.request
+
+import kotlinx.coroutines.flow.Flow
+
 data class TodoTemplateRequestDto(
     val uuid: String,
     val title: String,
     val description: String,
-    val hour: Int,
-    val minute: Int,
+    val hour: Int?,
+    val minute: Int?,
     val type: String,
     val alarmType: String,
     val alarmHasVibration: Boolean,
@@ -20,7 +23,7 @@ data class TodoInstanceRequestDto(
     val uuid: String,
     val template: TodoTemplateIdDto,
     val date: String,
-    val progressAngle: Double,
+    val progressAngle: Float    ,
     val deleted: Boolean
 )
 

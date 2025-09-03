@@ -1,7 +1,9 @@
 package com.paraooo.remote.di
 
 import com.paraooo.remote.datasource.AuthRemoteDataSource
+import com.paraooo.remote.datasource.SyncRemoteDataSource
 import com.paraooo.remote.datasourceimpl.AuthRemoteDataSourceImpl
+import com.paraooo.remote.datasourceimpl.SyncRemoteDataSourceImpl
 import com.paraooo.remote.service.AuthService
 import com.paraooo.remote.service.SyncService
 import okhttp3.OkHttpClient
@@ -32,6 +34,7 @@ val networkModule = module {
 
 val datasourceModule = module {
     single<AuthRemoteDataSource> { AuthRemoteDataSourceImpl(get()) }
+    single<SyncRemoteDataSource> { SyncRemoteDataSourceImpl(get()) }
 }
 
 val remoteModules = module {
