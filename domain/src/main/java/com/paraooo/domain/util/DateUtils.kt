@@ -16,6 +16,15 @@ fun getDateOfWeekEEE(date : LocalDate) : String {
     return dayOfWeek
 }
 
+fun convertMillisToDateString(millis: Long): String {
+    val instant = Instant.ofEpochMilli(millis)
+
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        .withZone(ZoneId.systemDefault())
+
+    return formatter.format(instant)
+}
+
 fun transferMillis2LocalDate(millis : Long?) : LocalDate {
     if(millis != null) {
         val transferredDate: LocalDate = millis.let {
