@@ -31,6 +31,7 @@ class SyncRemoteDataSourceImpl(
     override suspend fun syncPull(lastSyncTimestamp: String): SyncPullResponseDto {
         try {
             val response = syncService.syncPull(lastSyncTimestamp)
+            Log.d(TAG, "syncPull: ${response.body()}")
 
             if(response.isSuccessful) {
                 return response.body() ?: throw DataEmptyException("SyncPull response body is null")

@@ -66,7 +66,7 @@ fun AppNavGraph(navController: NavHostController) {
 
         composable(
             route = "${Destinations.Create.route}/{selectedDate}",
-            arguments = listOf(navArgument("selectedDate") { type = NavType.StringType })
+            arguments = listOf(navArgument("selectedDate") { type = NavType.LongType })
         ) { backStackEntry ->
             val epochDay = backStackEntry.arguments?.getLong("selectedDate") ?: 0
             val selectedDate = LocalDate.ofEpochDay(epochDay)

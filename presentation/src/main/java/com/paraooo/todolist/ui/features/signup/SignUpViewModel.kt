@@ -6,6 +6,9 @@ import androidx.compose.ui.geometry.Rect
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.paraooo.domain.model.UseCaseResult
+import com.paraooo.domain.usecase.auth.SendVerificationCodeUseCase
+import com.paraooo.domain.usecase.auth.SignUpUseCase
+import com.paraooo.domain.usecase.auth.VerifyCodeUseCase
 import com.paraooo.local.util.TokenManager
 import com.paraooo.todolist.ui.features.home.HomeUiEffect
 import com.paraooo.todolist.ui.features.home.HomeUiEvent
@@ -20,9 +23,13 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.security.CryptoPrimitive
 
 class SignUpViewModel(
-    private val fakeSignUpRepository: FakeSignUpRepository,
+//    private val fakeSignUpRepository: FakeSignUpRepository,
+    private val sendVerificationCodeUseCase: SendVerificationCodeUseCase,
+    private val verifyCodeUseCase: VerifyCodeUseCase,
+    private val signUpUseCase: SignUpUseCase,
     private val tokenManager: TokenManager,
     private val initialUiState: SignUpUiState = SignUpUiState(),
 ) : ViewModel() {
@@ -132,7 +139,7 @@ class SignUpViewModel(
                     when(uiState.value.verificationState) {
                         VerificationState.NONE -> {
                             val result = withContext(Dispatchers.IO) {
-                                fakeSignUpRepository.sendVerificationCode(uiState.value.email)
+                                sendVerificationCodeUseCase(uiState.value.email)
                             }
 
                             when(result) {
@@ -166,7 +173,7 @@ class SignUpViewModel(
                         VerificationState.SUCCESS -> {}
                         is VerificationState.WAITING -> {
                             val result = withContext(Dispatchers.IO) {
-                                fakeSignUpRepository.verifyCode(uiState.value.email, uiState.value.verificationCode)
+                                verifyCodeUseCase(uiState.value.email, uiState.value.verificationCode)
                             }
 
                             when(result) {
@@ -205,7 +212,7 @@ class SignUpViewModel(
 
                 SignUpUiEvent.onSignUpClicked -> {
                     val result = withContext(Dispatchers.IO) {
-                        fakeSignUpRepository.signUp(uiState.value.nickname, uiState.value.email, uiState.value.password)
+                        signUpUseCase(uiState.value.email, uiState.value.password)
                     }
 
                     when(result) {

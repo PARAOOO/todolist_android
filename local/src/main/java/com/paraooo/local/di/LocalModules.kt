@@ -5,6 +5,7 @@ import com.paraooo.local.database.TodoDatabase
 import com.paraooo.local.database.TodoDatabase.Companion.roomCallback
 import com.paraooo.local.database.TransactionProvider
 import com.paraooo.local.datasource.DeletedTodoLocalDataSource
+import com.paraooo.local.datasource.SyncTimestampLocalDataSource
 import com.paraooo.local.datasource.SyncTodoLocalDataSource
 import com.paraooo.local.datasource.TodoDayOfWeekLocalDataSource
 import com.paraooo.local.datasource.TodoInstanceLocalDataSource
@@ -12,6 +13,7 @@ import com.paraooo.local.datasource.TodoPeriodLocalDataSource
 import com.paraooo.local.datasource.TodoTemplateLocalDataSource
 import com.paraooo.local.datasource.TokenLocalDataSource
 import com.paraooo.local.datasourceimpl.DeletedTodoLocalDataSourceImpl
+import com.paraooo.local.datasourceimpl.SyncTimestampLocalDataSourceImpl
 import com.paraooo.local.datasourceimpl.SyncTodoLocalDataSourceImpl
 import com.paraooo.local.datasourceimpl.TodoDayOfWeekLocalDataSourceImpl
 import com.paraooo.local.datasourceimpl.TodoInstanceLocalDataSourceImpl
@@ -22,12 +24,14 @@ import com.paraooo.local.migrations.MIGRATION_1_2
 import com.paraooo.local.migrations.MIGRATION_2_5
 import com.paraooo.local.migrations.MIGRATION_5_7
 import com.paraooo.local.util.CryptoManager
+import com.paraooo.local.util.SyncTimestampManager
 import com.paraooo.local.util.TokenManager
 import org.koin.dsl.module
 
 val storageModule = module {
     single { CryptoManager() }
     single { TokenManager(get(), get()) }
+    single { SyncTimestampManager(get()) }
 }
 private val databaseModule = module {
     single {
@@ -61,6 +65,7 @@ private val dataSourceModule = module {
     single<TodoDayOfWeekLocalDataSource> { TodoDayOfWeekLocalDataSourceImpl(get()) }
     single<DeletedTodoLocalDataSource> { DeletedTodoLocalDataSourceImpl(get()) }
     single<SyncTodoLocalDataSource> { SyncTodoLocalDataSourceImpl(get()) }
+    single<SyncTimestampLocalDataSource> { SyncTimestampLocalDataSourceImpl(get()) }
 }
 
 private val providerModule = module {

@@ -1,21 +1,28 @@
 package com.paraooo.data.repository
 
 import com.paraooo.data.mapper.toDto
+import com.paraooo.data.mapper.toEntity
 import com.paraooo.data.mapper.toModel
+import com.paraooo.domain.model.InstanceTodoSyncModel
+import com.paraooo.domain.model.TemplateTodoSyncModel
 import com.paraooo.domain.model.TodoInstanceModel
+import com.paraooo.domain.model.TodoSyncModel
 import com.paraooo.domain.model.TodoTemplateModel
 import com.paraooo.domain.repository.SyncRepository
 import com.paraooo.local.database.TransactionProvider
 import com.paraooo.local.datasource.DeletedTodoLocalDataSource
+import com.paraooo.local.datasource.SyncTimestampLocalDataSource
 import com.paraooo.local.datasource.SyncTodoLocalDataSource
 import com.paraooo.remote.datasource.SyncRemoteDataSource
 import com.paraooo.remote.dto.request.SyncRequestDto
+import java.time.LocalDateTime
 import java.util.UUID
 
 class SyncRepositoryImpl(
     private val syncRemoteDataSource: SyncRemoteDataSource,
     private val syncTodoLocalDataSource: SyncTodoLocalDataSource,
     private val deletedTodoLocalDataSource: DeletedTodoLocalDataSource,
+    private val syncTimestampLocalDataSource: SyncTimestampLocalDataSource,
     private val transactionProvider: TransactionProvider,
 ): SyncRepository {
 
@@ -67,7 +74,32 @@ class SyncRepositoryImpl(
         return deletedTodoLocalDataSource.getDeletedInstances().map { it.id }
     }
 
-    override suspend fun deleteByIds(ids: List<UUID>) {
+    override suspend fun deleteTombstonesByIds(ids: List<UUID>) {
         deletedTodoLocalDataSource.deleteByIds(ids)
+    }
+
+    override suspend fun syncPull(): TodoSyncModel {
+
+        val lastSyncTimestamp = syncTimestampLocalDataSource.getLastSyncTimestamp()
+
+        return syncRemoteDataSource.syncPull(lastSyncTimestamp = lastSyncTimestamp.toString()).toModel()
+    }
+
+    override suspend fun handleSyncPullResponse(
+        templatesToUpsert: List<TemplateTodoSyncModel>,
+        instancesToUpsert: List<InstanceTodoSyncModel>,
+        templatesToDelete: List<TemplateTodoSyncModel>,
+        instancesToDelete: List<InstanceTodoSyncModel>,
+        newSyncTimestamp: String,
+    ) {
+        transactionProvider.runInTransaction {
+            syncTodoLocalDataSource.upsertTemplates(templatesToUpsert.map { it.toEntity() })
+            syncTodoLocalDataSource.upsertInstances(instancesToUpsert.map { it.toEntity() })
+
+            syncTodoLocalDataSource.deleteTemplatesByIds(templatesToDelete.map { UUID.fromString(it.uuid) })
+            syncTodoLocalDataSource.deleteInstancesByIds(instancesToDelete.map { UUID.fromString(it.uuid) })
+
+            syncTimestampLocalDataSource.saveLastSyncTimestamp(LocalDateTime.parse(newSyncTimestamp))
+        }
     }
 }

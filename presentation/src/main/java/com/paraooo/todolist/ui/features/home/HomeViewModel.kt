@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.model.UseCaseResult
+import com.paraooo.domain.usecase.sync.SyncPullUseCase
+import com.paraooo.domain.usecase.sync.SyncPushUseCase
 import com.paraooo.domain.usecase.todo.DeleteTodoByIdUseCase
 import com.paraooo.domain.usecase.todo.ObserveTodosUseCase
 import com.paraooo.domain.usecase.todo.SyncDayOfWeekTodoUseCase
@@ -31,6 +33,8 @@ class HomeViewModel(
     private val deleteTodoByIdUseCase: DeleteTodoByIdUseCase,
     private val syncDayOfWeekTodoUseCase: SyncDayOfWeekTodoUseCase,
     private val observeTodosUseCase: ObserveTodosUseCase,
+    private val syncPushUseCase: SyncPushUseCase,
+    private val syncPullUseCase: SyncPullUseCase,
     private val initialUiState : HomeUiState = HomeUiState()
 ) : ViewModel() {
 
@@ -105,6 +109,26 @@ class HomeViewModel(
                         }
                 }
             }
+        }
+    }
+
+    suspend fun pushSync() {
+        withContext(Dispatchers.IO) {
+            syncPushUseCase()
+        }
+    }
+
+    suspend fun pullSync() {
+        withContext(Dispatchers.IO) {
+            val result = syncPullUseCase()
+            when(result){
+                is UseCaseResult.Error -> {
+                    Log.e(TAG, "pullSync: ${result.exception}", )
+                }
+                is UseCaseResult.Failure -> {}
+                is UseCaseResult.Success<*> -> {}
+            }
+
         }
     }
 

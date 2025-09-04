@@ -1,6 +1,9 @@
 package com.paraooo.domain.repository
 
+import com.paraooo.domain.model.InstanceTodoSyncModel
+import com.paraooo.domain.model.TemplateTodoSyncModel
 import com.paraooo.domain.model.TodoInstanceModel
+import com.paraooo.domain.model.TodoSyncModel
 import com.paraooo.domain.model.TodoTemplateModel
 import java.util.UUID
 
@@ -12,9 +15,6 @@ interface SyncRepository {
         deletedTemplateIds: List<UUID>,
         deletedInstanceIds: List<UUID>
     )
-
-//    suspend fun syncPull(lastSyncTimestamp: String): SyncPullResponseDto
-
     suspend fun getUnsyncedTemplates(): List<TodoTemplateModel>
 
     suspend fun markTemplatesAsSynced(ids: List<UUID>)
@@ -26,7 +26,16 @@ interface SyncRepository {
     suspend fun getDeletedTemplates(): List<UUID>
     suspend fun getDeletedInstances(): List<UUID>
 
-    suspend fun deleteByIds(ids: List<UUID>)
+    suspend fun deleteTombstonesByIds(ids: List<UUID>)
 
+    suspend fun syncPull(): TodoSyncModel
+
+    suspend fun handleSyncPullResponse(
+        templatesToUpsert: List<TemplateTodoSyncModel>,
+        instancesToUpsert: List<InstanceTodoSyncModel>,
+        templatesToDelete: List<TemplateTodoSyncModel>,
+        instancesToDelete: List<InstanceTodoSyncModel>,
+        newSyncTimestamp: String,
+    )
 }
 

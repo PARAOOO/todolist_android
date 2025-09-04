@@ -31,6 +31,8 @@ import com.paraooo.domain.usecase.period.PostPeriodTodoUseCase
 import com.paraooo.domain.usecase.todo.PostTodoUseCase
 import com.paraooo.domain.usecase.dayofweek.UpdateDayOfWeekTodoUseCase
 import com.paraooo.domain.usecase.period.UpdatePeriodTodoUseCase
+import com.paraooo.domain.usecase.sync.SyncPullUseCase
+import com.paraooo.domain.usecase.sync.SyncPushUseCase
 import com.paraooo.domain.usecase.todo.ObserveTodosUseCase
 import com.paraooo.domain.usecase.todo.SyncDayOfWeekTodoUseCase
 import com.paraooo.domain.usecase.todo.UpdateTodoProgressUseCase
@@ -45,7 +47,7 @@ private val repositoryModule = module {
     single<TodoDayOfWeekRepository> { TodoDayOfWeekRepositoryImpl(get(), get(), get()) }
     single<TodoRepository> { TodoRepositoryImpl(get(), get(),get(),get(), get(), get()) }
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
-    single<SyncRepository> { SyncRepositoryImpl(get(), get(), get(), get()) }
+    single<SyncRepository> { SyncRepositoryImpl(get(), get(), get(), get(), get()) }
 }
 
 private val alarmSchedulerModule = module {
@@ -80,6 +82,9 @@ private val useCaseModule = module {
     single { SendVerificationCodeUseCase(get()) }
     single { VerifyCodeUseCase(get()) }
     single { SignUpUseCase(get()) }
+
+    single { SyncPushUseCase(get()) }
+    single { SyncPullUseCase(get()) }
 }
 
 val dataModules = module {

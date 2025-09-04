@@ -23,7 +23,7 @@ import com.paraooo.local.util.TodoConverters
 
 //import com.paraooo.data.local.entity.TodoEntity
 
-@Database(entities = [TodoInstance::class, TodoTemplate::class, TodoPeriod::class, TodoDayOfWeek::class, DeletedTodo::class], version = 10, exportSchema = false)
+@Database(entities = [TodoInstance::class, TodoTemplate::class, TodoPeriod::class, TodoDayOfWeek::class, DeletedTodo::class], version = 11, exportSchema = false)
 @TypeConverters(TodoConverters::class) // 여기 등록
 internal abstract class TodoDatabase : RoomDatabase(), TransactionProvider {
     abstract fun todoTemplateDao(): TodoTemplateDao
@@ -60,6 +60,26 @@ internal abstract class TodoDatabase : RoomDatabase(), TransactionProvider {
                     END;
                 """.trimIndent())
 
+
+                db.execSQL("""
+                    CREATE TRIGGER IF NOT EXISTS template_sync_on_update
+                    AFTER UPDATE ON todo_template
+                    FOR EACH ROW
+                    WHEN OLD.needsSync = 0 AND NEW.needsSync = 0
+                    BEGIN
+                        UPDATE todo_template SET needsSync = 1 WHERE id = NEW.id;
+                    END
+                """.trimIndent())
+
+                db.execSQL("""
+                    CREATE TRIGGER IF NOT EXISTS instance_sync_on_update
+                    AFTER UPDATE ON todo_instance
+                    FOR EACH ROW
+                    WHEN OLD.needsSync = 0 AND NEW.needsSync = 0
+                    BEGIN
+                        UPDATE todo_instance SET needsSync = 1 WHERE id = NEW.id;
+                    END
+                """.trimIndent())
 
             }
         }
