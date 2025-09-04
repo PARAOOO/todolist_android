@@ -6,6 +6,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
 
 
@@ -14,6 +15,15 @@ fun getDateOfWeekEEE(date : LocalDate) : String {
     val dayOfWeek = date.format(dayOfWeekFormatter)
 
     return dayOfWeek
+}
+
+fun convertDateStringToMillis(dateString: String): Long {
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    val localDate = LocalDate.parse(dateString, formatter)
+    val zonedDateTime = localDate.atStartOfDay(ZoneId.systemDefault())
+    val instant = zonedDateTime.toInstant()
+
+    return instant.toEpochMilli()
 }
 
 fun convertMillisToDateString(millis: Long): String {

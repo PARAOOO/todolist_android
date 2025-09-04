@@ -1,11 +1,12 @@
-package com.paraooo.remote.dto.response
-data class SyncPullResponseDto(
-    val changedTemplates: List<TodoTemplateResponseDto>,
-    val changedInstances: List<TodoInstanceResponseDto>,
+package com.paraooo.domain.model
+
+data class TodoSyncModel(
+    val changedTemplates: List<TemplateTodoSyncModel>,
+    val changedInstances: List<InstanceTodoSyncModel>,
     val newSyncTimestamp: String
 )
 
-data class TodoTemplateResponseDto(
+data class TemplateTodoSyncModel(
     val id: Long,
     val uuid: String,
     val title: String,
@@ -21,7 +22,7 @@ data class TodoTemplateResponseDto(
     val deleted: Boolean
 )
 
-data class TodoInstanceResponseDto(
+data class InstanceTodoSyncModel(
     val id: Long,
     val uuid: String,
     val templateUuid: String,

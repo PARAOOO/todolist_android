@@ -25,4 +25,22 @@ class SyncTodoLocalDataSourceImpl(
     override suspend fun markInstancesAsSynced(ids: List<UUID>) {
         syncTodoDao.markInstancesAsSynced(ids)
     }
+
+    override suspend fun upsertTemplates(templates: List<TodoTemplate>) {
+        syncTodoDao.upsertTemplates(templates)
+    }
+
+    override suspend fun deleteTemplatesByIds(ids: List<UUID>) {
+        syncTodoDao.deleteTemplatesByIds(ids)
+    }
+
+    override suspend fun upsertInstances(instances: List<TodoInstance>) {
+        syncTodoDao.upsertInstances(instances)
+    }
+
+    override suspend fun deleteInstancesByIds(ids: List<UUID>) {
+        syncTodoDao.deleteInstancesByIds(ids)
+    }
+
+
 }
