@@ -4,6 +4,7 @@ import com.paraooo.domain.model.TodoInstanceModel
 import com.paraooo.domain.model.TodoTemplateModel
 import com.paraooo.domain.model.UseCaseResult
 import com.paraooo.domain.repository.SyncRepository
+import com.paraooo.domain.util.NetworkException
 import java.util.UUID
 
 class SyncPushUseCase(
@@ -26,6 +27,8 @@ class SyncPushUseCase(
             )
 
             return UseCaseResult.Success(Unit)
+        } catch (e: NetworkException) {
+            return UseCaseResult.Failure("네트워크 연결이 이상")
         } catch (e: Exception) {
             return UseCaseResult.Error(e)
         }

@@ -4,6 +4,8 @@ import com.paraooo.data.platform.alarm.AlarmSchedulerImpl
 import com.paraooo.data.platform.alarm.NotificationHelper
 import com.paraooo.data.platform.handler.AlarmHandler
 import com.paraooo.data.platform.handler.AlarmRestoreHandler
+import com.paraooo.data.platform.sync.SyncPushScheduler
+import com.paraooo.data.platform.sync.SyncPushSchedulerImpl
 import com.paraooo.data.repository.AuthRepositoryImpl
 import com.paraooo.data.repository.SyncRepositoryImpl
 import com.paraooo.data.repository.TodoDayOfWeekRepositoryImpl
@@ -42,16 +44,17 @@ import org.koin.dsl.module
 
 private val repositoryModule = module {
     single<TodoTemplateRepository> { TodoTemplateRepositoryImpl(get()) }
-    single<TodoInstanceRepository> { TodoInstanceRepositoryImpl(get()) }
+    single<TodoInstanceRepository> { TodoInstanceRepositoryImpl(get(), get()) }
     single<TodoPeriodRepository> { TodoPeriodRepositoryImpl(get(), get(), get(), get()) }
     single<TodoDayOfWeekRepository> { TodoDayOfWeekRepositoryImpl(get(), get(), get()) }
-    single<TodoRepository> { TodoRepositoryImpl(get(), get(),get(),get(), get(), get()) }
+    single<TodoRepository> { TodoRepositoryImpl(get(), get(),get(),get(), get(), get(), get()) }
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
     single<SyncRepository> { SyncRepositoryImpl(get(), get(), get(), get(), get()) }
 }
 
-private val alarmSchedulerModule = module {
+private val schedulerModule = module {
     single<AlarmScheduler> { AlarmSchedulerImpl(androidContext()) }
+    single<SyncPushScheduler> { SyncPushSchedulerImpl(androidContext()) }
 }
 
 private val handlerModule = module {
@@ -89,6 +92,6 @@ private val useCaseModule = module {
 
 val dataModules = module {
     includes(
-        alarmSchedulerModule, repositoryModule, handlerModule, notificationModule, useCaseModule
+        schedulerModule, repositoryModule, handlerModule, notificationModule, useCaseModule
     )
 }

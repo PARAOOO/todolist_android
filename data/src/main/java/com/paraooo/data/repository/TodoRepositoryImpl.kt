@@ -1,7 +1,18 @@
 package com.paraooo.data.repository
 
+import android.content.Context
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.paraooo.data.mapper.toEntity
 import com.paraooo.data.mapper.toModel
+import com.paraooo.data.platform.alarm.AlarmWorker
+import com.paraooo.data.platform.sync.SyncPushScheduler
+import com.paraooo.data.platform.sync.SyncPushWorker
 import com.paraooo.domain.model.TodoInstanceModel
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.model.TodoTemplateModel
@@ -22,6 +33,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 
 class TodoRepositoryImpl(
     private val todoInstanceLocalDataSource: TodoInstanceLocalDataSource,
@@ -30,6 +42,7 @@ class TodoRepositoryImpl(
     private val todoDayOfWeekLocalDataSource: TodoDayOfWeekLocalDataSource,
     private val deletedTodoLocalDataSource: DeletedTodoLocalDataSource,
     private val transactionProvider: TransactionProvider,
+    private val syncPushScheduler: SyncPushScheduler,
 ) : TodoRepository {
 
     override suspend fun getTodoInstanceById(instanceId: UUID) : TodoInstanceModel? {
@@ -59,7 +72,7 @@ class TodoRepositoryImpl(
 
     override suspend fun postTodo(todoTemplate: TodoTemplateModel, todoInstance: TodoInstanceModel) {
 
-        return transactionProvider.runInTransaction {
+        transactionProvider.runInTransaction {
             todoTemplateLocalDataSource.insertTodoTemplate(todoTemplate.toEntity())
 
             todoInstanceLocalDataSource.insertTodoInstance(
@@ -68,6 +81,8 @@ class TodoRepositoryImpl(
                 ).toEntity()
             )
         }
+
+        syncPushScheduler.runSyncPushWorker()
     }
 
     override suspend fun updateTodo(
@@ -83,20 +98,28 @@ class TodoRepositoryImpl(
                 jobs.awaitAll()
             }
         }
+
+        syncPushScheduler.runSyncPushWorker()
     }
 
     override suspend fun updateTodoProgress(todoInstanceId: UUID, progressAngle: Float) {
         todoInstanceLocalDataSource.updateTodoProgress(todoInstanceId, progressAngle)
+
+        syncPushScheduler.runSyncPushWorker()
     }
 
     override suspend fun deleteTodoTemplate(templateId: UUID) {
         transactionProvider.runInTransaction {
             todoTemplateLocalDataSource.deleteTodoTemplate(templateId)
         }
+
+        syncPushScheduler.runSyncPushWorker()
     }
 
     override suspend fun syncDayOfWeekInstance(todoInstances: List<TodoInstanceModel>) {
         todoInstanceLocalDataSource.insertTodoInstances(todoInstances.map { it.toEntity() })
+
+        syncPushScheduler.runSyncPushWorker()
     }
 
     override suspend fun observeTodosByDate(date: Long): Flow<List<TodoModel>> {
