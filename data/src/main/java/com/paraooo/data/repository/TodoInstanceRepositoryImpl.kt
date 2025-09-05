@@ -1,16 +1,20 @@
 package com.paraooo.data.repository
 import com.paraooo.data.mapper.toEntity
 import com.paraooo.data.mapper.toModel
+import com.paraooo.data.platform.sync.SyncPushScheduler
 import com.paraooo.domain.model.TodoInstanceModel
 import com.paraooo.domain.repository.TodoInstanceRepository
 import com.paraooo.local.datasource.TodoInstanceLocalDataSource
 import java.util.UUID
 
 internal class TodoInstanceRepositoryImpl(
-    private val todoInstanceLocalDataSource: TodoInstanceLocalDataSource
+    private val todoInstanceLocalDataSource: TodoInstanceLocalDataSource,
+    private val syncPushScheduler: SyncPushScheduler,
 ) : TodoInstanceRepository {
     override suspend fun insertTodoInstance(todoInstance: TodoInstanceModel) {
         todoInstanceLocalDataSource.insertTodoInstance(todoInstance.toEntity())
+
+        syncPushScheduler.runSyncPushWorker()
     }
 
     override suspend fun getTodoInstanceById(todoInstanceId: UUID): TodoInstanceModel? {
