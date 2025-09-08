@@ -19,12 +19,14 @@ class SyncPushUseCase(
             val instancesDeleted = syncRepository.getDeletedInstances()
             val templatesDeleted = syncRepository.getDeletedTemplates()
 
-            syncRepository.syncPush(
-                templates = templatesNeedsSync,
-                instances = instancesNeedsSync,
-                deletedTemplateIds = templatesDeleted,
-                deletedInstanceIds = instancesDeleted
-            )
+            if(templatesNeedsSync.isNotEmpty() || instancesNeedsSync.isNotEmpty() || templatesDeleted.isNotEmpty() || instancesDeleted.isNotEmpty()) {
+                syncRepository.syncPush(
+                    templates = templatesNeedsSync,
+                    instances = instancesNeedsSync,
+                    deletedTemplateIds = templatesDeleted,
+                    deletedInstanceIds = instancesDeleted
+                )
+            }
 
             return UseCaseResult.Success(Unit)
         } catch (e: NetworkException) {

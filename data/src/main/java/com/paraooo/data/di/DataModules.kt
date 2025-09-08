@@ -4,6 +4,8 @@ import com.paraooo.data.platform.alarm.AlarmSchedulerImpl
 import com.paraooo.data.platform.alarm.NotificationHelper
 import com.paraooo.data.platform.handler.AlarmHandler
 import com.paraooo.data.platform.handler.AlarmRestoreHandler
+import com.paraooo.data.platform.sync.SyncPullScheduler
+import com.paraooo.data.platform.sync.SyncPullSchedulerImpl
 import com.paraooo.data.platform.sync.SyncPushScheduler
 import com.paraooo.data.platform.sync.SyncPushSchedulerImpl
 import com.paraooo.data.repository.AuthRepositoryImpl
@@ -55,6 +57,7 @@ private val repositoryModule = module {
 private val schedulerModule = module {
     single<AlarmScheduler> { AlarmSchedulerImpl(androidContext()) }
     single<SyncPushScheduler> { SyncPushSchedulerImpl(androidContext()) }
+    single<SyncPullScheduler> { SyncPullSchedulerImpl(androidContext()) }
 }
 
 private val handlerModule = module {

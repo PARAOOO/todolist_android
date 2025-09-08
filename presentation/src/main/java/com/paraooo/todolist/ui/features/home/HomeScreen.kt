@@ -93,6 +93,10 @@ fun HomeScreen(
 
     var currentPageDebounced by remember { mutableIntStateOf(Int.MAX_VALUE/2 - 3) }
 
+    LaunchedEffect(Unit) {
+        viewModel.pullSync()
+    }
+
     LaunchedEffect(viewModel.effectFlow, lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.effectFlow.collect { effect ->
@@ -139,35 +143,18 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ){
-                    Image(
-                        painter = painterResource(R.drawable.ic_icon_19),
-                        contentDescription = "routine button",
-                        modifier = Modifier
-                            .size(24.dp)
-                            .circleClickable(20.dp) {
-    //                                navController.navigate(Destinations.RoutineCreate.route)
-                                coroutine.launch {
-                                    viewModel.pullSync()
-                                }
-                            }
-                    )
 
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    Image(
-                        painter = painterResource(R.drawable.ic_routine),
-                        contentDescription = "routine button",
-                        modifier = Modifier
-                            .size(24.dp)
-                            .circleClickable(20.dp) {
+//                    Image(
+//                        painter = painterResource(R.drawable.ic_routine),
+//                        contentDescription = "routine button",
+//                        modifier = Modifier
+//                            .size(24.dp)
+//                            .circleClickable(20.dp) {
 //                                navController.navigate(Destinations.RoutineCreate.route)
-                                coroutine.launch {
-                                    viewModel.pushSync()
-                                }
-                            }
-                    )
-
-                    Spacer(modifier = Modifier.width(16.dp))
+//                            }
+//                    )
+//
+//                    Spacer(modifier = Modifier.width(16.dp))
 
                     Image(
                         painter = painterResource(R.drawable.ic_setting),
@@ -250,11 +237,13 @@ fun HomeScreen(
                             )
                         },
                         onProgressChanged = { todo : TodoModel, angle: Float ->
-                            viewModel.onEvent(
-                                HomeUiEvent.onTodoProgressChanged(
-                                    todo, angle
+                            if(todo.progressAngle != angle){
+                                viewModel.onEvent(
+                                    HomeUiEvent.onTodoProgressChanged(
+                                        todo, angle
+                                    )
                                 )
-                            )
+                            }
                         },
                         onDeleteClicked = { todo : TodoModel ->
                             viewModel.selectedTodo.value = todo

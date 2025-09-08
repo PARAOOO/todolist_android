@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.paraooo.data.platform.sync.SyncPullScheduler
 import com.paraooo.domain.model.TodoModel
 import com.paraooo.domain.model.UseCaseResult
 import com.paraooo.domain.usecase.sync.SyncPullUseCase
@@ -33,8 +34,7 @@ class HomeViewModel(
     private val deleteTodoByIdUseCase: DeleteTodoByIdUseCase,
     private val syncDayOfWeekTodoUseCase: SyncDayOfWeekTodoUseCase,
     private val observeTodosUseCase: ObserveTodosUseCase,
-    private val syncPushUseCase: SyncPushUseCase,
-    private val syncPullUseCase: SyncPullUseCase,
+    private val syncPullScheduler: SyncPullScheduler,
     private val initialUiState : HomeUiState = HomeUiState()
 ) : ViewModel() {
 
@@ -47,6 +47,8 @@ class HomeViewModel(
     private var todoCollectJob: Job? = null
 
     var selectedTodo = mutableStateOf<TodoModel?>(null)
+
+    private var isInitialSyncDone = false
 
     private fun fetchTodoList(date: LocalDate) {
 
@@ -111,24 +113,14 @@ class HomeViewModel(
             }
         }
     }
-
-    suspend fun pushSync() {
-        withContext(Dispatchers.IO) {
-            syncPushUseCase()
-        }
-    }
-
-    suspend fun pullSync() {
-        withContext(Dispatchers.IO) {
-            val result = syncPullUseCase()
-            when(result){
-                is UseCaseResult.Error -> {
-                    Log.e(TAG, "pullSync: ${result.exception}", )
+     fun pullSync() {
+        if(!isInitialSyncDone){
+            viewModelScope.launch {
+                withContext(Dispatchers.IO) {
+                    val result = syncPullScheduler.runSyncPullWorker()
+                    isInitialSyncDone = true
                 }
-                is UseCaseResult.Failure -> {}
-                is UseCaseResult.Success<*> -> {}
             }
-
         }
     }
 
@@ -205,10 +197,7 @@ class HomeViewModel(
                         deleteTodoByIdUseCase(event.todo.instanceId)
                     }
                     _effectChannel.send(HomeUiEffect.onDeleteTodoSuccess)
-
-                    fetchTodoList(_uiState.value.selectedDateState.date)
-
-
+//                    fetchTodoList(_uiState.value.selectedDateState.date)
                 }
 
                 is HomeUiEvent.onIsToggleOpenedChanged -> {
@@ -227,8 +216,6 @@ class HomeViewModel(
                     }
                     Log.d(TAG, "onEvent: ${uiState.value.todoListState.todoList}")
                 }
-
-
             }
         }
     }

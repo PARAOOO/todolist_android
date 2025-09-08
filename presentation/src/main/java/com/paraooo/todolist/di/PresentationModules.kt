@@ -18,7 +18,7 @@ val fakeRepositoryModule = module {
     single { FakeSignUpRepository(get()) }
 }
 val viewModelModule = module {
-    viewModel { HomeViewModel(get(), get(), get(),get(), get(), get()) }
+    viewModel { HomeViewModel(get(), get(), get(),get(), get()) }
     viewModel { StartViewModel(get(), get()) }
     viewModel { SignUpViewModel(get(),get(), get(), get()) }
     viewModel { CreateViewModel(get(), get(), get()) }
