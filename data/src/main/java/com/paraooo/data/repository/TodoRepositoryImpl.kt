@@ -1,6 +1,7 @@
 package com.paraooo.data.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
@@ -109,6 +110,7 @@ class TodoRepositoryImpl(
     }
 
     override suspend fun deleteTodoTemplate(templateId: UUID) {
+
         transactionProvider.runInTransaction {
             todoTemplateLocalDataSource.deleteTodoTemplate(templateId)
         }
