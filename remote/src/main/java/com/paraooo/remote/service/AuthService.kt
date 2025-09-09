@@ -6,6 +6,7 @@ import com.paraooo.remote.dto.request.SignUpRequestDto
 import com.paraooo.remote.dto.request.VerifyCodeRequestDto
 import com.paraooo.remote.dto.response.LoginResponseDto
 import com.paraooo.remote.dto.response.RefreshTokenResponseDto
+import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Header
@@ -26,5 +27,8 @@ interface AuthService {
 
     @POST("api/auth/refresh")
     suspend fun refreshToken(@Header("Authorization") refreshToken: String): Response<RefreshTokenResponseDto>
+
+    @POST("api/auth/refresh")
+    fun refreshTokenForAuthenticator(@Header("Authorization") refreshToken: String): Call<RefreshTokenResponseDto>
 
 }

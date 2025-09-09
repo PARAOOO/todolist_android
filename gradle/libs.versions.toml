@@ -5,6 +5,7 @@ converterGson = "3.0.0"
 datastorePreferences = "1.1.1"
 glanceAppwidget = "1.1.1"
 gson = "2.10.1"
+javaJwt = "4.4.0"
 kizitonwoseCalendarCompose = "2.6.2"
 kotlin = "2.0.0"
 coreKtx = "1.15.0"
@@ -41,6 +42,7 @@ androidx-security-crypto = { module = "androidx.security:security-crypto", versi
 bottomsheetdialog-compose = { module = "com.holix.android:bottomsheetdialog-compose", version.ref = "bottomsheetdialogCompose" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+java-jwt = { module = "com.auth0:java-jwt", version.ref = "javaJwt" }
 jetbrains-kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroidVersion" }
 kizitonwose-calendar-compose = { module = "com.kizitonwose.calendar:compose", version.ref = "kizitonwoseCalendarCompose" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

@@ -50,6 +50,7 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
+    implementation(libs.java.jwt)
 
     implementation(project(":domain"))
     implementation(project(":local"))

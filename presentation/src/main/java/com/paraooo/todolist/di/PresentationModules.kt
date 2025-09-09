@@ -8,6 +8,7 @@ import com.paraooo.todolist.ui.features.home.HomeViewModel
 import com.paraooo.todolist.ui.features.routine_create.RoutineCreateViewModel
 import com.paraooo.todolist.ui.features.signup.FakeSignUpRepository
 import com.paraooo.todolist.ui.features.signup.SignUpViewModel
+import com.paraooo.todolist.ui.features.splash.SplashViewModel
 import com.paraooo.todolist.ui.features.start.FakeLoginRepository
 import com.paraooo.todolist.ui.features.start.StartViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -18,8 +19,9 @@ val fakeRepositoryModule = module {
     single { FakeSignUpRepository(get()) }
 }
 val viewModelModule = module {
+    viewModel { SplashViewModel(get(), get()) }
     viewModel { HomeViewModel(get(), get(), get(),get(), get()) }
-    viewModel { StartViewModel(get(), get()) }
+    viewModel { StartViewModel(get(), get(), get()) }
     viewModel { SignUpViewModel(get(),get(), get(), get()) }
     viewModel { CreateViewModel(get(), get(), get()) }
     viewModel { EditViewModel(get(), get(), get(), get())}
