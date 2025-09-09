@@ -18,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.paraooo.local.util.CryptoManager
+import com.paraooo.todolist.ui.features.main.MainScreen
 import com.paraooo.todolist.ui.navigation.AppNavGraph
 import com.paraooo.todolist.ui.theme.TodoListTheme
 import org.koin.android.ext.android.inject
@@ -33,7 +34,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
-            AppNavGraph(navController = navController)
+//            AppNavGraph(navController = navController)
+            MainScreen(navController)
         }
 
         cryptoManager.initialize(this)

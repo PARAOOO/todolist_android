@@ -4,6 +4,8 @@ import com.paraooo.data.platform.alarm.AlarmSchedulerImpl
 import com.paraooo.data.platform.alarm.NotificationHelper
 import com.paraooo.data.platform.handler.AlarmHandler
 import com.paraooo.data.platform.handler.AlarmRestoreHandler
+import com.paraooo.data.platform.logout.LogoutEffectProvider
+import com.paraooo.data.platform.logout.LogoutEffectProviderImpl
 import com.paraooo.data.platform.sync.SyncPullScheduler
 import com.paraooo.data.platform.sync.SyncPullSchedulerImpl
 import com.paraooo.data.platform.sync.SyncPushScheduler
@@ -50,7 +52,7 @@ private val repositoryModule = module {
     single<TodoPeriodRepository> { TodoPeriodRepositoryImpl(get(), get(), get(), get()) }
     single<TodoDayOfWeekRepository> { TodoDayOfWeekRepositoryImpl(get(), get(), get()) }
     single<TodoRepository> { TodoRepositoryImpl(get(), get(),get(),get(), get(), get(), get()) }
-    single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
+    single<AuthRepository> { AuthRepositoryImpl(get(), get(), get()) }
     single<SyncRepository> { SyncRepositoryImpl(get(), get(), get(), get(), get()) }
 }
 
@@ -67,6 +69,10 @@ private val handlerModule = module {
 
 private val notificationModule = module {
     single { NotificationHelper(get()) }
+}
+
+private val providerModule = module {
+    single<LogoutEffectProvider> { LogoutEffectProviderImpl() }
 }
 
 private val useCaseModule = module {
@@ -95,6 +101,6 @@ private val useCaseModule = module {
 
 val dataModules = module {
     includes(
-        schedulerModule, repositoryModule, handlerModule, notificationModule, useCaseModule
+        schedulerModule, repositoryModule, handlerModule, providerModule, notificationModule, useCaseModule
     )
 }
