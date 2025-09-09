@@ -5,7 +5,9 @@ import com.paraooo.todolist.ui.features.alarm.AlarmViewModel
 import com.paraooo.todolist.ui.features.create.CreateViewModel
 import com.paraooo.todolist.ui.features.edit.EditViewModel
 import com.paraooo.todolist.ui.features.home.HomeViewModel
+import com.paraooo.todolist.ui.features.main.MainViewModel
 import com.paraooo.todolist.ui.features.routine_create.RoutineCreateViewModel
+import com.paraooo.todolist.ui.features.setting.SettingViewModel
 import com.paraooo.todolist.ui.features.signup.FakeSignUpRepository
 import com.paraooo.todolist.ui.features.signup.SignUpViewModel
 import com.paraooo.todolist.ui.features.splash.SplashViewModel
@@ -19,12 +21,14 @@ val fakeRepositoryModule = module {
     single { FakeSignUpRepository(get()) }
 }
 val viewModelModule = module {
+    viewModel { MainViewModel(get()) }
     viewModel { SplashViewModel(get(), get()) }
     viewModel { HomeViewModel(get(), get(), get(),get(), get()) }
     viewModel { StartViewModel(get(), get(), get()) }
     viewModel { SignUpViewModel(get(),get(), get(), get()) }
     viewModel { CreateViewModel(get(), get(), get()) }
     viewModel { EditViewModel(get(), get(), get(), get())}
+    viewModel { SettingViewModel(get()) }
     viewModel { AlarmViewModel(get()) }
     viewModel { RoutineCreateViewModel() }
 }

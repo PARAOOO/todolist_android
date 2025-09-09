@@ -1,6 +1,7 @@
 package com.paraooo.data.repository
 
 import com.auth0.jwt.JWT
+import com.paraooo.data.platform.logout.LogoutEffectProvider
 import com.paraooo.domain.repository.AuthRepository
 import com.paraooo.local.datasource.TokenLocalDataSource
 import com.paraooo.remote.datasource.AuthRemoteDataSource
@@ -13,7 +14,8 @@ import kotlinx.coroutines.flow.firstOrNull
 
 class AuthRepositoryImpl(
     private val authRemoteDataSource: AuthRemoteDataSource,
-    private val tokenLocalDataSource: TokenLocalDataSource
+    private val tokenLocalDataSource: TokenLocalDataSource,
+    private val logoutEffectProvider: LogoutEffectProvider,
 ): AuthRepository {
     override suspend fun sendVerificationCode(email: String) {
         authRemoteDataSource.sendVerificationCode(SendVerificationCodeRequestDto(email))
@@ -59,6 +61,8 @@ class AuthRepositoryImpl(
     }
 
     override suspend fun logout() {
+        tokenLocalDataSource.clearTokens()
 
+        logoutEffectProvider.triggerLogout()
     }
 }

@@ -1,6 +1,7 @@
 package com.paraooo.remote.util
 
 import android.util.Log
+import com.paraooo.domain.repository.AuthRepository
 import com.paraooo.local.util.TokenManager
 import com.paraooo.remote.service.AuthService
 import kotlinx.coroutines.flow.first
@@ -12,7 +13,8 @@ import okhttp3.Route
 
 class TokenAuthenticator(
     private val tokenManager: TokenManager,
-    private val authService: AuthService
+    private val authService: AuthService,
+    private val authRepository: AuthRepository
 ): Authenticator {
     override fun authenticate(route: Route?, response: Response): Request? {
         val refreshToken = runBlocking {
@@ -21,6 +23,7 @@ class TokenAuthenticator(
 
         if (refreshToken == null) {
             Log.d(TAG, "authenticate: refreshToken == null")
+            runBlocking{ authRepository.logout() }
             return null
         }
 
@@ -45,11 +48,13 @@ class TokenAuthenticator(
             } else {
                 runBlocking { tokenManager.clearTokens() }
                 Log.d(TAG, "authenticate: not (tokenResponse.isSuccessful && tokenResponse.body() != null)")
+                runBlocking{ authRepository.logout() }
                 null
             }
         } catch (e: Exception) {
             runBlocking { tokenManager.clearTokens() }
             Log.e(TAG, "authenticate: ${e}", )
+            runBlocking{ authRepository.logout() }
             null
         }
     }
