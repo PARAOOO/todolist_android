@@ -35,10 +35,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "API_BASE_URL", "${localProperties.getProperty("API_BASE_URL")}")
+            buildConfigField("String", "API_BASE_URL", "${localProperties.getProperty("PROD_API_BASE_URL")}")
         }
         debug {
-            buildConfigField("String", "API_BASE_URL", "${localProperties.getProperty("API_BASE_URL")}")
+            buildConfigField("String", "API_BASE_URL", "${localProperties.getProperty("DEV_API_BASE_URL")}")
         }
     }
     compileOptions {
