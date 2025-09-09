@@ -93,9 +93,9 @@ fun HomeScreen(
 
     var currentPageDebounced by remember { mutableIntStateOf(Int.MAX_VALUE/2 - 3) }
 
-    LaunchedEffect(Unit) {
-        viewModel.pullSync()
-    }
+//    LaunchedEffect(Unit) {
+//        viewModel.pullSync()
+//    }
 
     LaunchedEffect(viewModel.effectFlow, lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {

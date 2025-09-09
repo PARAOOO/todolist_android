@@ -8,6 +8,7 @@ import com.paraooo.remote.datasourceimpl.SyncRemoteDataSourceImpl
 import com.paraooo.remote.service.AuthService
 import com.paraooo.remote.service.SyncService
 import com.paraooo.remote.util.AuthInterceptor
+import com.paraooo.remote.util.TokenAuthenticator
 import okhttp3.OkHttpClient
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -40,6 +41,7 @@ val networkModule = module {
     single(qualifier = AuthQualifiers.AUTHENTICATED) {
         OkHttpClient.Builder()
             .addInterceptor(AuthInterceptor(get()))
+            .authenticator(TokenAuthenticator(get(), get()))
             .build()
     }
 

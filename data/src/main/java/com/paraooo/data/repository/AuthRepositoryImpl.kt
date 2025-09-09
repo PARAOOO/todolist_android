@@ -1,5 +1,6 @@
 package com.paraooo.data.repository
 
+import com.auth0.jwt.JWT
 import com.paraooo.domain.repository.AuthRepository
 import com.paraooo.local.datasource.TokenLocalDataSource
 import com.paraooo.remote.datasource.AuthRemoteDataSource
@@ -7,6 +8,8 @@ import com.paraooo.remote.dto.request.LoginRequestDto
 import com.paraooo.remote.dto.request.SendVerificationCodeRequestDto
 import com.paraooo.remote.dto.request.SignUpRequestDto
 import com.paraooo.remote.dto.request.VerifyCodeRequestDto
+import kotlinx.coroutines.flow.firstOrNull
+
 
 class AuthRepositoryImpl(
     private val authRemoteDataSource: AuthRemoteDataSource,
@@ -36,5 +39,26 @@ class AuthRepositoryImpl(
         val response = authRemoteDataSource.refreshToken(refreshToken)
 
         return response.accessToken to response.refreshToken
+    }
+
+    override suspend fun isLoggedIn(): Boolean {
+        val refreshToken = tokenLocalDataSource.getRefreshToken().firstOrNull()
+
+        if (refreshToken == null) {
+            return false
+        }
+
+        try {
+            val jwt = JWT.decode(refreshToken)
+            val exp = jwt.expiresAt?.time ?: return false
+            val now = System.currentTimeMillis()
+            return now < exp
+        } catch (e: Exception) {
+            return false
+        }
+    }
+
+    override suspend fun logout() {
+
     }
 }

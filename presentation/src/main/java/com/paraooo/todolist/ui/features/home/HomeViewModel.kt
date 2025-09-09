@@ -113,16 +113,16 @@ class HomeViewModel(
             }
         }
     }
-     fun pullSync() {
-        if(!isInitialSyncDone){
-            viewModelScope.launch {
-                withContext(Dispatchers.IO) {
-                    val result = syncPullScheduler.runSyncPullWorker()
-                    isInitialSyncDone = true
-                }
-            }
-        }
-    }
+//     fun pullSync() {
+//        if(!isInitialSyncDone){
+//            viewModelScope.launch {
+//                withContext(Dispatchers.IO) {
+//                    val result = syncPullScheduler.runSyncPullWorker()
+//                    isInitialSyncDone = true
+//                }
+//            }
+//        }
+//    }
 
     fun onEvent(event: HomeUiEvent) {
         viewModelScope.launch {

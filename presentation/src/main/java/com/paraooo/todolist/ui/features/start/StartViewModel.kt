@@ -3,6 +3,7 @@ package com.paraooo.todolist.ui.features.start
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.paraooo.data.platform.sync.SyncPullScheduler
 import com.paraooo.domain.model.UseCaseResult
 import com.paraooo.domain.usecase.auth.LoginUseCase
 import com.paraooo.local.util.TokenManager
@@ -24,6 +25,7 @@ import kotlinx.coroutines.withContext
 class StartViewModel(
     private val loginUseCase: LoginUseCase,
     private val tokenManager: TokenManager,
+    private val syncPullScheduler: SyncPullScheduler,
     private val initialUiState : StartUiState = StartUiState(),
 ): ViewModel() {
     private val _uiState = MutableStateFlow(initialUiState)
@@ -69,6 +71,7 @@ class StartViewModel(
                                     loginErrorMessage = null
                                 )
                             }
+                            syncPullScheduler.runSyncPullWorker()
                             _effectChannel.send(StartUiEffect.onLoginSuccess)
                         }
                     }
