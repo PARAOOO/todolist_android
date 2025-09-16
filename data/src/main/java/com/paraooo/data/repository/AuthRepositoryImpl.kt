@@ -3,6 +3,8 @@ package com.paraooo.data.repository
 import com.auth0.jwt.JWT
 import com.paraooo.data.platform.logout.LogoutEffectProvider
 import com.paraooo.domain.repository.AuthRepository
+import com.paraooo.local.datasource.SyncTimestampLocalDataSource
+import com.paraooo.local.datasource.TodoTemplateLocalDataSource
 import com.paraooo.local.datasource.TokenLocalDataSource
 import com.paraooo.remote.datasource.AuthRemoteDataSource
 import com.paraooo.remote.dto.request.LoginRequestDto
@@ -10,9 +12,12 @@ import com.paraooo.remote.dto.request.SendVerificationCodeRequestDto
 import com.paraooo.remote.dto.request.SignUpRequestDto
 import com.paraooo.remote.dto.request.VerifyCodeRequestDto
 import kotlinx.coroutines.flow.firstOrNull
+import java.time.LocalDateTime
 
 
 class AuthRepositoryImpl(
+    private val todoTemplateLocalDataSource: TodoTemplateLocalDataSource,
+    private val timestampLocalDataSource: SyncTimestampLocalDataSource,
     private val authRemoteDataSource: AuthRemoteDataSource,
     private val tokenLocalDataSource: TokenLocalDataSource,
     private val logoutEffectProvider: LogoutEffectProvider,
@@ -62,6 +67,8 @@ class AuthRepositoryImpl(
 
     override suspend fun logout() {
         tokenLocalDataSource.clearTokens()
+        todoTemplateLocalDataSource.clearAllTables()
+        timestampLocalDataSource.saveLastSyncTimestamp(LocalDateTime.of(1970, 1, 1, 0, 0, 0))
 
         logoutEffectProvider.triggerLogout()
     }

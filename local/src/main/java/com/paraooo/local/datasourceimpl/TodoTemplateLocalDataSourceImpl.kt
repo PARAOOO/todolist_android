@@ -45,4 +45,8 @@ internal class TodoTemplateLocalDataSourceImpl(
         return todoTemplateDao.getAlarmTodos(todayMillis)
     }
 
+    override suspend fun clearAllTables() {
+        todoTemplateDao.clearTodoInstance()
+    }
+
 }

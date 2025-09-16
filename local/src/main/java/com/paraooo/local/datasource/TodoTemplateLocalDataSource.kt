@@ -25,4 +25,6 @@ interface TodoTemplateLocalDataSource {
 
     suspend fun getAlarmTodos(todayMillis: Long): List<TodoEntity>
 
+    suspend fun clearAllTables()
+
 }

@@ -52,7 +52,7 @@ private val repositoryModule = module {
     single<TodoPeriodRepository> { TodoPeriodRepositoryImpl(get(), get(), get(), get()) }
     single<TodoDayOfWeekRepository> { TodoDayOfWeekRepositoryImpl(get(), get(), get()) }
     single<TodoRepository> { TodoRepositoryImpl(get(), get(),get(),get(), get(), get(), get()) }
-    single<AuthRepository> { AuthRepositoryImpl(get(), get(), get()) }
+    single<AuthRepository> { AuthRepositoryImpl(get(), get(), get(), get(), get()) }
     single<SyncRepository> { SyncRepositoryImpl(get(), get(), get(), get(), get()) }
 }
 

@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import com.paraooo.local.entity.TodoEntity
 import com.paraooo.local.entity.TodoTemplate
@@ -12,6 +13,30 @@ import java.util.UUID
 
 @Dao
 internal interface TodoTemplateDao {
+
+    @Query("DELETE FROM todo_template")
+    suspend fun clearTodoTemplate()
+
+    @Query("DELETE FROM todo_instance")
+    suspend fun clearTodoInstance()
+
+    @Query("DELETE FROM todo_period")
+    suspend fun clearTodoPeriod()
+
+    @Query("DELETE FROM todo_day_of_week")
+    suspend fun clearTodoDayOfWeek()
+
+    @Query("DELETE FROM deleted_todo")
+    suspend fun clearDeletedTodo()
+
+    @Transaction
+    suspend fun clearAllTables() {
+        clearTodoTemplate()
+        clearTodoInstance()
+        clearTodoPeriod()
+        clearTodoDayOfWeek()
+        clearDeletedTodo()
+    }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTodoTemplate(todoTemplate: TodoTemplate)
