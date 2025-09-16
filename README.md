@@ -11,16 +11,20 @@ TODOLIST는 나만의 Todolist를 만드는 장기 프로젝트입니다.
 - Todo 성취도
 - 반복 Todo(기간, 요일)
 - Todo 알람(푸시, 팝업)
+- Todo 위젯
+- 회원가입, 로그인, Todo 계정 저장
 
 ## Tech Stack
 - Kotlin
 - Android, Compose
 - Coroutine, Flow
 - Koin
-- Room
+- Room, DataStore
+- Retrofit, OkHttp
+- JUnit, Mockk
+- GitHub Actions, Fastlane
 - MVI, Clean Architecture
 - Github Flow
 
 ## App Store
-- ONE store : https://m.onestore.co.kr/ko-kr/apps/appsDetail.omp?prodId=0000781233
 - Google Play : https://play.google.com/store/apps/details?id=com.paraooo.todolist
