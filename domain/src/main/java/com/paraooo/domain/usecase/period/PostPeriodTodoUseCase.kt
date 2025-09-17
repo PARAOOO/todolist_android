@@ -29,6 +29,7 @@ class PostPeriodTodoUseCase(
 
         try{
             val todoTemplate = TodoTemplateModel(
+                id = UUID.randomUUID(),
                 title = todo.title,
                 description = todo.description ?: "",
                 hour = todo.time?.hour,
@@ -45,7 +46,7 @@ class PostPeriodTodoUseCase(
             while (currentDate <= endDate) {
                 todos.add(
                     TodoInstanceModel(
-                        templateId = UUID.randomUUID(),
+                        templateId = todoTemplate.id,
                         date = transferLocalDateToMillis(currentDate)
                     )
                 )
@@ -53,7 +54,7 @@ class PostPeriodTodoUseCase(
             }
 
             val todoPeriod = TodoPeriodModel(
-                templateId = UUID.randomUUID(),
+                templateId = todoTemplate.id,
                 startDate = transferLocalDateToMillis(startDate),
                 endDate = transferLocalDateToMillis(endDate)
             )
