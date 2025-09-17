@@ -24,7 +24,6 @@ import kotlinx.coroutines.withContext
 
 class StartViewModel(
     private val loginUseCase: LoginUseCase,
-    private val tokenManager: TokenManager,
     private val syncPullScheduler: SyncPullScheduler,
     private val initialUiState : StartUiState = StartUiState(),
 ): ViewModel() {
