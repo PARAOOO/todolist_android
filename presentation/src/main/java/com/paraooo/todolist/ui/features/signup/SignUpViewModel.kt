@@ -26,11 +26,9 @@ import kotlinx.coroutines.withContext
 import java.security.CryptoPrimitive
 
 class SignUpViewModel(
-//    private val fakeSignUpRepository: FakeSignUpRepository,
     private val sendVerificationCodeUseCase: SendVerificationCodeUseCase,
     private val verifyCodeUseCase: VerifyCodeUseCase,
     private val signUpUseCase: SignUpUseCase,
-    private val tokenManager: TokenManager,
     private val initialUiState: SignUpUiState = SignUpUiState(),
 ) : ViewModel() {
 
